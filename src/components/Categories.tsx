@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import categoryWomen from "@/assets/category-women.jpg";
 import categoryMen from "@/assets/category-men.jpg";
 import categoryAccessories from "@/assets/category-accessories.jpg";
+import categoryFootwear from "@/assets/category-footwear.jpg";
+import categoryJewelry from "@/assets/category-jewelry.jpg";
 
 const categories = [
   {
@@ -25,6 +27,20 @@ const categories = [
     description: "Statement pieces that complete every look",
     image: categoryAccessories,
     count: 324,
+  },
+  {
+    id: 4,
+    name: "Footwear",
+    description: "Artisanal craftsmanship for every step",
+    image: categoryFootwear,
+    count: 156,
+  },
+  {
+    id: 5,
+    name: "Jewelry",
+    description: "Timeless treasures of exquisite beauty",
+    image: categoryJewelry,
+    count: 92,
   },
 ];
 
