@@ -1,0 +1,104 @@
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import categoryWomen from "@/assets/category-women.jpg";
+import categoryMen from "@/assets/category-men.jpg";
+import categoryAccessories from "@/assets/category-accessories.jpg";
+
+const categories = [
+  {
+    id: 1,
+    name: "Women",
+    description: "Elegant silhouettes for the modern woman",
+    image: categoryWomen,
+    count: 248,
+  },
+  {
+    id: 2,
+    name: "Men",
+    description: "Refined essentials for distinguished taste",
+    image: categoryMen,
+    count: 186,
+  },
+  {
+    id: 3,
+    name: "Accessories",
+    description: "Statement pieces that complete every look",
+    image: categoryAccessories,
+    count: 324,
+  },
+];
+
+const CategoryCard = ({ category, index }: { category: typeof categories[0]; index: number }) => {
+  return (
+    <motion.a
+      href="#"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.15 }}
+      className="group relative overflow-hidden"
+    >
+      <div className="aspect-[4/3] lg:aspect-[3/2]">
+        <img
+          src={category.image}
+          alt={`${category.name} collection`}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
+      </div>
+      
+      <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
+        <div className="flex items-end justify-between">
+          <div>
+            <h3 className="font-serif text-2xl lg:text-3xl text-cream mb-2">
+              {category.name}
+            </h3>
+            <p className="text-cream/70 text-sm hidden md:block max-w-xs">
+              {category.description}
+            </p>
+            <p className="text-cream/50 text-xs tracking-wider uppercase mt-2">
+              {category.count} Products
+            </p>
+          </div>
+          
+          <div className="w-10 h-10 rounded-full border border-cream/30 flex items-center justify-center group-hover:bg-cream group-hover:border-cream transition-all duration-300">
+            <ArrowRight className="w-4 h-4 text-cream group-hover:text-charcoal transition-colors duration-300" />
+          </div>
+        </div>
+      </div>
+    </motion.a>
+  );
+};
+
+const Categories = () => {
+  return (
+    <section className="py-20 lg:py-32 bg-secondary">
+      <div className="container mx-auto px-4 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
+            Shop by Category
+          </p>
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
+            Explore Collections
+          </h2>
+        </motion.div>
+
+        {/* Categories Grid */}
+        <div className="grid md:grid-cols-3 gap-4 lg:gap-6">
+          {categories.map((category, index) => (
+            <CategoryCard key={category.id} category={category} index={index} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Categories;
