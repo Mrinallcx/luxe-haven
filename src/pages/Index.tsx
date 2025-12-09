@@ -4,6 +4,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import Categories from "@/components/Categories";
 import Services from "@/components/Services";
 import Newsletter from "@/components/Newsletter";
+import PromotionalBoxes from "@/components/PromotionalBoxes";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -17,6 +18,7 @@ const Index = () => {
         <Categories />
         <Services />
         <Newsletter />
+        <PromotionalBoxes />
       </main>
       <Footer />
     </div>
