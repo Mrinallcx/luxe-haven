@@ -147,9 +147,6 @@ const FeaturedProducts = ({
           transition={{ duration: 0.6 }}
           className="text-left mb-12"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
-            {subtitle}
-          </p>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
             {title}
           </h2>
