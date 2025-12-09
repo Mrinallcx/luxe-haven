@@ -42,7 +42,6 @@ const CategoryFilters = ({ onFiltersChange }: CategoryFiltersProps) => {
 
   return (
     <div className="space-y-6">
-      <h3 className="font-playfair text-lg font-semibold text-foreground">Filters</h3>
 
       {/* Cut */}
       <div className="space-y-3">
