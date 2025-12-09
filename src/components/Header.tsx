@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import UniversalSearchBar from "@/components/UniversalSearchBar";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,10 +47,8 @@ const Header = () => {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden lg:flex">
-              <Search className="w-5 h-5" />
-            </Button>
+          <div className="flex items-center gap-2 lg:gap-4">
+            <UniversalSearchBar className="hidden lg:block w-64" />
             <Button variant="ghost" size="icon" className="hidden lg:flex">
               <User className="w-5 h-5" />
             </Button>
@@ -83,12 +82,9 @@ const Header = () => {
                   {link.label}
                 </a>
               ))}
-              <div className="flex items-center gap-4 pt-4 border-t border-border mt-2">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <Search className="w-4 h-4" />
-                  Search
-                </Button>
-                <Button variant="ghost" size="sm" className="gap-2">
+              <div className="pt-4 border-t border-border mt-2 space-y-3">
+                <UniversalSearchBar className="w-full" />
+                <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
                   <User className="w-4 h-4" />
                   Account
                 </Button>
