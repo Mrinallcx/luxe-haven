@@ -119,7 +119,7 @@ const Category = () => {
               {/* Filter Sidebar - Left Side */}
               {isFilterOpen && (
                 <div className="hidden lg:block w-72 flex-shrink-0">
-                  <div className="sticky top-24">
+                  <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
                     <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
                   </div>
                 </div>
