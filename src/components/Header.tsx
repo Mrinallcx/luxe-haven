@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,24 +36,24 @@ const Header = () => {
           </button>
 
           {/* Logo */}
-          <a href="/" className="font-serif text-xl lg:text-2xl tracking-wide">
+          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-wide">
             MAISON
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            <a
-              href="/"
+            <Link
+              to="/"
               className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               Home
-            </a>
-            <a
-              href="/blog"
+            </Link>
+            <Link
+              to="/blog"
               className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               Blog
-            </a>
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none">
                 Asset
@@ -61,12 +62,12 @@ const Header = () => {
               <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg">
                 {assetLinks.map((link) => (
                   <DropdownMenuItem key={link.label} asChild>
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="w-full px-4 py-2.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -99,32 +100,32 @@ const Header = () => {
             className="lg:hidden bg-background border-b border-border"
           >
             <nav className="container mx-auto px-4 py-6 flex flex-col gap-4">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
-              </a>
-              <a
-                href="/blog"
+              </Link>
+              <Link
+                to="/blog"
                 className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Blog
-              </a>
+              </Link>
               <div className="text-sm tracking-wider uppercase text-foreground font-medium pt-2">
                 Assets
               </div>
               {assetLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
               <div className="pt-4 border-t border-border mt-2 space-y-3">
                 <UniversalSearchBar className="w-full" />
