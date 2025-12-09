@@ -56,6 +56,15 @@ const Category = () => {
     }
   };
 
+  const activeFiltersCount = 
+    filters.cut.length +
+    filters.color.length +
+    filters.clarity.length +
+    filters.status.length +
+    filters.saleType.length +
+    (filters.carat[0] !== 0.10 || filters.carat[1] !== 20 ? 1 : 0) +
+    (filters.price[0] !== 0 || filters.price[1] !== 100000 ? 1 : 0);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -91,121 +100,131 @@ const Category = () => {
                 Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
               </p>
               <Button 
-                variant="outline" 
+                variant={filtersOpen ? "default" : "outline"}
                 className="gap-2 rounded-full"
-                onClick={() => setFiltersOpen(true)}
+                onClick={() => setFiltersOpen(!filtersOpen)}
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
+                {activeFiltersCount > 0 && (
+                  <span className="ml-1 bg-gold text-charcoal text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </Button>
             </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-12">
-              {paginatedProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.02 }}
-                  className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
-                >
-                  {/* Image Container */}
-                  <div className="relative aspect-square overflow-hidden bg-secondary">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {/* Wishlist Button */}
-                    <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background">
-                      <Heart className="w-5 h-5 text-foreground" />
-                    </button>
-                    {/* Quick Add Button */}
-                    <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Button className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2">
-                        <ShoppingBag className="w-4 h-4" />
-                        Add to Cart
+            {/* Content Area with Filters and Products */}
+            <div className="flex gap-8">
+              {/* Inline Filters */}
+              <CategoryFilters
+                open={filtersOpen}
+                onOpenChange={setFiltersOpen}
+                filters={filters}
+                onFiltersChange={setFilters}
+              />
+
+              {/* Products Grid */}
+              <div className="flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-12">
+                  {paginatedProducts.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.02 }}
+                      className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
+                    >
+                      {/* Image Container */}
+                      <div className="relative aspect-square overflow-hidden bg-secondary">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        {/* Wishlist Button */}
+                        <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background">
+                          <Heart className="w-5 h-5 text-foreground" />
+                        </button>
+                        {/* Quick Add Button */}
+                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <Button className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2">
+                            <ShoppingBag className="w-4 h-4" />
+                            Add to Cart
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Product Info */}
+                      <div className="p-5">
+                        <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                          {product.name}
+                        </h3>
+                        
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-lg font-semibold text-foreground">
+                            €{product.price.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {product.pricePerUnit}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-lg"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="icon"
+                        className="rounded-lg"
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
                       </Button>
-                    </div>
+                    ))}
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-lg"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
                   </div>
-                  
-                  {/* Product Info */}
-                  <div className="p-5">
-                    <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                    
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-lg font-semibold text-foreground">
-                        €{product.price.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {product.pricePerUnit}
-                      </span>
-                    </div>
+                )}
+
+                {/* No Products */}
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-muted-foreground text-lg">
+                      No products found in this category.
+                    </p>
                   </div>
-                </motion.div>
-              ))}
+                )}
+              </div>
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-lg"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="icon"
-                    className="rounded-lg"
-                    onClick={() => goToPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-lg"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-
-            {/* No Products */}
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground text-lg">
-                  No products found in this category.
-                </p>
-              </div>
-            )}
           </div>
         </section>
       </main>
       <Footer />
-
-      {/* Filters Sheet */}
-      <CategoryFilters
-        open={filtersOpen}
-        onOpenChange={setFiltersOpen}
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
     </div>
   );
 };
