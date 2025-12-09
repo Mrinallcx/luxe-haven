@@ -143,11 +143,13 @@ const Category = () => {
               </div>
 
               {/* Filter Sidebar - Right Side */}
-              <div className={`hidden lg:block w-72 flex-shrink-0 transition-all duration-300 ${isFilterOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
-                <div className="sticky top-24">
-                  <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+              {isFilterOpen && (
+                <div className="hidden lg:block w-72 flex-shrink-0">
+                  <div className="sticky top-24">
+                    <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Pagination */}
