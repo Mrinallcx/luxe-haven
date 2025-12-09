@@ -77,6 +77,9 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center gap-2 lg:gap-4">
             <UniversalSearchBar className="hidden lg:block w-64" />
+            <Button variant="outline" size="sm" className="hidden lg:flex rounded-full">
+              Sign In
+            </Button>
             <Button variant="ghost" size="icon" className="hidden lg:flex">
               <User className="w-5 h-5" />
             </Button>
