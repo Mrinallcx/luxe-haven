@@ -99,7 +99,7 @@ const Category = () => {
                     Filters
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto">
+                <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
                   </SheetHeader>
