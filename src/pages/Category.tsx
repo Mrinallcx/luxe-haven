@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart } from "lucide-react";
 import Header from "@/components/Header";
-import Categories from "@/components/Categories";
-import Services from "@/components/Services";
-import Newsletter from "@/components/Newsletter";
-import PromotionalBoxes from "@/components/PromotionalBoxes";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 
@@ -15,27 +11,56 @@ import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 
-// Mock products data - in a real app this would come from an API
+// Products data for each category
 const allProducts = [
-  { id: 1, name: "Classic Timepiece", price: 2450, image: product1, category: "watches" },
-  { id: 2, name: "Elegant Chronograph", price: 3200, image: product2, category: "watches" },
-  { id: 3, name: "Minimalist Watch", price: 1850, image: product3, category: "watches" },
-  { id: 4, name: "Luxury Automatic", price: 4500, image: product4, category: "watches" },
-  { id: 5, name: "Sport Diver Watch", price: 2800, image: product1, category: "watches" },
-  { id: 6, name: "Vintage Collection", price: 3600, image: product2, category: "watches" },
-  { id: 7, name: "Diamond Bezel", price: 5200, image: product3, category: "watches" },
-  { id: 8, name: "Rose Gold Edition", price: 4100, image: product4, category: "watches" },
-  { id: 9, name: "Titanium Pro", price: 2950, image: product1, category: "watches" },
-  { id: 10, name: "Platinum Series", price: 6800, image: product2, category: "watches" },
-  { id: 11, name: "Carbon Fiber", price: 3400, image: product3, category: "watches" },
-  { id: 12, name: "Sapphire Crystal", price: 2750, image: product4, category: "watches" },
-  { id: 13, name: "Silk Evening Dress", price: 1200, image: product1, category: "women" },
-  { id: 14, name: "Cashmere Blazer", price: 890, image: product2, category: "women" },
-  { id: 15, name: "Tailored Suit", price: 1450, image: product3, category: "men" },
-  { id: 16, name: "Leather Loafers", price: 650, image: product4, category: "footwear" },
-  { id: 17, name: "Gold Necklace", price: 2200, image: product1, category: "jewelry" },
-  { id: 18, name: "Leather Belt", price: 320, image: product2, category: "accessories" },
+  // Diamonds
+  { id: 1, name: "Round Brilliant Diamond", price: 12500, pricePerUnit: "per carat", image: product1, category: "diamonds", purity: "VVS1", weight: "1.5 ct" },
+  { id: 2, name: "Princess Cut Diamond", price: 9800, pricePerUnit: "per carat", image: product2, category: "diamonds", purity: "VS1", weight: "1.2 ct" },
+  { id: 3, name: "Emerald Cut Diamond", price: 15200, pricePerUnit: "per carat", image: product3, category: "diamonds", purity: "IF", weight: "2.0 ct" },
+  { id: 4, name: "Oval Diamond", price: 8900, pricePerUnit: "per carat", image: product4, category: "diamonds", purity: "VS2", weight: "1.0 ct" },
+  { id: 5, name: "Cushion Cut Diamond", price: 11200, pricePerUnit: "per carat", image: product1, category: "diamonds", purity: "VVS2", weight: "1.8 ct" },
+  { id: 6, name: "Marquise Diamond", price: 7500, pricePerUnit: "per carat", image: product2, category: "diamonds", purity: "SI1", weight: "0.9 ct" },
+  
+  // Gold
+  { id: 7, name: "24K Gold Bar", price: 5890, pricePerUnit: "per 100g", image: product3, category: "gold", purity: "999.9", weight: "100g" },
+  { id: 8, name: "22K Gold Coin", price: 2450, pricePerUnit: "per 50g", image: product4, category: "gold", purity: "916", weight: "50g" },
+  { id: 9, name: "18K Gold Ingot", price: 3200, pricePerUnit: "per 100g", image: product1, category: "gold", purity: "750", weight: "100g" },
+  { id: 10, name: "24K Gold Biscuit", price: 11780, pricePerUnit: "per 200g", image: product2, category: "gold", purity: "999.9", weight: "200g" },
+  { id: 11, name: "Gold Krugerrand", price: 1950, pricePerUnit: "per oz", image: product3, category: "gold", purity: "916", weight: "1 oz" },
+  { id: 12, name: "Swiss Gold Bar", price: 29450, pricePerUnit: "per 500g", image: product4, category: "gold", purity: "999.9", weight: "500g" },
+  
+  // Silver
+  { id: 13, name: "999 Silver Bar", price: 890, pricePerUnit: "per 1kg", image: product1, category: "silver", purity: "999", weight: "1kg" },
+  { id: 14, name: "Sterling Silver Coin", price: 45, pricePerUnit: "per oz", image: product2, category: "silver", purity: "925", weight: "1 oz" },
+  { id: 15, name: "Silver Bullion", price: 2650, pricePerUnit: "per 5kg", image: product3, category: "silver", purity: "999", weight: "5kg" },
+  { id: 16, name: "American Silver Eagle", price: 52, pricePerUnit: "per oz", image: product4, category: "silver", purity: "999", weight: "1 oz" },
+  { id: 17, name: "Silver Maple Leaf", price: 48, pricePerUnit: "per oz", image: product1, category: "silver", purity: "9999", weight: "1 oz" },
+  { id: 18, name: "Silver Ingot", price: 445, pricePerUnit: "per 500g", image: product2, category: "silver", purity: "999", weight: "500g" },
+  
+  // Platinum
+  { id: 19, name: "Platinum Bar", price: 4200, pricePerUnit: "per 100g", image: product3, category: "platinum", purity: "999.5", weight: "100g" },
+  { id: 20, name: "Platinum Coin", price: 1850, pricePerUnit: "per oz", image: product4, category: "platinum", purity: "999.5", weight: "1 oz" },
+  { id: 21, name: "Platinum Ingot", price: 8400, pricePerUnit: "per 200g", image: product1, category: "platinum", purity: "999.5", weight: "200g" },
+  { id: 22, name: "Platinum Bullion", price: 21000, pricePerUnit: "per 500g", image: product2, category: "platinum", purity: "999.5", weight: "500g" },
+  { id: 23, name: "Platinum Eagle", price: 1920, pricePerUnit: "per oz", image: product3, category: "platinum", purity: "9995", weight: "1 oz" },
+  { id: 24, name: "Swiss Platinum Bar", price: 42000, pricePerUnit: "per 1kg", image: product4, category: "platinum", purity: "999.5", weight: "1kg" },
+  
+  // Sapphire
+  { id: 25, name: "Blue Sapphire", price: 8500, pricePerUnit: "per carat", image: product1, category: "sapphire", purity: "AAA", weight: "2.5 ct" },
+  { id: 26, name: "Ceylon Sapphire", price: 12000, pricePerUnit: "per carat", image: product2, category: "sapphire", purity: "AAA+", weight: "3.0 ct" },
+  { id: 27, name: "Pink Sapphire", price: 6800, pricePerUnit: "per carat", image: product3, category: "sapphire", purity: "AA", weight: "1.8 ct" },
+  { id: 28, name: "Yellow Sapphire", price: 4500, pricePerUnit: "per carat", image: product4, category: "sapphire", purity: "AAA", weight: "2.2 ct" },
+  { id: 29, name: "Star Sapphire", price: 15000, pricePerUnit: "per carat", image: product1, category: "sapphire", purity: "AAA+", weight: "4.0 ct" },
+  { id: 30, name: "Padparadscha Sapphire", price: 25000, pricePerUnit: "per carat", image: product2, category: "sapphire", purity: "Exceptional", weight: "2.0 ct" },
 ];
+
+const categoryDescriptions: Record<string, string> = {
+  diamonds: "Discover our collection of certified, ethically sourced diamonds with exceptional clarity and brilliance.",
+  gold: "Invest in pure gold bars, coins, and bullion. All products are certified and hallmarked.",
+  silver: "Premium silver investments including bars, coins, and bullion at competitive prices.",
+  platinum: "Rare platinum products for discerning investors seeking portfolio diversification.",
+  sapphire: "Exquisite natural sapphires sourced from the finest mines worldwide.",
+};
 
 const ITEMS_PER_PAGE = 8;
 
@@ -46,6 +71,10 @@ const Category = () => {
   const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
     : "All Products";
+
+  const categoryDescription = categoryName 
+    ? categoryDescriptions[categoryName.toLowerCase()] || `Explore our premium ${categoryTitle.toLowerCase()} collection.`
+    : "Browse all our premium assets and investments.";
 
   // Filter products by category
   const filteredProducts = categoryName
@@ -72,9 +101,9 @@ const Category = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main>
+      <main className="pt-16 lg:pt-20">
         {/* Hero Banner */}
-        <section className="relative h-[300px] md:h-[400px] bg-charcoal overflow-hidden">
+        <section className="relative h-[280px] md:h-[360px] bg-charcoal overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/70" />
           <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex flex-col justify-center">
             <motion.div
@@ -83,55 +112,87 @@ const Category = () => {
               transition={{ duration: 0.6 }}
             >
               <p className="text-gold text-sm tracking-widest uppercase mb-4">
-                Collection
+                Premium Collection
               </p>
               <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl text-cream mb-4">
                 {categoryTitle}
               </h1>
-              <p className="text-cream/70 max-w-md">
-                Discover our curated selection of premium {categoryTitle.toLowerCase()} crafted with exceptional quality.
+              <p className="text-cream/70 max-w-lg text-sm md:text-base">
+                {categoryDescription}
               </p>
             </motion.div>
           </div>
         </section>
 
         {/* Products Section */}
-        <section className="py-16 lg:py-24">
+        <section className="py-12 lg:py-20">
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
-            <div className="flex items-center justify-between mb-12">
-              <p className="text-muted-foreground">
+            <div className="flex items-center justify-between mb-10">
+              <p className="text-muted-foreground text-sm">
                 Showing {paginatedProducts.length} of {filteredProducts.length} products
               </p>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2 rounded-lg">
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
               </Button>
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-12">
               {paginatedProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="group cursor-pointer"
+                  className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="aspect-[3/4] mb-4 overflow-hidden bg-secondary">
+                  {/* Image Container */}
+                  <div className="relative aspect-square overflow-hidden bg-secondary">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    {/* Wishlist Button */}
+                    <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background">
+                      <Heart className="w-5 h-5 text-foreground" />
+                    </button>
+                    {/* Quick Add Button */}
+                    <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2">
+                        <ShoppingBag className="w-4 h-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
                   </div>
-                  <h3 className="font-medium text-foreground mb-1 group-hover:text-gold transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    €{product.price.toLocaleString()}
-                  </p>
+                  
+                  {/* Product Info */}
+                  <div className="p-5">
+                    {/* Badges */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs font-medium bg-gold/10 text-gold px-2.5 py-1 rounded-full">
+                        {product.purity}
+                      </span>
+                      <span className="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
+                        {product.weight}
+                      </span>
+                    </div>
+                    
+                    <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                      {product.name}
+                    </h3>
+                    
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-semibold text-foreground">
+                        €{product.price.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {product.pricePerUnit}
+                      </span>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -142,6 +203,7 @@ const Category = () => {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="rounded-lg"
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                 >
@@ -153,6 +215,7 @@ const Category = () => {
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
                     size="icon"
+                    className="rounded-lg"
                     onClick={() => goToPage(page)}
                   >
                     {page}
@@ -162,6 +225,7 @@ const Category = () => {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="rounded-lg"
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                 >
@@ -180,12 +244,6 @@ const Category = () => {
             )}
           </div>
         </section>
-
-        {/* Bottom Sections */}
-        <Categories />
-        <Services />
-        <Newsletter />
-        <PromotionalBoxes />
       </main>
       <Footer />
     </div>
