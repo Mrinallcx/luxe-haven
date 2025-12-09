@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CategoryFilters from "@/components/CategoryFilters";
 import { Button } from "@/components/ui/button";
 import { allProducts, categoryDescriptions } from "@/data/products";
 
@@ -72,19 +73,18 @@ const Category = () => {
         {/* Products Section */}
         <section className="py-12 lg:py-20">
           <div className="container mx-auto px-4 lg:px-8">
-            {/* Filter Bar */}
-            <div className="flex items-center justify-between mb-10">
-              <p className="text-muted-foreground text-sm">
-                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
-              </p>
-              <Button variant="outline" className="gap-2 rounded-lg">
-                <SlidersHorizontal className="w-4 h-4" />
-                Filters
-              </Button>
-            </div>
+            <div className="flex gap-8">
+              {/* Products Column */}
+              <div className="flex-1">
+                {/* Filter Bar */}
+                <div className="flex items-center justify-between mb-10">
+                  <p className="text-muted-foreground text-sm">
+                    Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
+                  </p>
+                </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-12">
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
               {paginatedProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
@@ -130,53 +130,62 @@ const Category = () => {
                   </div>
                 </motion.div>
               ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-lg"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="icon"
+                        className="rounded-lg"
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-lg"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* No Products */}
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-muted-foreground text-lg">
+                      No products found in this category.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Filters Sidebar - Right Side */}
+              <div className="hidden lg:block w-80 flex-shrink-0">
+                <div className="sticky top-24">
+                  <CategoryFilters />
+                </div>
+              </div>
             </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-lg"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="icon"
-                    className="rounded-lg"
-                    onClick={() => goToPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-lg"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-
-            {/* No Products */}
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground text-lg">
-                  No products found in this category.
-                </p>
-              </div>
-            )}
           </div>
         </section>
       </main>
