@@ -12,6 +12,7 @@ const Index = () => {
       <main>
         <Hero />
         <FeaturedProducts />
+        <FeaturedProducts title="New Arrivals" subtitle="Just In" />
         <Categories />
         <Newsletter />
       </main>
