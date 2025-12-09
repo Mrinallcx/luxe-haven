@@ -5,64 +5,9 @@ import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart } from
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { allProducts, categoryDescriptions } from "@/data/products";
 
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-
-// Products data for each category
-const allProducts = [
-  // Diamonds
-  { id: 1, name: "Round Brilliant Diamond", price: 12500, pricePerUnit: "per carat", image: product1, category: "diamonds", purity: "VVS1", weight: "1.5 ct" },
-  { id: 2, name: "Princess Cut Diamond", price: 9800, pricePerUnit: "per carat", image: product2, category: "diamonds", purity: "VS1", weight: "1.2 ct" },
-  { id: 3, name: "Emerald Cut Diamond", price: 15200, pricePerUnit: "per carat", image: product3, category: "diamonds", purity: "IF", weight: "2.0 ct" },
-  { id: 4, name: "Oval Diamond", price: 8900, pricePerUnit: "per carat", image: product4, category: "diamonds", purity: "VS2", weight: "1.0 ct" },
-  { id: 5, name: "Cushion Cut Diamond", price: 11200, pricePerUnit: "per carat", image: product1, category: "diamonds", purity: "VVS2", weight: "1.8 ct" },
-  { id: 6, name: "Marquise Diamond", price: 7500, pricePerUnit: "per carat", image: product2, category: "diamonds", purity: "SI1", weight: "0.9 ct" },
-  
-  // Gold
-  { id: 7, name: "24K Gold Bar", price: 5890, pricePerUnit: "per 100g", image: product3, category: "gold", purity: "999.9", weight: "100g" },
-  { id: 8, name: "22K Gold Coin", price: 2450, pricePerUnit: "per 50g", image: product4, category: "gold", purity: "916", weight: "50g" },
-  { id: 9, name: "18K Gold Ingot", price: 3200, pricePerUnit: "per 100g", image: product1, category: "gold", purity: "750", weight: "100g" },
-  { id: 10, name: "24K Gold Biscuit", price: 11780, pricePerUnit: "per 200g", image: product2, category: "gold", purity: "999.9", weight: "200g" },
-  { id: 11, name: "Gold Krugerrand", price: 1950, pricePerUnit: "per oz", image: product3, category: "gold", purity: "916", weight: "1 oz" },
-  { id: 12, name: "Swiss Gold Bar", price: 29450, pricePerUnit: "per 500g", image: product4, category: "gold", purity: "999.9", weight: "500g" },
-  
-  // Silver
-  { id: 13, name: "999 Silver Bar", price: 890, pricePerUnit: "per 1kg", image: product1, category: "silver", purity: "999", weight: "1kg" },
-  { id: 14, name: "Sterling Silver Coin", price: 45, pricePerUnit: "per oz", image: product2, category: "silver", purity: "925", weight: "1 oz" },
-  { id: 15, name: "Silver Bullion", price: 2650, pricePerUnit: "per 5kg", image: product3, category: "silver", purity: "999", weight: "5kg" },
-  { id: 16, name: "American Silver Eagle", price: 52, pricePerUnit: "per oz", image: product4, category: "silver", purity: "999", weight: "1 oz" },
-  { id: 17, name: "Silver Maple Leaf", price: 48, pricePerUnit: "per oz", image: product1, category: "silver", purity: "9999", weight: "1 oz" },
-  { id: 18, name: "Silver Ingot", price: 445, pricePerUnit: "per 500g", image: product2, category: "silver", purity: "999", weight: "500g" },
-  
-  // Platinum
-  { id: 19, name: "Platinum Bar", price: 4200, pricePerUnit: "per 100g", image: product3, category: "platinum", purity: "999.5", weight: "100g" },
-  { id: 20, name: "Platinum Coin", price: 1850, pricePerUnit: "per oz", image: product4, category: "platinum", purity: "999.5", weight: "1 oz" },
-  { id: 21, name: "Platinum Ingot", price: 8400, pricePerUnit: "per 200g", image: product1, category: "platinum", purity: "999.5", weight: "200g" },
-  { id: 22, name: "Platinum Bullion", price: 21000, pricePerUnit: "per 500g", image: product2, category: "platinum", purity: "999.5", weight: "500g" },
-  { id: 23, name: "Platinum Eagle", price: 1920, pricePerUnit: "per oz", image: product3, category: "platinum", purity: "9995", weight: "1 oz" },
-  { id: 24, name: "Swiss Platinum Bar", price: 42000, pricePerUnit: "per 1kg", image: product4, category: "platinum", purity: "999.5", weight: "1kg" },
-  
-  // Sapphire
-  { id: 25, name: "Blue Sapphire", price: 8500, pricePerUnit: "per carat", image: product1, category: "sapphire", purity: "AAA", weight: "2.5 ct" },
-  { id: 26, name: "Ceylon Sapphire", price: 12000, pricePerUnit: "per carat", image: product2, category: "sapphire", purity: "AAA+", weight: "3.0 ct" },
-  { id: 27, name: "Pink Sapphire", price: 6800, pricePerUnit: "per carat", image: product3, category: "sapphire", purity: "AA", weight: "1.8 ct" },
-  { id: 28, name: "Yellow Sapphire", price: 4500, pricePerUnit: "per carat", image: product4, category: "sapphire", purity: "AAA", weight: "2.2 ct" },
-  { id: 29, name: "Star Sapphire", price: 15000, pricePerUnit: "per carat", image: product1, category: "sapphire", purity: "AAA+", weight: "4.0 ct" },
-  { id: 30, name: "Padparadscha Sapphire", price: 25000, pricePerUnit: "per carat", image: product2, category: "sapphire", purity: "Exceptional", weight: "2.0 ct" },
-];
-
-const categoryDescriptions: Record<string, string> = {
-  diamonds: "Discover our collection of certified, ethically sourced diamonds with exceptional clarity and brilliance.",
-  gold: "Invest in pure gold bars, coins, and bullion. All products are certified and hallmarked.",
-  silver: "Premium silver investments including bars, coins, and bullion at competitive prices.",
-  platinum: "Rare platinum products for discerning investors seeking portfolio diversification.",
-  sapphire: "Exquisite natural sapphires sourced from the finest mines worldwide.",
-};
-
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 20;
 
 const Category = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
@@ -130,7 +75,7 @@ const Category = () => {
             {/* Filter Bar */}
             <div className="flex items-center justify-between mb-10">
               <p className="text-muted-foreground text-sm">
-                Showing {paginatedProducts.length} of {filteredProducts.length} products
+                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
               </p>
               <Button variant="outline" className="gap-2 rounded-lg">
                 <SlidersHorizontal className="w-4 h-4" />
@@ -145,7 +90,7 @@ const Category = () => {
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{ duration: 0.4, delay: index * 0.02 }}
                   className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
                 >
                   {/* Image Container */}
