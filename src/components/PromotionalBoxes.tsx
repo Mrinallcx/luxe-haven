@@ -4,14 +4,14 @@ const PromotionalBoxes = () => {
   return (
     <section className="py-16 px-4 md:px-8 lg:px-16 bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {/* Left Box - Gold Background */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="relative bg-gold rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-end overflow-hidden"
+            className="md:col-span-2 relative bg-gold rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col justify-end overflow-hidden"
           >
             {/* Decorative Star */}
             <div className="absolute top-8 left-8">
@@ -48,7 +48,7 @@ const PromotionalBoxes = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="relative bg-cream rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col overflow-hidden"
+            className="md:col-span-3 relative bg-cream rounded-3xl p-8 md:p-12 min-h-[400px] flex flex-col overflow-hidden"
           >
             {/* Decorative Diamond Stars */}
             <div className="absolute top-8 right-8">
