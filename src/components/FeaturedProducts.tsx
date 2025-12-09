@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -10,67 +10,83 @@ import product4 from "@/assets/product-4.jpg";
 const products = [
   {
     id: 1,
-    name: "Brilliant Solitaire Ring",
-    brand: "Maison Diamonds",
-    price: 12450,
+    name: "Round Brilliant Diamond",
+    price: 12500,
+    pricePerUnit: "per carat",
     image: product1,
     category: "Diamonds",
+    purity: "VVS1",
+    weight: "1.5 ct",
   },
   {
     id: 2,
-    name: "24K Gold Bar Pendant",
-    brand: "Atelier Gold",
-    price: 3890,
+    name: "24K Gold Bar",
+    price: 5890,
+    pricePerUnit: "per 100g",
     image: product2,
     category: "Gold",
+    purity: "999.9",
+    weight: "100g",
   },
   {
     id: 3,
-    name: "Sterling Silver Cuff",
-    brand: "Maison Silver",
-    price: 1890,
+    name: "999 Silver Bar",
+    price: 890,
+    pricePerUnit: "per 1kg",
     image: product3,
     category: "Silver",
+    purity: "999",
+    weight: "1kg",
   },
   {
     id: 4,
-    name: "Platinum Eternity Band",
-    brand: "Orné Platinum",
-    price: 8250,
+    name: "Platinum Bar",
+    price: 4200,
+    pricePerUnit: "per 100g",
     image: product4,
     category: "Platinum",
+    purity: "999.5",
+    weight: "100g",
   },
   {
     id: 5,
-    name: "Blue Sapphire Earrings",
-    brand: "Maison Gems",
-    price: 6200,
+    name: "Ceylon Sapphire",
+    price: 12000,
+    pricePerUnit: "per carat",
     image: product1,
     category: "Sapphire",
+    purity: "AAA+",
+    weight: "3.0 ct",
   },
   {
     id: 6,
-    name: "Diamond Tennis Bracelet",
-    brand: "Maison Diamonds",
-    price: 15450,
+    name: "Princess Cut Diamond",
+    price: 9800,
+    pricePerUnit: "per carat",
     image: product3,
     category: "Diamonds",
+    purity: "VS1",
+    weight: "1.2 ct",
   },
   {
     id: 7,
-    name: "Gold Chain Necklace",
-    brand: "Atelier Gold",
-    price: 4890,
+    name: "Gold Krugerrand",
+    price: 1950,
+    pricePerUnit: "per oz",
     image: product4,
     category: "Gold",
+    purity: "916",
+    weight: "1 oz",
   },
   {
     id: 8,
-    name: "Sapphire Halo Ring",
-    brand: "Maison Gems",
-    price: 7450,
+    name: "Star Sapphire",
+    price: 15000,
+    pricePerUnit: "per carat",
     image: product2,
     category: "Sapphire",
+    purity: "AAA+",
+    weight: "4.0 ct",
   },
 ];
 
@@ -84,38 +100,52 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="group"
+      className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-secondary mb-4">
+      {/* Image Container */}
+      <div className="relative aspect-square overflow-hidden bg-secondary">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        
-        {/* Quick Actions */}
-        <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/20 transition-colors duration-300" />
-        
-        <button
-          className="absolute top-4 right-4 p-2 bg-background/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background"
-          aria-label="Add to wishlist"
-        >
-          <Heart className="w-4 h-4" />
+        {/* Wishlist Button */}
+        <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background">
+          <Heart className="w-5 h-5 text-foreground" />
         </button>
-        
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <Button variant="premium-light" className="w-full">
-            Add to Bag
+        {/* Quick Add Button */}
+        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Button className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2">
+            <ShoppingBag className="w-4 h-4" />
+            Add to Cart
           </Button>
         </div>
       </div>
       
-      <div className="space-y-1">
-        <p className="text-xs tracking-wider text-muted-foreground uppercase">
-          {product.brand}
-        </p>
-        <h3 className="font-serif text-lg">{product.name}</h3>
-        <p className="text-sm font-medium">${product.price.toLocaleString()}</p>
+      {/* Product Info */}
+      <div className="p-5">
+        {/* Badges */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-medium bg-gold/10 text-gold px-2.5 py-1 rounded-full">
+            {product.purity}
+          </span>
+          <span className="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
+            {product.weight}
+          </span>
+        </div>
+        
+        <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+          {product.name}
+        </h3>
+        
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-semibold text-foreground">
+            €{product.price.toLocaleString()}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {product.pricePerUnit}
+          </span>
+        </div>
       </div>
     </motion.article>
   );
@@ -164,7 +194,7 @@ const FeaturedProducts = ({
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 text-sm tracking-wider transition-all duration-300 ${
+              className={`px-4 py-2 text-sm tracking-wider rounded-lg transition-all duration-300 ${
                 activeCategory === category
                   ? "bg-charcoal text-cream"
                   : "bg-transparent text-muted-foreground hover:text-foreground border border-border hover:border-charcoal"
@@ -176,7 +206,7 @@ const FeaturedProducts = ({
         </motion.div>
 
         {/* Products Grid */}
-        <motion.div layout className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
@@ -192,7 +222,7 @@ const FeaturedProducts = ({
           transition={{ duration: 0.6 }}
           className="text-center mt-16"
         >
-          <Button variant="premium-outline" size="lg">
+          <Button variant="premium-outline" size="lg" className="rounded-lg">
             View All Products
           </Button>
         </motion.div>
