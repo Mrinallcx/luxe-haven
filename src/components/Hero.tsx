@@ -75,8 +75,9 @@ const Hero = () => {
       </AnimatePresence>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+      <div className="relative w-full">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
@@ -134,6 +135,7 @@ const Hero = () => {
           {/* Gold/Silver Trading Widget */}
           <div className="hidden lg:block">
             <GoldSilverWidget />
+            </div>
           </div>
         </div>
       </div>
