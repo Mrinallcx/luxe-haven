@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ShoppingBag, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, ShoppingBag, Heart, SlidersHorizontal, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
@@ -13,6 +13,7 @@ const ITEMS_PER_PAGE = 20;
 const Category = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
   const [currentPage, setCurrentPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
@@ -76,11 +77,19 @@ const Category = () => {
             <div className="flex gap-8">
               {/* Products Grid - Left Side */}
               <div className="flex-1">
-                {/* Results Count */}
-                <div className="mb-8">
+                {/* Results Count & Filter Toggle */}
+                <div className="flex items-center justify-between mb-8">
                   <p className="text-muted-foreground text-sm">
                     Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
                   </p>
+                  <Button
+                    variant="outline"
+                    className="gap-2 rounded-full"
+                    onClick={() => setFiltersOpen(!filtersOpen)}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    {filtersOpen ? "Hide Filters" : "Show Filters"}
+                  </Button>
                 </div>
 
                 {/* Products Grid */}
@@ -180,11 +189,30 @@ const Category = () => {
               </div>
 
               {/* Filters Sidebar - Right Side */}
-              <aside className="hidden lg:block w-64 flex-shrink-0">
-                <div className="sticky top-28 bg-card border border-border/50 rounded-2xl p-6">
-                  <CategoryFilters />
-                </div>
-              </aside>
+              <AnimatePresence>
+                {filtersOpen && (
+                  <motion.aside
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 256, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="flex-shrink-0 overflow-hidden"
+                  >
+                    <div className="sticky top-28 w-64 bg-card border border-border/50 rounded-2xl p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-playfair text-lg font-semibold text-foreground">Filters</h3>
+                        <button
+                          onClick={() => setFiltersOpen(false)}
+                          className="p-1 hover:bg-muted rounded-full transition-colors"
+                        >
+                          <X className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                      <CategoryFilters />
+                    </div>
+                  </motion.aside>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </section>
