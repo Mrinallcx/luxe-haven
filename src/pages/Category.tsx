@@ -76,9 +76,6 @@ const Category = () => {
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
             <div className="flex items-center justify-between mb-10">
-              <p className="text-muted-foreground text-sm">
-                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
-              </p>
               <Button 
                 variant="outline" 
                 className="gap-2 rounded-full"
@@ -87,12 +84,24 @@ const Category = () => {
                 <SlidersHorizontal className="w-4 h-4" />
                 {isFilterOpen ? "Hide Filters" : "Show Filters"}
               </Button>
+              <p className="text-muted-foreground text-sm">
+                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
+              </p>
             </div>
 
-            {/* Main Content with Products and Filters */}
+            {/* Main Content with Filters and Products */}
             <div className="flex gap-8">
+              {/* Filter Sidebar - Left Side */}
+              {isFilterOpen && (
+                <div className="hidden lg:block w-72 flex-shrink-0">
+                  <div className="sticky top-24">
+                    <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+                  </div>
+                </div>
+              )}
+
               {/* Products Grid */}
-              <div className={`flex-1 transition-all duration-300 ${isFilterOpen ? 'lg:pr-0' : ''}`}>
+              <div className="flex-1">
                 <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 mb-12 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
                   {paginatedProducts.map((product, index) => (
                     <motion.div
@@ -141,15 +150,6 @@ const Category = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Filter Sidebar - Right Side */}
-              {isFilterOpen && (
-                <div className="hidden lg:block w-72 flex-shrink-0">
-                  <div className="sticky top-24">
-                    <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Pagination */}
