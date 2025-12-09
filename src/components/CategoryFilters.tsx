@@ -1,15 +1,17 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { X } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface FilterState {
   cut: string[];
@@ -22,6 +24,8 @@ export interface FilterState {
 }
 
 interface CategoryFiltersProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
 }
@@ -37,62 +41,48 @@ const CARAT_MAX = 20;
 const PRICE_MIN = 0;
 const PRICE_MAX = 100000;
 
-interface FilterSectionProps {
-  title: string;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}
+const CategoryFilters = ({
+  open,
+  onOpenChange,
+  filters,
+  onFiltersChange,
+}: CategoryFiltersProps) => {
+  const [localFilters, setLocalFilters] = useState<FilterState>(filters);
 
-const FilterSection = ({ title, defaultOpen = true, children }: FilterSectionProps) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-left">
-        <h3 className="font-medium text-foreground text-sm">{title}</h3>
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        )}
-      </CollapsibleTrigger>
-      <CollapsibleContent className="pb-4">
-        {children}
-      </CollapsibleContent>
-    </Collapsible>
-  );
-};
-
-const CategoryFilters = ({ filters, onFiltersChange }: CategoryFiltersProps) => {
   const handleCheckboxChange = (
     category: keyof Pick<FilterState, "cut" | "color" | "clarity" | "status" | "saleType">,
     value: string,
     checked: boolean
   ) => {
-    onFiltersChange({
-      ...filters,
+    setLocalFilters((prev) => ({
+      ...prev,
       [category]: checked
-        ? [...filters[category], value]
-        : filters[category].filter((v) => v !== value),
-    });
+        ? [...prev[category], value]
+        : prev[category].filter((v) => v !== value),
+    }));
   };
 
   const handleCaratChange = (value: number[]) => {
-    onFiltersChange({
-      ...filters,
+    setLocalFilters((prev) => ({
+      ...prev,
       carat: [value[0], value[1]] as [number, number],
-    });
+    }));
   };
 
   const handlePriceChange = (value: number[]) => {
-    onFiltersChange({
-      ...filters,
+    setLocalFilters((prev) => ({
+      ...prev,
       price: [value[0], value[1]] as [number, number],
-    });
+    }));
+  };
+
+  const handleApply = () => {
+    onFiltersChange(localFilters);
+    onOpenChange(false);
   };
 
   const handleReset = () => {
-    onFiltersChange({
+    const resetFilters: FilterState = {
       cut: [],
       color: [],
       clarity: [],
@@ -100,206 +90,230 @@ const CategoryFilters = ({ filters, onFiltersChange }: CategoryFiltersProps) => 
       price: [PRICE_MIN, PRICE_MAX],
       status: [],
       saleType: [],
-    });
+    };
+    setLocalFilters(resetFilters);
+    onFiltersChange(resetFilters);
   };
 
-  const activeFiltersCount =
-    filters.cut.length +
-    filters.color.length +
-    filters.clarity.length +
-    filters.status.length +
-    filters.saleType.length +
-    (filters.carat[0] !== CARAT_MIN || filters.carat[1] !== CARAT_MAX ? 1 : 0) +
-    (filters.price[0] !== PRICE_MIN || filters.price[1] !== PRICE_MAX ? 1 : 0);
+  const activeFiltersCount = 
+    localFilters.cut.length +
+    localFilters.color.length +
+    localFilters.clarity.length +
+    localFilters.status.length +
+    localFilters.saleType.length +
+    (localFilters.carat[0] !== CARAT_MIN || localFilters.carat[1] !== CARAT_MAX ? 1 : 0) +
+    (localFilters.price[0] !== PRICE_MIN || localFilters.price[1] !== PRICE_MAX ? 1 : 0);
 
   return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-playfair text-lg text-foreground">Filters</h2>
-        {activeFiltersCount > 0 && (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md p-0">
+        <SheetHeader className="p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
+            {activeFiltersCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReset}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Clear all
+              </Button>
+            )}
+          </div>
+        </SheetHeader>
+
+        <ScrollArea className="h-[calc(100vh-180px)]">
+          <div className="px-6 space-y-6">
+            {/* Cut Filter */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Cut</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {CUT_OPTIONS.map((cut) => (
+                  <div key={cut} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`cut-${cut}`}
+                      checked={localFilters.cut.includes(cut)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange("cut", cut, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`cut-${cut}`}
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {cut}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Color Filter */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Color</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {COLOR_OPTIONS.map((color) => (
+                  <div key={color} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`color-${color}`}
+                      checked={localFilters.color.includes(color)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange("color", color, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`color-${color}`}
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {color}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Clarity Filter */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Clarity</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {CLARITY_OPTIONS.map((clarity) => (
+                  <div key={clarity} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`clarity-${clarity}`}
+                      checked={localFilters.clarity.includes(clarity)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange("clarity", clarity, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`clarity-${clarity}`}
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {clarity}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Carat Range Filter */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-foreground">Carat</h3>
+                <span className="text-sm text-muted-foreground">
+                  {localFilters.carat[0].toFixed(2)} ct - {localFilters.carat[1].toFixed(2)} ct
+                </span>
+              </div>
+              <Slider
+                value={localFilters.carat}
+                onValueChange={handleCaratChange}
+                min={CARAT_MIN}
+                max={CARAT_MAX}
+                step={0.1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{CARAT_MIN} ct</span>
+                <span>{CARAT_MAX} ct</span>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Price Range Filter */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-foreground">Price</h3>
+                <span className="text-sm text-muted-foreground">
+                  ${localFilters.price[0].toLocaleString()} - ${localFilters.price[1].toLocaleString()}
+                </span>
+              </div>
+              <Slider
+                value={localFilters.price}
+                onValueChange={handlePriceChange}
+                min={PRICE_MIN}
+                max={PRICE_MAX}
+                step={100}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>${PRICE_MIN.toLocaleString()}</span>
+                <span>${PRICE_MAX.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Status Filter */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Status</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {STATUS_OPTIONS.map((status) => (
+                  <div key={status} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`status-${status}`}
+                      checked={localFilters.status.includes(status)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange("status", status, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`status-${status}`}
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {status}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Sale Type Filter */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Sale Type</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {SALE_TYPE_OPTIONS.map((saleType) => (
+                  <div key={saleType} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`saleType-${saleType}`}
+                      checked={localFilters.saleType.includes(saleType)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange("saleType", saleType, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`saleType-${saleType}`}
+                      className="text-sm text-muted-foreground cursor-pointer"
+                    >
+                      {saleType}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+
+        {/* Footer with Apply Button */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-background border-t">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="text-xs text-muted-foreground hover:text-foreground h-auto p-0"
+            onClick={handleApply}
+            className="w-full rounded-full bg-charcoal hover:bg-charcoal/90 text-cream"
           >
-            Clear all
+            Apply Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
           </Button>
-        )}
-      </div>
-
-      <Separator className="mb-2" />
-
-      {/* Cut Filter */}
-      <FilterSection title="Cut">
-        <div className="grid grid-cols-2 gap-2">
-          {CUT_OPTIONS.map((cut) => (
-            <div key={cut} className="flex items-center space-x-2">
-              <Checkbox
-                id={`cut-${cut}`}
-                checked={filters.cut.includes(cut)}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange("cut", cut, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={`cut-${cut}`}
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {cut}
-              </Label>
-            </div>
-          ))}
         </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Color Filter */}
-      <FilterSection title="Color">
-        <div className="space-y-2">
-          {COLOR_OPTIONS.map((color) => (
-            <div key={color} className="flex items-center space-x-2">
-              <Checkbox
-                id={`color-${color}`}
-                checked={filters.color.includes(color)}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange("color", color, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={`color-${color}`}
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {color}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Clarity Filter */}
-      <FilterSection title="Clarity">
-        <div className="grid grid-cols-2 gap-2">
-          {CLARITY_OPTIONS.map((clarity) => (
-            <div key={clarity} className="flex items-center space-x-2">
-              <Checkbox
-                id={`clarity-${clarity}`}
-                checked={filters.clarity.includes(clarity)}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange("clarity", clarity, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={`clarity-${clarity}`}
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {clarity}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Carat Range Filter */}
-      <FilterSection title="Carat">
-        <div className="space-y-4">
-          <div className="text-xs text-muted-foreground text-right">
-            {filters.carat[0].toFixed(2)} ct - {filters.carat[1].toFixed(2)} ct
-          </div>
-          <Slider
-            value={filters.carat}
-            onValueChange={handleCaratChange}
-            min={CARAT_MIN}
-            max={CARAT_MAX}
-            step={0.1}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{CARAT_MIN} ct</span>
-            <span>{CARAT_MAX} ct</span>
-          </div>
-        </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Price Range Filter */}
-      <FilterSection title="Price">
-        <div className="space-y-4">
-          <div className="text-xs text-muted-foreground text-right">
-            ${filters.price[0].toLocaleString()} - ${filters.price[1].toLocaleString()}
-          </div>
-          <Slider
-            value={filters.price}
-            onValueChange={handlePriceChange}
-            min={PRICE_MIN}
-            max={PRICE_MAX}
-            step={100}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>${PRICE_MIN.toLocaleString()}</span>
-            <span>${PRICE_MAX.toLocaleString()}</span>
-          </div>
-        </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Status Filter */}
-      <FilterSection title="Status">
-        <div className="space-y-2">
-          {STATUS_OPTIONS.map((status) => (
-            <div key={status} className="flex items-center space-x-2">
-              <Checkbox
-                id={`status-${status}`}
-                checked={filters.status.includes(status)}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange("status", status, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={`status-${status}`}
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {status}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </FilterSection>
-
-      <Separator />
-
-      {/* Sale Type Filter */}
-      <FilterSection title="Sale Type">
-        <div className="space-y-2">
-          {SALE_TYPE_OPTIONS.map((saleType) => (
-            <div key={saleType} className="flex items-center space-x-2">
-              <Checkbox
-                id={`saleType-${saleType}`}
-                checked={filters.saleType.includes(saleType)}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange("saleType", saleType, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={`saleType-${saleType}`}
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {saleType}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </FilterSection>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
