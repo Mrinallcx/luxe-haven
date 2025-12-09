@@ -151,16 +151,20 @@ const CategoryFilters = ({
   );
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {open && (
         <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 280, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="shrink-0 overflow-hidden"
+          initial={{ x: -20, opacity: 0, scale: 0.95 }}
+          animate={{ x: 0, opacity: 1, scale: 1 }}
+          exit={{ x: -20, opacity: 0, scale: 0.95 }}
+          transition={{ 
+            duration: 0.25, 
+            ease: [0.4, 0, 0.2, 1],
+            opacity: { duration: 0.2 }
+          }}
+          className="w-[280px] shrink-0"
         >
-          <div className="w-[280px] bg-card border border-border/50 rounded-xl p-5 sticky top-24">
+          <div className="w-full bg-card border border-border/50 rounded-xl p-5 sticky top-24">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-playfair text-lg text-foreground">Filters</h2>
