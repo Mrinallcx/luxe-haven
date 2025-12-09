@@ -29,7 +29,7 @@ const GoldSilverWidget = () => {
       <div className="flex border-b border-charcoal/10 mb-6">
         <button
           onClick={() => setActiveTab("gold")}
-          className={`flex-1 pb-3 text-lg font-serif transition-colors ${
+          className={`flex-1 pb-3 text-lg font-serif tracking-wide transition-colors ${
             activeTab === "gold"
               ? "text-charcoal border-b-2 border-charcoal"
               : "text-charcoal/40"
@@ -39,7 +39,7 @@ const GoldSilverWidget = () => {
         </button>
         <button
           onClick={() => setActiveTab("silver")}
-          className={`flex-1 pb-3 text-lg font-serif transition-colors ${
+          className={`flex-1 pb-3 text-lg font-serif tracking-wide transition-colors ${
             activeTab === "silver"
               ? "text-charcoal border-b-2 border-charcoal"
               : "text-charcoal/40"
@@ -51,15 +51,15 @@ const GoldSilverWidget = () => {
 
       {/* Live Price */}
       <div className="mb-6">
-        <p className="text-gold font-medium text-sm mb-1">Live Buy Price</p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-charcoal font-bold text-2xl uppercase">
+        <p className="text-gold font-serif italic text-sm mb-1">Live Buy Price</p>
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-charcoal font-sans font-bold text-2xl uppercase">
             {activeTab}
           </span>
-          <span className="text-charcoal font-bold text-2xl">
+          <span className="text-charcoal font-sans font-bold text-2xl">
             € {currentPrice.toLocaleString()}/gm
           </span>
-          <span className="text-charcoal/50 text-sm ml-auto">including VAT</span>
+          <span className="text-charcoal/50 font-sans text-xs ml-auto">including VAT</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ const GoldSilverWidget = () => {
         <div className="bg-charcoal/5 rounded-full p-1 flex">
           <button
             onClick={() => setMode("euros")}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2 rounded-full text-xs font-sans font-semibold tracking-wider transition-all ${
               mode === "euros"
                 ? "bg-charcoal text-cream"
                 : "text-charcoal/60"
@@ -78,7 +78,7 @@ const GoldSilverWidget = () => {
           </button>
           <button
             onClick={() => setMode("grams")}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2 rounded-full text-xs font-sans font-semibold tracking-wider transition-all ${
               mode === "grams"
                 ? "bg-charcoal text-cream"
                 : "text-charcoal/60"
@@ -100,10 +100,10 @@ const GoldSilverWidget = () => {
               type="text"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9,]/g, ""))}
-              className="text-3xl font-bold text-charcoal bg-transparent border-none outline-none w-24"
+              className="text-3xl font-sans font-bold text-charcoal bg-transparent border-none outline-none w-24"
             />
           </div>
-          <span className="text-charcoal/60">
+          <span className="text-charcoal/60 font-sans">
             = {mode === "euros" ? `${calculatedGrams} gm` : `€ ${calculatedEuros}`}
           </span>
         </div>
@@ -114,7 +114,7 @@ const GoldSilverWidget = () => {
             <button
               key={quickAmount}
               onClick={() => setAmount(quickAmount)}
-              className="text-charcoal/70 text-sm hover:text-charcoal transition-colors"
+              className="text-charcoal/70 font-sans text-sm hover:text-charcoal transition-colors"
             >
               {mode === "euros" ? `€ ${quickAmount}` : `${quickAmount} gm`}
             </button>
@@ -123,7 +123,7 @@ const GoldSilverWidget = () => {
       </div>
 
       {/* Proceed Button */}
-      <button className="w-full bg-gold text-charcoal font-semibold py-3 rounded-full hover:bg-champagne transition-colors">
+      <button className="w-full bg-gold text-charcoal font-sans font-semibold tracking-wider py-3 rounded-full hover:bg-champagne transition-colors">
         PROCEED
       </button>
     </motion.div>
