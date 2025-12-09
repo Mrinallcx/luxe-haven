@@ -161,7 +161,7 @@ const FeaturedProducts = ({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex justify-center gap-2 md:gap-4 mb-12 flex-wrap"
+          className="flex justify-start gap-2 md:gap-4 mb-12 flex-wrap"
         >
           {categories.map((category) => (
             <button
