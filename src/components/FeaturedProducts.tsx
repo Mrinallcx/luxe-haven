@@ -81,7 +81,15 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
   );
 };
 
-const FeaturedProducts = () => {
+interface FeaturedProductsProps {
+  title?: string;
+  subtitle?: string;
+}
+
+const FeaturedProducts = ({ 
+  title = "Featured Pieces", 
+  subtitle = "Curated Selection" 
+}: FeaturedProductsProps) => {
   return (
     <section className="py-20 lg:py-32 bg-background">
       <div className="container mx-auto px-4 lg:px-8">
@@ -94,10 +102,10 @@ const FeaturedProducts = () => {
           className="text-center mb-16"
         >
           <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
-            Curated Selection
+            {subtitle}
           </p>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
-            Featured Pieces
+            {title}
           </h2>
         </motion.div>
 
