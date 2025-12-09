@@ -170,16 +170,6 @@ const Category = () => {
                   
                   {/* Product Info */}
                   <div className="p-5">
-                    {/* Badges */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-medium bg-gold/10 text-gold px-2.5 py-1 rounded-full">
-                        {product.purity}
-                      </span>
-                      <span className="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
-                        {product.weight}
-                      </span>
-                    </div>
-                    
                     <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
                       {product.name}
                     </h3>
