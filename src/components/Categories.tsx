@@ -96,11 +96,8 @@ const Categories = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-left mb-16"
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-muted-foreground mb-4">
-            Shop by Category
-          </p>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
             Explore Collections
           </h2>
