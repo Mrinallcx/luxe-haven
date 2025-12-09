@@ -6,12 +6,25 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { allProducts, categoryDescriptions } from "@/data/products";
+import CategoryFilters, { FilterState } from "@/components/CategoryFilters";
 
 const ITEMS_PER_PAGE = 20;
+
+const initialFilters: FilterState = {
+  cut: [],
+  color: [],
+  clarity: [],
+  carat: [0.10, 20],
+  price: [0, 100000],
+  status: [],
+  saleType: [],
+};
 
 const Category = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
   const [currentPage, setCurrentPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
 
   const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
@@ -77,7 +90,11 @@ const Category = () => {
               <p className="text-muted-foreground text-sm">
                 Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
               </p>
-              <Button variant="outline" className="gap-2 rounded-lg">
+              <Button 
+                variant="outline" 
+                className="gap-2 rounded-full"
+                onClick={() => setFiltersOpen(true)}
+              >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
               </Button>
@@ -181,6 +198,14 @@ const Category = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Filters Sheet */}
+      <CategoryFilters
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
     </div>
   );
 };
