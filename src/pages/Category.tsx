@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters from "@/components/CategoryFilters";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { allProducts, categoryDescriptions } from "@/data/products";
 
 const ITEMS_PER_PAGE = 20;
@@ -13,6 +14,7 @@ const ITEMS_PER_PAGE = 20;
 const Category = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
   const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const categoryTitle = categoryName
@@ -76,14 +78,37 @@ const Category = () => {
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
             <div className="flex items-center justify-between mb-10">
+              {/* Desktop Filter Toggle */}
               <Button 
                 variant="outline" 
-                className="gap-2 rounded-full"
+                className="gap-2 rounded-full hidden lg:flex"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 {isFilterOpen ? "Hide Filters" : "Show Filters"}
               </Button>
+
+              {/* Mobile/Tablet Filter Sheet */}
+              <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="gap-2 rounded-full lg:hidden"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    Filters
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-[350px] overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <CategoryFilters isOpen={true} onClose={() => setIsMobileFilterOpen(false)} />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
               <p className="text-muted-foreground text-sm">
                 Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
               </p>
