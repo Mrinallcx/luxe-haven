@@ -8,11 +8,11 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: "New Arrivals", href: "#" },
-    { label: "Women", href: "#" },
-    { label: "Men", href: "#" },
-    { label: "Accessories", href: "#" },
-    { label: "Sale", href: "#" },
+    { label: "Diamonds", href: "/category/diamonds" },
+    { label: "Gold", href: "/category/gold" },
+    { label: "Silver", href: "/category/silver" },
+    { label: "Platinum", href: "/category/platinum" },
+    { label: "Sapphire", href: "/category/sapphire" },
   ];
 
   return (
