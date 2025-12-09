@@ -93,7 +93,7 @@ const Category = () => {
             <div className="flex gap-8">
               {/* Products Grid */}
               <div className={`flex-1 transition-all duration-300 ${isFilterOpen ? 'lg:pr-0' : ''}`}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 mb-12 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
                   {paginatedProducts.map((product, index) => (
                     <motion.div
                       key={product.id}
