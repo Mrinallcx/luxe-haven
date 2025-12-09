@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, User, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const navLinks = [
+  const assetLinks = [
     { label: "Diamonds", href: "/category/diamonds" },
     { label: "Gold", href: "/category/gold" },
     { label: "Silver", href: "/category/silver" },
@@ -35,15 +41,36 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                {link.label}
-              </a>
-            ))}
+            <a
+              href="/"
+              className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              Home
+            </a>
+            <a
+              href="/blog"
+              className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              Blog
+            </a>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none">
+                Asset
+                <ChevronDown className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg">
+                {assetLinks.map((link) => (
+                  <DropdownMenuItem key={link.label} asChild>
+                    <a
+                      href={link.href}
+                      className="w-full px-4 py-2.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200"
+                    >
+                      {link.label}
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Actions */}
@@ -72,11 +99,28 @@ const Header = () => {
             className="lg:hidden bg-background border-b border-border"
           >
             <nav className="container mx-auto px-4 py-6 flex flex-col gap-4">
-              {navLinks.map((link) => (
+              <a
+                href="/"
+                className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </a>
+              <a
+                href="/blog"
+                className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Blog
+              </a>
+              <div className="text-sm tracking-wider uppercase text-foreground font-medium pt-2">
+                Assets
+              </div>
+              {assetLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
