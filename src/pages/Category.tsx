@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import CategoryFilters from "@/components/CategoryFilters";
+import CategoryFilters, { FilterState, defaultFilterState } from "@/components/CategoryFilters";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { allProducts, categoryDescriptions } from "@/data/products";
@@ -16,6 +16,7 @@ const Category = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<FilterState>(defaultFilterState);
 
   const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
@@ -47,6 +48,39 @@ const Category = () => {
     }
   };
 
+  // Get all active filter tags
+  const getActiveFilterTags = () => {
+    const tags: { label: string; type: keyof FilterState; value?: string }[] = [];
+    
+    filters.selectedCuts.forEach(cut => tags.push({ label: cut, type: 'selectedCuts', value: cut }));
+    filters.selectedColors.forEach(color => tags.push({ label: color, type: 'selectedColors', value: color }));
+    filters.selectedClarity.forEach(clarity => tags.push({ label: clarity, type: 'selectedClarity', value: clarity }));
+    filters.selectedStatus.forEach(status => tags.push({ label: status, type: 'selectedStatus', value: status }));
+    filters.selectedSaleType.forEach(type => tags.push({ label: type, type: 'selectedSaleType', value: type }));
+    
+    if (filters.caratRange[0] !== 0.1 || filters.caratRange[1] !== 20) {
+      tags.push({ label: `${filters.caratRange[0].toFixed(2)}-${filters.caratRange[1].toFixed(2)} ct`, type: 'caratRange' });
+    }
+    if (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 100000) {
+      tags.push({ label: `$${filters.priceRange[0].toLocaleString()}-$${filters.priceRange[1].toLocaleString()}`, type: 'priceRange' });
+    }
+    
+    return tags;
+  };
+
+  const removeFilterTag = (type: keyof FilterState, value?: string) => {
+    if (type === 'caratRange') {
+      setFilters({ ...filters, caratRange: [0.1, 20] });
+    } else if (type === 'priceRange') {
+      setFilters({ ...filters, priceRange: [0, 100000] });
+    } else if (value) {
+      const current = filters[type] as string[];
+      setFilters({ ...filters, [type]: current.filter(item => item !== value) });
+    }
+  };
+
+  const activeFilterTags = getActiveFilterTags();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -77,41 +111,74 @@ const Category = () => {
         <section className="py-12 lg:py-20">
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
-            <div className="flex items-center justify-between mb-10">
-              {/* Desktop Filter Toggle */}
-              <Button 
-                variant="outline" 
-                className="gap-2 rounded-full hidden lg:flex"
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                {isFilterOpen ? "Hide Filters" : "Show Filters"}
-              </Button>
+            <div className="flex flex-col gap-4 mb-10">
+              <div className="flex items-center justify-between">
+                {/* Desktop Filter Toggle */}
+                <Button 
+                  variant="outline" 
+                  className="gap-2 rounded-full hidden lg:flex"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  {isFilterOpen ? "Hide Filters" : "Show Filters"}
+                </Button>
 
-              {/* Mobile/Tablet Filter Sheet */}
-              <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
-                <SheetTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="gap-2 rounded-full lg:hidden"
+                {/* Mobile/Tablet Filter Sheet */}
+                <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                  <SheetTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="gap-2 rounded-full lg:hidden"
+                    >
+                      <SlidersHorizontal className="w-4 h-4" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <CategoryFilters 
+                        isOpen={true} 
+                        onClose={() => setIsMobileFilterOpen(false)}
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                <p className="text-muted-foreground text-sm">
+                  Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
+                </p>
+              </div>
+
+              {/* Active Filter Tags */}
+              {activeFilterTags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {activeFilterTags.map((tag, index) => (
+                    <span
+                      key={`${tag.type}-${tag.value || index}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-foreground text-sm rounded-full border border-border/50"
+                    >
+                      {tag.label}
+                      <button
+                        onClick={() => removeFilterTag(tag.type, tag.value)}
+                        className="hover:bg-muted rounded-full p-0.5 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                  <button
+                    onClick={() => setFilters(defaultFilterState)}
+                    className="text-sm text-gold hover:text-gold/80 transition-colors"
                   >
-                    <SlidersHorizontal className="w-4 h-4" />
-                    Filters
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <CategoryFilters isOpen={true} onClose={() => setIsMobileFilterOpen(false)} />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              <p className="text-muted-foreground text-sm">
-                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
-              </p>
+                    Clear All
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Main Content with Filters and Products */}
@@ -120,7 +187,12 @@ const Category = () => {
               {isFilterOpen && (
                 <div className="hidden lg:block w-72 flex-shrink-0">
                   <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                    <CategoryFilters isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+                    <CategoryFilters 
+                      isOpen={isFilterOpen} 
+                      onClose={() => setIsFilterOpen(false)}
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                    />
                   </div>
                 </div>
               )}
