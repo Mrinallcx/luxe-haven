@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart, X } from "lucide-react";
 import Header from "@/components/Header";
@@ -201,49 +201,59 @@ const Category = () => {
               <div className="flex-1">
                 <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 mb-12 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
                   {paginatedProducts.map((product, index) => (
-                    <motion.div
+                    <Link
                       key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.02 }}
-                      className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
+                      to={`/product/${product.id}`}
                     >
-                      {/* Image Container */}
-                      <div className="relative aspect-square overflow-hidden bg-secondary">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {/* Wishlist Button */}
-                        <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background">
-                          <Heart className="w-5 h-5 text-foreground" />
-                        </button>
-                        {/* Quick Add Button */}
-                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Button className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2">
-                            <ShoppingBag className="w-4 h-4" />
-                            Add to Cart
-                          </Button>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.02 }}
+                        className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg"
+                      >
+                        {/* Image Container */}
+                        <div className="relative aspect-square overflow-hidden bg-secondary">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          {/* Wishlist Button */}
+                          <button 
+                            onClick={(e) => e.preventDefault()}
+                            className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background"
+                          >
+                            <Heart className="w-5 h-5 text-foreground" />
+                          </button>
+                          {/* Quick Add Button */}
+                          <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <Button 
+                              onClick={(e) => e.preventDefault()}
+                              className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+                            >
+                              <ShoppingBag className="w-4 h-4" />
+                              Add to Cart
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Product Info */}
-                      <div className="p-5">
-                        <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                          {product.name}
-                        </h3>
                         
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-lg font-semibold text-foreground">
-                            €{product.price.toLocaleString()}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {product.pricePerUnit}
-                          </span>
+                        {/* Product Info */}
+                        <div className="p-5">
+                          <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                            {product.name}
+                          </h3>
+                          
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-lg font-semibold text-foreground">
+                              €{product.price.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {product.pricePerUnit}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    </Link>
                   ))}
                 </div>
               </div>
