@@ -35,7 +35,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 lg:px-8 pt-24 pb-8">
+      <main className="container mx-auto px-4 lg:px-8 pt-32 pb-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
           <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
