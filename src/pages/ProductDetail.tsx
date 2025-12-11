@@ -97,7 +97,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Info Box */}
-            <div className="bg-charcoal/50 border border-border rounded-lg p-5 mb-6">
+            <div className="bg-muted/50 border border-border rounded-lg p-5 mb-6">
               <h3 className="font-serif text-foreground mb-2">Certified Precious Asset</h3>
               <p className="text-sm text-muted-foreground leading-relaxed uppercase tracking-wide">
                 Own certified {categoryLabel.toLowerCase()} stored securely with free insurance. Trade, gift, or redeem your asset anytime - with full transparency and traceability.
@@ -105,7 +105,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Trust Badges */}
-            <div className="bg-charcoal/30 border border-border rounded-lg p-4 mb-6">
+            <div className="bg-muted/50 border border-border rounded-lg p-4 mb-6">
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Trusted by 1000+ People</p>
               <div className="flex items-center gap-6">
                 <span className="text-sm text-foreground">Conflict Free</span>
@@ -115,7 +115,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Price Box */}
-            <div className="bg-charcoal/50 border border-border rounded-lg p-6 mb-6">
+            <div className="bg-muted/50 border border-border rounded-lg p-6 mb-6">
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Our Price</p>
               <p className="text-3xl font-semibold text-foreground mb-4">
                 €{product.price.toLocaleString()}
