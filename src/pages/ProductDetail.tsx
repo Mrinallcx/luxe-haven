@@ -3,8 +3,7 @@ import { allProducts } from "@/data/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ShoppingBag, Heart, Share2, Shield, Truck, RotateCcw } from "lucide-react";
+import { ArrowLeft, Heart, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ProductDetail = () => {
@@ -70,61 +69,76 @@ const ProductDetail = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex flex-col"
           >
-            <Badge variant="secondary" className="w-fit mb-4">
-              {categoryLabel}
-            </Badge>
-            
-            <h1 className="text-3xl lg:text-4xl font-serif text-foreground mb-4">
-              {product.name}
-            </h1>
-            
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-3xl font-semibold text-foreground">
-                €{product.price.toLocaleString()}
-              </span>
-              <span className="text-muted-foreground">{product.pricePerUnit}</span>
-            </div>
-
-            {/* Product Details */}
-            <div className="grid grid-cols-2 gap-4 py-6 border-y border-border mb-6">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Purity</p>
-                <p className="font-medium text-foreground">{product.purity}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Weight</p>
-                <p className="font-medium text-foreground">{product.weight}</p>
+            {/* Title Row */}
+            <div className="flex items-start justify-between mb-4">
+              <h1 className="text-3xl lg:text-4xl font-serif text-foreground">
+                {product.name}
+              </h1>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground tracking-widest uppercase">Owned By</p>
+                <p className="text-gold font-serif text-lg">MAISON</p>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button className="flex-1 rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium">
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                Add to Cart
-              </Button>
-              <Button variant="outline" className="rounded-full">
-                <Heart className="w-4 h-4 mr-2" />
-                Wishlist
-              </Button>
-              <Button variant="outline" size="icon" className="rounded-full">
-                <Share2 className="w-4 h-4" />
-              </Button>
+            {/* Specs Row */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-gold text-sm tracking-wide">
+                {product.purity} | {product.weight} | Premium
+              </p>
+              <div className="flex items-center gap-4">
+                <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                  <Heart className="w-4 h-4" />
+                  <span className="text-sm">64</span>
+                </button>
+                <button className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-charcoal/50 border border-border rounded-lg p-5 mb-6">
+              <h3 className="font-serif text-foreground mb-2">Certified Precious Asset</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed uppercase tracking-wide">
+                Own certified {categoryLabel.toLowerCase()} stored securely with free insurance. Trade, gift, or redeem your asset anytime - with full transparency and traceability.
+              </p>
             </div>
 
             {/* Trust Badges */}
-            <div className="space-y-4 pt-6 border-t border-border">
-              <div className="flex items-center gap-3 text-sm">
-                <Shield className="w-5 h-5 text-gold" />
-                <span className="text-muted-foreground">Certified Authentic & Ethically Sourced</span>
+            <div className="bg-charcoal/30 border border-border rounded-lg p-4 mb-6">
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-3">Trusted by 1000+ People</p>
+              <div className="flex items-center gap-6">
+                <span className="text-sm text-foreground">Conflict Free</span>
+                <span className="text-sm text-foreground">Free Insured</span>
+                <span className="text-sm text-foreground">Certified</span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Truck className="w-5 h-5 text-gold" />
-                <span className="text-muted-foreground">Free Insured Shipping on Orders Over €5,000</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <RotateCcw className="w-5 h-5 text-gold" />
-                <span className="text-muted-foreground">14-Day Return Policy</span>
+            </div>
+
+            {/* Price Box */}
+            <div className="bg-charcoal/50 border border-border rounded-lg p-6 mb-6">
+              <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Our Price</p>
+              <p className="text-3xl font-semibold text-foreground mb-4">
+                €{product.price.toLocaleString()}
+              </p>
+              <Button className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base">
+                BUY NOW
+              </Button>
+            </div>
+
+            {/* Price Comparison */}
+            <div>
+              <h4 className="font-serif text-foreground mb-3">Price Comparison</h4>
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="flex items-center gap-2 text-xs text-green-500">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  LIVE
+                </span>
+                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
+                  Competitor A - €{(product.price * 1.15).toLocaleString()}
+                </span>
+                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
+                  Competitor B - €{(product.price * 1.2).toLocaleString()}
+                </span>
               </div>
             </div>
           </motion.div>
