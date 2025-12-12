@@ -3,7 +3,8 @@ import { allProducts } from "@/data/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Heart, Share2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ProductDetail = () => {
@@ -52,6 +53,7 @@ const ProductDetail = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            className="space-y-6"
           >
             <div className="aspect-square bg-cream rounded-lg overflow-hidden">
               <img
@@ -60,6 +62,144 @@ const ProductDetail = () => {
                 className="w-full h-full object-cover"
               />
             </div>
+
+            {/* Tabs Section */}
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="w-full grid grid-cols-4 bg-muted/20 rounded-lg p-1">
+                <TabsTrigger value="overview" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <Info className="w-4 h-4" />
+                  <span className="hidden sm:inline">Overview</span>
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Documents</span>
+                </TabsTrigger>
+                <TabsTrigger value="insurance" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden sm:inline">Insurance</span>
+                </TabsTrigger>
+                <TabsTrigger value="returns" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <RotateCcw className="w-4 h-4" />
+                  <span className="hidden sm:inline">Returns</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Product Overview</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  This exquisite {categoryLabel.toLowerCase()} piece represents the pinnacle of quality and craftsmanship. 
+                  Each asset is carefully selected and verified to meet our stringent standards.
+                </p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Category</p>
+                    <p className="text-foreground font-medium">{categoryLabel}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Purity</p>
+                    <p className="text-foreground font-medium">{product.purity}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Weight</p>
+                    <p className="text-foreground font-medium">{product.weight}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Status</p>
+                    <p className="text-foreground font-medium">Available</p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="documents" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Certificates & Documents</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  All documents are available for download after purchase and stored securely in your account.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-gold" />
+                      <span className="text-sm text-foreground">Certificate of Authenticity</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">PDF</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-gold" />
+                      <span className="text-sm text-foreground">Quality Assessment Report</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">PDF</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-gold" />
+                      <span className="text-sm text-foreground">Provenance Documentation</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">PDF</span>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="insurance" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Insurance Coverage</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Your asset is fully insured from the moment of purchase, at no additional cost.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">Full Value Coverage</p>
+                      <p className="text-xs text-muted-foreground">100% coverage against theft, loss, or damage</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">Secure Storage</p>
+                      <p className="text-xs text-muted-foreground">Assets stored in high-security vaults</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">No Deductible</p>
+                      <p className="text-xs text-muted-foreground">Full replacement with no out-of-pocket costs</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="returns" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Return Policy</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  We offer a hassle-free return policy for your peace of mind.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">14-Day Return Window</p>
+                      <p className="text-xs text-muted-foreground">Full refund within 14 days of purchase</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">Free Return Shipping</p>
+                      <p className="text-xs text-muted-foreground">We cover all return shipping costs</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground font-medium">Quick Processing</p>
+                      <p className="text-xs text-muted-foreground">Refunds processed within 3-5 business days</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </motion.div>
 
           {/* Product Info */}
