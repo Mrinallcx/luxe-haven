@@ -7,7 +7,10 @@ import Footer from "@/components/Footer";
 import CategoryFilters, { FilterState, defaultFilterState } from "@/components/CategoryFilters";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { allProducts, categoryDescriptions } from "@/data/products";
+import { allProducts, categoryDescriptions, Product } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -17,6 +20,36 @@ const Category = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterState>(defaultFilterState);
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { toast } = useToast();
+
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    if (product.status === "auction") return;
+    addToCart(product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
+
+  const handleWishlist = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      });
+    } else {
+      addToWishlist(product);
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist.`,
+      });
+    }
+  };
 
   const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
@@ -237,19 +270,30 @@ const Category = () => {
                           )}
                           {/* Wishlist Button */}
                           <button 
-                            onClick={(e) => e.preventDefault()}
-                            className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background"
+                            onClick={(e) => handleWishlist(e, product)}
+                            className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
+                              isInWishlist(product.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                            }`}
                           >
-                            <Heart className="w-5 h-5 text-foreground" />
+                            <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : "text-foreground"}`} />
                           </button>
                           {/* Quick Add Button */}
                           <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <Button 
-                              onClick={(e) => e.preventDefault()}
+                              onClick={(e) => handleAddToCart(e, product)}
                               className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
                             >
-                              <ShoppingBag className="w-4 h-4" />
-                              Add to Cart
+                              {product.status === "auction" ? (
+                                <>
+                                  <Gavel className="w-4 h-4" />
+                                  Place Bid
+                                </>
+                              ) : (
+                                <>
+                                  <ShoppingBag className="w-4 h-4" />
+                                  Add to Cart
+                                </>
+                              )}
                             </Button>
                           </div>
                         </div>
