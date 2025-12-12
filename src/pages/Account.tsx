@@ -6,10 +6,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Camera, Diamond, Coins, Gift, TrendingUp, Gavel, Activity, Users, Heart, Copy, Check } from "lucide-react";
+import { Diamond, Gavel, Activity, Users, Heart, Copy, Check } from "lucide-react";
 import { motion } from "framer-motion";
-import { allProducts } from "@/data/products";
+import { allProducts, Product } from "@/data/products";
 import { Link } from "react-router-dom";
+import AccountProductCard from "@/components/AccountProductCard";
+import ViewToggle from "@/components/ViewToggle";
 
 // Mock user data
 const userData = {
@@ -31,12 +33,15 @@ const balanceData = {
 // Mock owned diamonds
 const ownedDiamonds = allProducts.filter(p => p.category === "Diamonds").slice(0, 6);
 
-// Mock bids data
-const bidsData = [
-  { id: 1, product: "1.5 Carat Round Diamond", bidAmount: 4500, currentBid: 4800, status: "Outbid", date: "12 Dec 2024" },
-  { id: 2, product: "2.0 Carat Princess Cut", bidAmount: 8200, currentBid: 8200, status: "Winning", date: "11 Dec 2024" },
-  { id: 3, product: "0.75 Carat Oval Diamond", bidAmount: 2100, currentBid: 2500, status: "Outbid", date: "10 Dec 2024" },
-];
+// Mock bids data with product references
+const bidsProducts = allProducts.filter(p => p.category === "diamonds").slice(10, 16);
+const bidsData = bidsProducts.map((product, i) => ({
+  product,
+  bidAmount: product.price - Math.floor(Math.random() * 500),
+  currentBid: product.price,
+  status: i % 2 === 0 ? "Outbid" : "Winning",
+  date: `${12 - i} Dec 2024`,
+}));
 
 // Mock activity data
 const activityData = [
@@ -65,6 +70,9 @@ const wishlistItems = allProducts.slice(5, 9);
 
 const Account = () => {
   const [copied, setCopied] = useState(false);
+  const [ownedViewMode, setOwnedViewMode] = useState<"grid" | "list">("grid");
+  const [bidsViewMode, setBidsViewMode] = useState<"grid" | "list">("grid");
+  const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
 
   const copyReferralCode = () => {
     navigator.clipboard.writeText(referralData.code);
@@ -230,68 +238,51 @@ const Account = () => {
 
           {/* Owned Diamonds Tab */}
           <TabsContent value="owned" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ownedDiamonds.map((product) => (
-                <motion.div
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-muted-foreground text-sm">{ownedDiamonds.length} items</p>
+              <ViewToggle viewMode={ownedViewMode} onViewChange={setOwnedViewMode} />
+            </div>
+            <div className={ownedViewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+              : "flex flex-col gap-4"
+            }>
+              {ownedDiamonds.map((product, index) => (
+                <AccountProductCard
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -5 }}
-                  className="group"
-                >
-                  <Link to={`/product/${product.id}`}>
-                    <Card className="overflow-hidden bg-muted/20 border-border hover:border-gold/50 transition-all">
-                      <div className="aspect-square relative overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-serif text-foreground group-hover:text-gold transition-colors">{product.name}</h3>
-                        <p className="text-gold font-medium mt-1">${product.price.toLocaleString()}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
+                  product={product}
+                  index={index}
+                  viewMode={ownedViewMode}
+                  variant="owned"
+                />
               ))}
             </div>
           </TabsContent>
 
           {/* Your Bids Tab */}
           <TabsContent value="bids" className="mt-8">
-            <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground font-medium">Product</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Your Bid</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Current Bid</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Status</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bidsData.map((bid) => (
-                    <TableRow key={bid.id} className="border-border">
-                      <TableCell className="text-foreground font-medium">{bid.product}</TableCell>
-                      <TableCell className="text-foreground">${bid.bidAmount.toLocaleString()}</TableCell>
-                      <TableCell className="text-foreground">${bid.currentBid.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          bid.status === "Winning" 
-                            ? "bg-green-500/10 text-green-500" 
-                            : "bg-red-500/10 text-red-500"
-                        }`}>
-                          {bid.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{bid.date}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-muted-foreground text-sm">{bidsData.length} active bids</p>
+              <ViewToggle viewMode={bidsViewMode} onViewChange={setBidsViewMode} />
+            </div>
+            <div className={bidsViewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+              : "flex flex-col gap-4"
+            }>
+              {bidsData.map((bid, index) => (
+                <AccountProductCard
+                  key={bid.product.id}
+                  product={bid.product}
+                  index={index}
+                  viewMode={bidsViewMode}
+                  variant="bid"
+                  bidData={{
+                    bidAmount: bid.bidAmount,
+                    currentBid: bid.currentBid,
+                    status: bid.status,
+                    date: bid.date,
+                  }}
+                />
+              ))}
             </div>
           </TabsContent>
 
@@ -394,38 +385,23 @@ const Account = () => {
 
           {/* Wishlist Tab */}
           <TabsContent value="wishlist" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {wishlistItems.map((product) => (
-                <motion.div
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-muted-foreground text-sm">{wishlistItems.length} saved items</p>
+              <ViewToggle viewMode={wishlistViewMode} onViewChange={setWishlistViewMode} />
+            </div>
+            <div className={wishlistViewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+              : "flex flex-col gap-4"
+            }>
+              {wishlistItems.map((product, index) => (
+                <AccountProductCard
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -5 }}
-                  className="group"
-                >
-                  <Link to={`/product/${product.id}`}>
-                    <Card className="overflow-hidden bg-muted/20 border-border hover:border-gold/50 transition-all">
-                      <div className="aspect-square relative overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full"
-                        >
-                          <Heart className="w-4 h-4 fill-red-500 text-red-500" />
-                        </Button>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-serif text-foreground group-hover:text-gold transition-colors">{product.name}</h3>
-                        <p className="text-gold font-medium mt-1">${product.price.toLocaleString()}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
+                  product={product}
+                  index={index}
+                  viewMode={wishlistViewMode}
+                  variant="wishlist"
+                  onRemove={() => console.log("Remove from wishlist:", product.id)}
+                />
               ))}
             </div>
           </TabsContent>
