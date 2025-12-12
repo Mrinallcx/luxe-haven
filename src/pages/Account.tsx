@@ -96,97 +96,74 @@ const Account = () => {
           </Button>
         </div>
 
-        {/* Profile Info */}
+        {/* Profile Info & Balance */}
         <div className="container mx-auto px-4 lg:px-8 max-w-[1400px]">
-          <div className="relative -mt-16 md:-mt-20 flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6">
-            <div className="relative group">
-              <Avatar className="w-32 h-32 md:w-40 md:h-40 border-4 border-background shadow-xl">
-                <AvatarImage src={userData.avatar} alt={userData.name} />
-                <AvatarFallback className="bg-gold/20 text-gold text-3xl font-serif">
-                  {userData.name.split(" ").map(n => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <Button
-                size="icon"
-                variant="outline"
-                className="absolute bottom-2 right-2 rounded-full w-8 h-8 bg-background/80 backdrop-blur-sm border-border/50 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Camera className="w-4 h-4" />
-              </Button>
+          <div className="relative -mt-16 md:-mt-20 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            {/* Profile Info */}
+            <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6">
+              <div className="relative group">
+                <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-background shadow-xl">
+                  <AvatarImage src={userData.avatar} alt={userData.name} />
+                  <AvatarFallback className="bg-gold/20 text-gold text-2xl font-serif">
+                    {userData.name.split(" ").map(n => n[0]).join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="absolute bottom-1 right-1 rounded-full w-7 h-7 bg-background/80 backdrop-blur-sm border-border/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Camera className="w-3 h-3" />
+                </Button>
+              </div>
+              <div className="text-center md:text-left pb-2">
+                <h1 className="text-xl md:text-2xl font-serif text-foreground">{userData.name}</h1>
+                <p className="text-sm text-muted-foreground">{userData.email}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Member since {userData.memberSince}</p>
+              </div>
             </div>
-            <div className="text-center md:text-left pb-4">
-              <h1 className="text-2xl md:text-3xl font-serif text-foreground">{userData.name}</h1>
-              <p className="text-muted-foreground">{userData.email}</p>
-              <p className="text-sm text-muted-foreground mt-1">Member since {userData.memberSince}</p>
-            </div>
+
+            {/* Balance Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="w-full lg:w-auto"
+            >
+              <Card className="bg-muted/10 border-border lg:min-w-[340px]">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-xs tracking-wider uppercase text-muted-foreground">Owned Diamonds</span>
+                    <span className="px-3 py-1 bg-muted/30 border border-border rounded-full text-foreground font-serif text-xs">
+                      {balanceData.ownedDiamonds} DIAMOND
+                    </span>
+                  </div>
+                  <div className="border-t border-border" />
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimed Toto</span>
+                    <span className="text-muted-foreground font-serif text-sm">{balanceData.claimedToto.toLocaleString()} TOTO</span>
+                  </div>
+                  <div className="border-t border-border" />
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimable Toto</span>
+                    <span className="px-3 py-1 border border-gold text-gold rounded-full font-serif text-xs">
+                      {balanceData.claimableToto.toLocaleString()} TOTO
+                    </span>
+                  </div>
+                  <div className="border-t border-border" />
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-xs tracking-wider uppercase text-muted-foreground">Total Toto</span>
+                    <span className="text-muted-foreground font-serif text-sm">{balanceData.totalToto.toLocaleString()} TOTO</span>
+                  </div>
+                  {balanceData.claimableToto > 0 && (
+                    <Button className="w-full mt-3 rounded-full border border-gold bg-transparent text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase text-xs py-2 h-auto">
+                      Claim Toto
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
-      </section>
-
-      {/* Balance Section */}
-      <section className="container mx-auto px-4 lg:px-8 max-w-[1400px] mt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md"
-        >
-          <Card className="bg-muted/10 border-border overflow-hidden">
-            <CardContent className="p-6 space-y-0">
-              {/* Owned Diamonds */}
-              <div className="flex items-center justify-between py-4">
-                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
-                  Owned Diamonds
-                </span>
-                <span className="px-4 py-1.5 bg-muted/30 border border-border rounded-full text-foreground font-serif text-sm">
-                  {balanceData.ownedDiamonds} DIAMOND
-                </span>
-              </div>
-
-              <div className="border-t border-border" />
-
-              {/* Claimed Toto */}
-              <div className="flex items-center justify-between py-4">
-                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
-                  Claimed Toto
-                </span>
-                <span className="text-muted-foreground font-serif">
-                  {balanceData.claimedToto.toLocaleString()} TOTO
-                </span>
-              </div>
-
-              <div className="border-t border-border" />
-
-              {/* Claimable Toto */}
-              <div className="flex items-center justify-between py-4">
-                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
-                  Claimable Toto
-                </span>
-                <span className="px-4 py-1.5 border border-gold text-gold rounded-full font-serif text-sm">
-                  {balanceData.claimableToto.toLocaleString()} TOTO
-                </span>
-              </div>
-
-              <div className="border-t border-border" />
-
-              {/* Total Toto */}
-              <div className="flex items-center justify-between py-4">
-                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
-                  Total Toto
-                </span>
-                <span className="text-muted-foreground font-serif">
-                  {balanceData.totalToto.toLocaleString()} TOTO
-                </span>
-              </div>
-
-              {/* Claim Button */}
-              {balanceData.claimableToto > 0 && (
-                <Button className="w-full mt-4 rounded-full border-2 border-gold bg-transparent text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase">
-                  Claim Toto
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
       </section>
 
       {/* Tabs Section */}
