@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Gavel, Tag } from "lucide-react";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -18,6 +18,7 @@ const products = [
     category: "Diamonds",
     purity: "VVS1",
     weight: "1.5 ct",
+    status: "sale" as const,
   },
   {
     id: 2,
@@ -28,6 +29,7 @@ const products = [
     category: "Gold",
     purity: "999.9",
     weight: "100g",
+    status: "auction" as const,
   },
   {
     id: 3,
@@ -38,6 +40,7 @@ const products = [
     category: "Silver",
     purity: "999",
     weight: "1kg",
+    status: "sale" as const,
   },
   {
     id: 4,
@@ -48,6 +51,7 @@ const products = [
     category: "Platinum",
     purity: "999.5",
     weight: "100g",
+    status: "auction" as const,
   },
   {
     id: 5,
@@ -58,6 +62,7 @@ const products = [
     category: "Sapphire",
     purity: "AAA+",
     weight: "3.0 ct",
+    status: "sale" as const,
   },
   {
     id: 6,
@@ -68,6 +73,7 @@ const products = [
     category: "Diamonds",
     purity: "VS1",
     weight: "1.2 ct",
+    status: "auction" as const,
   },
   {
     id: 7,
@@ -78,6 +84,7 @@ const products = [
     category: "Gold",
     purity: "916",
     weight: "1 oz",
+    status: "sale" as const,
   },
   {
     id: 8,
@@ -88,10 +95,16 @@ const products = [
     category: "Sapphire",
     purity: "AAA+",
     weight: "4.0 ct",
+    status: "auction" as const,
   },
 ];
 
 const categories = ["All", "Diamonds", "Gold", "Silver", "Platinum", "Sapphire"];
+const statusFilters = [
+  { value: "all", label: "All", icon: null },
+  { value: "sale", label: "On Sale", icon: Tag },
+  { value: "auction", label: "Auction", icon: Gavel },
+];
 
 const ProductCard = ({ product, index }: { product: typeof products[0]; index: number }) => {
   return (
@@ -111,6 +124,26 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
+          {/* Status Badge */}
+          <div className="absolute top-4 left-4">
+            <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+              product.status === "auction" 
+                ? "bg-amber-500/90 text-white" 
+                : "bg-green-500/90 text-white"
+            }`}>
+              {product.status === "auction" ? (
+                <>
+                  <Gavel className="w-3 h-3" />
+                  Auction
+                </>
+              ) : (
+                <>
+                  <Tag className="w-3 h-3" />
+                  On Sale
+                </>
+              )}
+            </span>
+          </div>
           {/* Wishlist Button */}
           <button 
             onClick={(e) => e.preventDefault()}
@@ -124,8 +157,17 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
               onClick={(e) => e.preventDefault()}
               className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
             >
-              <ShoppingBag className="w-4 h-4" />
-              Add to Cart
+              {product.status === "auction" ? (
+                <>
+                  <Gavel className="w-4 h-4" />
+                  Place Bid
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4" />
+                  Add to Cart
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -141,7 +183,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
               €{product.price.toLocaleString()}
             </span>
             <span className="text-xs text-muted-foreground">
-              {product.pricePerUnit}
+              {product.status === "auction" ? "current bid" : product.pricePerUnit}
             </span>
           </div>
         </div>
@@ -160,10 +202,12 @@ const FeaturedProducts = ({
   subtitle = "Curated Selection" 
 }: FeaturedProductsProps) => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeStatus, setActiveStatus] = useState("all");
   
-  const filteredProducts = activeCategory === "All" 
-    ? products.slice(0, 4) 
-    : products.filter(p => p.category === activeCategory).slice(0, 4);
+  const filteredProducts = products
+    .filter(p => activeCategory === "All" || p.category === activeCategory)
+    .filter(p => activeStatus === "all" || p.status === activeStatus)
+    .slice(0, 4);
 
   return (
     <section className="py-20 lg:py-32 bg-background">
@@ -181,27 +225,48 @@ const FeaturedProducts = ({
           </h2>
         </motion.div>
 
-        {/* Category Tabs */}
+        {/* Filters Row */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex justify-start gap-2 md:gap-4 mb-12 flex-wrap"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-12"
         >
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 text-sm tracking-wider rounded-lg transition-all duration-300 ${
-                activeCategory === category
-                  ? "bg-charcoal text-cream"
-                  : "bg-transparent text-muted-foreground hover:text-foreground border border-border hover:border-charcoal"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {/* Category Tabs */}
+          <div className="flex gap-2 md:gap-4 flex-wrap">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-4 py-2 text-sm tracking-wider rounded-lg transition-all duration-300 ${
+                  activeCategory === category
+                    ? "bg-charcoal text-cream"
+                    : "bg-transparent text-muted-foreground hover:text-foreground border border-border hover:border-charcoal"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex items-center gap-2 bg-muted/20 border border-border rounded-lg p-1">
+            {statusFilters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setActiveStatus(filter.value)}
+                className={`px-3 py-1.5 text-sm rounded-md flex items-center gap-1.5 transition-all duration-300 ${
+                  activeStatus === filter.value
+                    ? "bg-gold text-charcoal"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {filter.icon && <filter.icon className="w-3.5 h-3.5" />}
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {/* Products Grid */}
