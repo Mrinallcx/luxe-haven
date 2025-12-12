@@ -165,9 +165,11 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <Button className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6">
-                  Proceed to Checkout
-                </Button>
+                <Link to="/checkout">
+                  <Button className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
 
                 <Link to="/" className="block mt-4">
                   <Button variant="outline" className="w-full rounded-full">
