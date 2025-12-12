@@ -80,9 +80,11 @@ const Header = () => {
             <Button variant="outline" size="sm" className="hidden lg:flex rounded-full">
               Sign In
             </Button>
-            <Button variant="ghost" size="icon" className="hidden lg:flex">
-              <User className="w-5 h-5" />
-            </Button>
+            <Link to="/account">
+              <Button variant="ghost" size="icon" className="hidden lg:flex">
+                <User className="w-5 h-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingBag className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-charcoal text-cream text-[10px] flex items-center justify-center rounded-full">
@@ -132,10 +134,12 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-border mt-2 space-y-3">
                 <UniversalSearchBar className="w-full" />
-                <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
-                  <User className="w-4 h-4" />
-                  Account
-                </Button>
+                <Link to="/account" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
+                    <User className="w-4 h-4" />
+                    Account
+                  </Button>
+                </Link>
               </div>
             </nav>
           </motion.div>
