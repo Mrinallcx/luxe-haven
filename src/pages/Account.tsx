@@ -113,9 +113,8 @@ const Account = () => {
 
               {/* Name + Action Buttons Row */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-4">
-                <h1 className="text-xl font-serif text-foreground flex items-center gap-2">
+                <h1 className="text-xl font-serif text-foreground">
                   {userData.name}
-                  <span className="text-gold">✓</span>
                 </h1>
                 <div className="flex flex-wrap gap-2">
                   <Button
