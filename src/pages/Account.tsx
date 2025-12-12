@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Camera, Diamond, Coins, Gift, TrendingUp, Gavel, Activity, Users, Heart, Copy, Check } from "lucide-react";
+import { Camera, Diamond, Coins, Gift, TrendingUp, Gavel, Activity, Users, Heart, Copy, Check, LayoutGrid, List } from "lucide-react";
 import { motion } from "framer-motion";
 import { allProducts } from "@/data/products";
 import { Link } from "react-router-dom";
@@ -65,6 +65,8 @@ const wishlistItems = allProducts.slice(5, 9);
 
 const Account = () => {
   const [copied, setCopied] = useState(false);
+  const [ownedView, setOwnedView] = useState<"grid" | "list">("grid");
+  const [bidsView, setBidsView] = useState<"grid" | "list">("grid");
 
   const copyReferralCode = () => {
     navigator.clipboard.writeText(referralData.code);
@@ -230,69 +232,187 @@ const Account = () => {
 
           {/* Owned Diamonds Tab */}
           <TabsContent value="owned" className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ownedDiamonds.map((product) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -5 }}
-                  className="group"
+            <div className="flex justify-end mb-4">
+              <div className="flex bg-muted/20 border border-border rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`px-3 ${ownedView === "grid" ? "bg-gold text-charcoal" : ""}`}
+                  onClick={() => setOwnedView("grid")}
                 >
-                  <Link to={`/product/${product.id}`}>
-                    <Card className="overflow-hidden bg-muted/20 border-border hover:border-gold/50 transition-all">
-                      <div className="aspect-square relative overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-serif text-foreground group-hover:text-gold transition-colors">{product.name}</h3>
-                        <p className="text-gold font-medium mt-1">${product.price.toLocaleString()}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`px-3 ${ownedView === "list" ? "bg-gold text-charcoal" : ""}`}
+                  onClick={() => setOwnedView("list")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
+
+            {ownedView === "grid" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {ownedDiamonds.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -5 }}
+                    className="group"
+                  >
+                    <Link to={`/product/${product.id}`}>
+                      <Card className="overflow-hidden bg-muted/20 border-border hover:border-gold/50 transition-all">
+                        <div className="aspect-square relative overflow-hidden">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-serif text-foreground group-hover:text-gold transition-colors">{product.name}</h3>
+                          <p className="text-gold font-medium mt-1">${product.price.toLocaleString()}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground font-medium">Image</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Product</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Category</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Price</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ownedDiamonds.map((product) => (
+                      <TableRow key={product.id} className="border-border">
+                        <TableCell>
+                          <Link to={`/product/${product.id}`}>
+                            <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-md" />
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-foreground font-medium">
+                          <Link to={`/product/${product.id}`} className="hover:text-gold transition-colors">
+                            {product.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{product.category}</TableCell>
+                        <TableCell className="text-gold font-medium">${product.price.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </TabsContent>
 
           {/* Your Bids Tab */}
           <TabsContent value="bids" className="mt-8">
-            <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground font-medium">Product</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Your Bid</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Current Bid</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Status</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bidsData.map((bid) => (
-                    <TableRow key={bid.id} className="border-border">
-                      <TableCell className="text-foreground font-medium">{bid.product}</TableCell>
-                      <TableCell className="text-foreground">${bid.bidAmount.toLocaleString()}</TableCell>
-                      <TableCell className="text-foreground">${bid.currentBid.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          bid.status === "Winning" 
-                            ? "bg-green-500/10 text-green-500" 
-                            : "bg-red-500/10 text-red-500"
-                        }`}>
-                          {bid.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{bid.date}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="flex justify-end mb-4">
+              <div className="flex bg-muted/20 border border-border rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`px-3 ${bidsView === "grid" ? "bg-gold text-charcoal" : ""}`}
+                  onClick={() => setBidsView("grid")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`px-3 ${bidsView === "list" ? "bg-gold text-charcoal" : ""}`}
+                  onClick={() => setBidsView("list")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
+
+            {bidsView === "grid" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {bidsData.map((bid) => (
+                  <motion.div
+                    key={bid.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -5 }}
+                    className="group"
+                  >
+                    <Card className="overflow-hidden bg-muted/20 border-border hover:border-gold/50 transition-all">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-serif text-foreground">{bid.product}</h3>
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            bid.status === "Winning" 
+                              ? "bg-green-500/10 text-green-500" 
+                              : "bg-red-500/10 text-red-500"
+                          }`}>
+                            {bid.status}
+                          </span>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Your Bid</span>
+                            <span className="text-foreground font-medium">${bid.bidAmount.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Current Bid</span>
+                            <span className="text-gold font-medium">${bid.currentBid.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Date</span>
+                            <span className="text-foreground">{bid.date}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground font-medium">Product</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Your Bid</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Current Bid</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Status</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bidsData.map((bid) => (
+                      <TableRow key={bid.id} className="border-border">
+                        <TableCell className="text-foreground font-medium">{bid.product}</TableCell>
+                        <TableCell className="text-foreground">${bid.bidAmount.toLocaleString()}</TableCell>
+                        <TableCell className="text-foreground">${bid.currentBid.toLocaleString()}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            bid.status === "Winning" 
+                              ? "bg-green-500/10 text-green-500" 
+                              : "bg-red-500/10 text-red-500"
+                          }`}>
+                            {bid.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{bid.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </TabsContent>
 
           {/* Activity Tab */}
