@@ -1,21 +1,48 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { allProducts } from "@/data/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info } from "lucide-react";
 import { motion } from "framer-motion";
+
+// Mock transaction data
+const generateTransactions = (count: number) => {
+  const saleTypes = ["Primary Sale", "Secondary Sale", "Transfer", "Auction"];
+  const transactions = [];
+  for (let i = 1; i <= count; i++) {
+    transactions.push({
+      id: i,
+      saleType: saleTypes[Math.floor(Math.random() * saleTypes.length)],
+      from: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
+      to: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
+      date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
+    });
+  }
+  return transactions;
+};
+
+const allTransactions = generateTransactions(30);
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
+  const [visibleTransactions, setVisibleTransactions] = useState(10);
   
   // Get related products from same category (excluding current product)
   const relatedProducts = allProducts
     .filter((p) => p.category === product?.category && p.id !== product?.id)
     .slice(0, 4);
 
+  const displayedTransactions = allTransactions.slice(0, visibleTransactions);
+  const hasMore = visibleTransactions < allTransactions.length;
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
@@ -329,6 +356,50 @@ const ProductDetail = () => {
             </div>
           </section>
         )}
+
+        {/* Transaction History Table */}
+        <section className="mt-16">
+          <h2 className="text-2xl font-serif text-foreground mb-8">Transaction History</h2>
+          <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground font-medium">Sl No</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Sale Type</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">From</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">To</TableHead>
+                  <TableHead className="text-muted-foreground font-medium">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {displayedTransactions.map((tx) => (
+                  <TableRow key={tx.id} className="border-border">
+                    <TableCell className="text-foreground">{tx.id}</TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 bg-gold/10 text-gold text-xs rounded-full">
+                        {tx.saleType}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-sm">{tx.from}</TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-sm">{tx.to}</TableCell>
+                    <TableCell className="text-muted-foreground">{tx.date}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outline"
+                className="rounded-full border-gold text-gold hover:bg-gold hover:text-charcoal"
+                onClick={() => setVisibleTransactions((prev) => prev + 10)}
+              >
+                View More
+              </Button>
+            </div>
+          )}
+        </section>
 
         {/* Back Link */}
         <div className="mt-12">
