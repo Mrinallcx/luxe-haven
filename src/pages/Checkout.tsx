@@ -111,7 +111,7 @@ const Checkout = () => {
     }
     toast.success("Order placed successfully!");
     clearCart();
-    navigate("/");
+    navigate("/order-confirmation");
   };
 
   return (
