@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Package, Truck, Calendar, ArrowRight } from "lucide-react";
+import { CheckCircle, Package, Gem, BadgeCheck, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const OrderConfirmation = () => {
@@ -18,8 +18,8 @@ const OrderConfirmation = () => {
   const steps = [
     { icon: CheckCircle, label: "Order Confirmed", completed: true },
     { icon: Package, label: "Processing", completed: false },
-    { icon: Truck, label: "Shipped", completed: false },
-    { icon: Calendar, label: "Delivered", completed: false },
+    { icon: Gem, label: "Minting", completed: false },
+    { icon: BadgeCheck, label: "Minted", completed: false },
   ];
 
   return (
