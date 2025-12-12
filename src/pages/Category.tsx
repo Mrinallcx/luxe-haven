@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart, X, Gavel, Tag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters, { FilterState, defaultFilterState } from "@/components/CategoryFilters";
@@ -215,6 +215,26 @@ const Category = () => {
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
+                          {/* Status Badge */}
+                          {product.status && (
+                            <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${
+                              product.status === "auction" 
+                                ? "bg-gold/90 text-charcoal" 
+                                : "bg-charcoal/90 text-cream"
+                            }`}>
+                              {product.status === "auction" ? (
+                                <>
+                                  <Gavel className="w-3.5 h-3.5" />
+                                  Auction
+                                </>
+                              ) : (
+                                <>
+                                  <Tag className="w-3.5 h-3.5" />
+                                  On Sale
+                                </>
+                              )}
+                            </div>
+                          )}
                           {/* Wishlist Button */}
                           <button 
                             onClick={(e) => e.preventDefault()}

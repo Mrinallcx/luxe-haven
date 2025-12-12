@@ -12,6 +12,7 @@ export interface Product {
   category: string;
   purity: string;
   weight: string;
+  status?: "auction" | "sale";
 }
 
 const images = [product1, product2, product3, product4];
@@ -32,6 +33,7 @@ const generateProducts = (): Product[] => {
     "Cadillac Diamond", "Calf Diamond", "Epaulette Diamond", "Flame Diamond",
     "Flanders Diamond", "Lozenge Diamond"
   ];
+  const statuses: (undefined | "auction" | "sale")[] = [undefined, "auction", "sale"];
   diamondNames.forEach((name, i) => {
     products.push({
       id: id++,
@@ -41,7 +43,8 @@ const generateProducts = (): Product[] => {
       image: images[i % 4],
       category: "diamonds",
       purity: ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1"][i % 6],
-      weight: `${(0.5 + Math.random() * 3).toFixed(1)} ct`
+      weight: `${(0.5 + Math.random() * 3).toFixed(1)} ct`,
+      status: statuses[i % 3]
     });
   });
 
@@ -65,7 +68,8 @@ const generateProducts = (): Product[] => {
       image: images[i % 4],
       category: "gold",
       purity: ["999.9", "916", "750"][i % 3],
-      weight: ["50g", "100g", "250g", "500g", "1kg", "1 oz"][i % 6]
+      weight: ["50g", "100g", "250g", "500g", "1kg", "1 oz"][i % 6],
+      status: statuses[(i + 1) % 3]
     });
   });
 
@@ -89,7 +93,8 @@ const generateProducts = (): Product[] => {
       image: images[i % 4],
       category: "silver",
       purity: ["999", "9999", "925"][i % 3],
-      weight: ["1 oz", "100g", "500g", "1kg", "5kg"][i % 5]
+      weight: ["1 oz", "100g", "500g", "1kg", "5kg"][i % 5],
+      status: statuses[(i + 2) % 3]
     });
   });
 
@@ -113,7 +118,8 @@ const generateProducts = (): Product[] => {
       image: images[i % 4],
       category: "platinum",
       purity: "999.5",
-      weight: ["1 oz", "100g", "250g", "500g", "1kg"][i % 5]
+      weight: ["1 oz", "100g", "250g", "500g", "1kg"][i % 5],
+      status: statuses[i % 3]
     });
   });
 
@@ -137,7 +143,8 @@ const generateProducts = (): Product[] => {
       image: images[i % 4],
       category: "sapphire",
       purity: ["AAA", "AAA+", "AA", "Exceptional"][i % 4],
-      weight: `${(1 + Math.random() * 5).toFixed(1)} ct`
+      weight: `${(1 + Math.random() * 5).toFixed(1)} ct`,
+      status: statuses[(i + 1) % 3]
     });
   });
 

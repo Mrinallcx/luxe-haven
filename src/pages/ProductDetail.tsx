@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info } from "lucide-react";
+import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 
 // Mock transaction data
@@ -337,12 +337,32 @@ const ProductDetail = () => {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
                   <Link to={`/product/${relatedProduct.id}`} className="group block">
-                    <div className="aspect-square bg-cream rounded-lg overflow-hidden mb-3">
+                    <div className="relative aspect-square bg-cream rounded-lg overflow-hidden mb-3">
                       <img
                         src={relatedProduct.image}
                         alt={relatedProduct.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
+                      {/* Status Badge */}
+                      {relatedProduct.status && (
+                        <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          relatedProduct.status === "auction" 
+                            ? "bg-gold/90 text-charcoal" 
+                            : "bg-charcoal/90 text-cream"
+                        }`}>
+                          {relatedProduct.status === "auction" ? (
+                            <>
+                              <Gavel className="w-3 h-3" />
+                              Auction
+                            </>
+                          ) : (
+                            <>
+                              <Tag className="w-3 h-3" />
+                              On Sale
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <h3 className="font-serif text-foreground text-sm mb-1 group-hover:text-gold transition-colors">
                       {relatedProduct.name}
