@@ -125,84 +125,68 @@ const Account = () => {
 
       {/* Balance Section */}
       <section className="container mx-auto px-4 lg:px-8 max-w-[1400px] mt-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="bg-muted/20 border-border hover:border-gold/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-gold/10 rounded-lg">
-                    <Diamond className="w-5 h-5 text-gold" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">Owned Diamonds</span>
-                </div>
-                <p className="text-2xl md:text-3xl font-serif text-foreground">{balanceData.ownedDiamonds}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md"
+        >
+          <Card className="bg-muted/10 border-border overflow-hidden">
+            <CardContent className="p-6 space-y-0">
+              {/* Owned Diamonds */}
+              <div className="flex items-center justify-between py-4">
+                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
+                  Owned Diamonds
+                </span>
+                <span className="px-4 py-1.5 bg-muted/30 border border-border rounded-full text-foreground font-serif text-sm">
+                  {balanceData.ownedDiamonds} DIAMOND
+                </span>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="bg-muted/20 border-border hover:border-gold/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <Coins className="w-5 h-5 text-green-500" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">Claimed Toto</span>
-                </div>
-                <p className="text-2xl md:text-3xl font-serif text-foreground">{balanceData.claimedToto.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+              <div className="border-t border-border" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="bg-muted/20 border-border hover:border-gold/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-amber-500/10 rounded-lg">
-                    <Gift className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">Claimable Toto</span>
-                </div>
-                <p className="text-2xl md:text-3xl font-serif text-foreground">{balanceData.claimableToto.toLocaleString()}</p>
-                {balanceData.claimableToto > 0 && (
-                  <Button size="sm" className="mt-3 rounded-full bg-gold text-charcoal hover:bg-gold/90 text-xs">
-                    Claim Now
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+              {/* Claimed Toto */}
+              <div className="flex items-center justify-between py-4">
+                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
+                  Claimed Toto
+                </span>
+                <span className="text-muted-foreground font-serif">
+                  {balanceData.claimedToto.toLocaleString()} TOTO
+                </span>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="bg-muted/20 border-border hover:border-gold/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-500/10 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-purple-500" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">Total Toto</span>
-                </div>
-                <p className="text-2xl md:text-3xl font-serif text-foreground">{balanceData.totalToto.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+              <div className="border-t border-border" />
+
+              {/* Claimable Toto */}
+              <div className="flex items-center justify-between py-4">
+                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
+                  Claimable Toto
+                </span>
+                <span className="px-4 py-1.5 border border-gold text-gold rounded-full font-serif text-sm">
+                  {balanceData.claimableToto.toLocaleString()} TOTO
+                </span>
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Total Toto */}
+              <div className="flex items-center justify-between py-4">
+                <span className="text-sm tracking-wider uppercase text-muted-foreground font-medium">
+                  Total Toto
+                </span>
+                <span className="text-muted-foreground font-serif">
+                  {balanceData.totalToto.toLocaleString()} TOTO
+                </span>
+              </div>
+
+              {/* Claim Button */}
+              {balanceData.claimableToto > 0 && (
+                <Button className="w-full mt-4 rounded-full border-2 border-gold bg-transparent text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase">
+                  Claim Toto
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </section>
 
       {/* Tabs Section */}
