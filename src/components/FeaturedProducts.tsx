@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingBag, Gavel, Tag } from "lucide-react";
+import { Heart, ShoppingBag, Gavel, Tag, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -128,8 +134,8 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
           <div className="absolute top-4 left-4">
             <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
               product.status === "auction" 
-                ? "bg-amber-500/90 text-white" 
-                : "bg-green-500/90 text-white"
+                ? "bg-gold/90 text-charcoal" 
+                : "bg-charcoal/90 text-cream"
             }`}>
               {product.status === "auction" ? (
                 <>
@@ -250,8 +256,8 @@ const FeaturedProducts = ({
             ))}
           </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-2 bg-muted/20 border border-border rounded-lg p-1">
+          {/* Status Filter - Desktop */}
+          <div className="hidden md:flex items-center gap-2 bg-muted/20 border border-border rounded-lg p-1">
             {statusFilters.map((filter) => (
               <button
                 key={filter.value}
@@ -266,6 +272,41 @@ const FeaturedProducts = ({
                 {filter.label}
               </button>
             ))}
+          </div>
+
+          {/* Status Filter - Mobile Dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="rounded-lg border-border gap-2 text-sm"
+                >
+                  {statusFilters.find(f => f.value === activeStatus)?.icon && (
+                    (() => {
+                      const Icon = statusFilters.find(f => f.value === activeStatus)?.icon;
+                      return Icon ? <Icon className="w-4 h-4" /> : null;
+                    })()
+                  )}
+                  {statusFilters.find(f => f.value === activeStatus)?.label}
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background border-border z-50">
+                {statusFilters.map((filter) => (
+                  <DropdownMenuItem 
+                    key={filter.value}
+                    onClick={() => setActiveStatus(filter.value)}
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
+                    }`}
+                  >
+                    {filter.icon && <filter.icon className="w-4 h-4" />}
+                    {filter.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </motion.div>
 
