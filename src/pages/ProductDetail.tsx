@@ -10,6 +10,11 @@ import { motion } from "framer-motion";
 const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
+  
+  // Get related products from same category (excluding current product)
+  const relatedProducts = allProducts
+    .filter((p) => p.category === product?.category && p.id !== product?.id)
+    .slice(0, 4);
 
   if (!product) {
     return (
@@ -283,6 +288,47 @@ const ProductDetail = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-serif text-foreground">Related Products</h2>
+              <Link 
+                to={`/category/${product.category}`}
+                className="text-sm text-gold hover:text-gold/80 transition-colors"
+              >
+                View All {categoryLabel}
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {relatedProducts.map((relatedProduct, index) => (
+                <motion.div
+                  key={relatedProduct.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                >
+                  <Link to={`/product/${relatedProduct.id}`} className="group block">
+                    <div className="aspect-square bg-cream rounded-lg overflow-hidden mb-3">
+                      <img
+                        src={relatedProduct.image}
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <h3 className="font-serif text-foreground text-sm mb-1 group-hover:text-gold transition-colors">
+                      {relatedProduct.name}
+                    </h3>
+                    <p className="text-gold text-sm font-medium">
+                      €{relatedProduct.price.toLocaleString()}
+                    </p>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Back Link */}
         <div className="mt-12">
