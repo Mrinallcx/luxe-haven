@@ -256,58 +256,38 @@ const FeaturedProducts = ({
             ))}
           </div>
 
-          {/* Status Filter - Desktop */}
-          <div className="hidden md:flex items-center gap-2 bg-muted/20 border border-border rounded-lg p-1">
-            {statusFilters.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setActiveStatus(filter.value)}
-                className={`px-3 py-1.5 text-sm rounded-md flex items-center gap-1.5 transition-all duration-300 ${
-                  activeStatus === filter.value
-                    ? "bg-gold text-charcoal"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+          {/* Status Filter Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="rounded-lg border-border gap-2 text-sm"
               >
-                {filter.icon && <filter.icon className="w-3.5 h-3.5" />}
-                {filter.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Status Filter - Mobile Dropdown */}
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="rounded-lg border-border gap-2 text-sm"
+                {statusFilters.find(f => f.value === activeStatus)?.icon && (
+                  (() => {
+                    const Icon = statusFilters.find(f => f.value === activeStatus)?.icon;
+                    return Icon ? <Icon className="w-4 h-4" /> : null;
+                  })()
+                )}
+                {statusFilters.find(f => f.value === activeStatus)?.label}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background border-border z-50">
+              {statusFilters.map((filter) => (
+                <DropdownMenuItem 
+                  key={filter.value}
+                  onClick={() => setActiveStatus(filter.value)}
+                  className={`flex items-center gap-2 cursor-pointer ${
+                    activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
+                  }`}
                 >
-                  {statusFilters.find(f => f.value === activeStatus)?.icon && (
-                    (() => {
-                      const Icon = statusFilters.find(f => f.value === activeStatus)?.icon;
-                      return Icon ? <Icon className="w-4 h-4" /> : null;
-                    })()
-                  )}
-                  {statusFilters.find(f => f.value === activeStatus)?.label}
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background border-border z-50">
-                {statusFilters.map((filter) => (
-                  <DropdownMenuItem 
-                    key={filter.value}
-                    onClick={() => setActiveStatus(filter.value)}
-                    className={`flex items-center gap-2 cursor-pointer ${
-                      activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
-                    }`}
-                  >
-                    {filter.icon && <filter.icon className="w-4 h-4" />}
-                    {filter.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  {filter.icon && <filter.icon className="w-4 h-4" />}
+                  {filter.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
 
         {/* Products Grid */}
