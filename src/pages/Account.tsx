@@ -77,85 +77,107 @@ const Account = () => {
       <Header />
 
       {/* Banner & Profile Section */}
-      <section className="relative pt-20">
-        {/* Banner */}
-        <div className="h-48 md:h-64 relative overflow-hidden">
-          <img
-            src={userData.banner}
-            alt="Profile Banner"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-          <Button
-            size="sm"
-            variant="outline"
-            className="absolute top-4 right-4 rounded-full bg-background/50 backdrop-blur-sm border-border/50"
-          >
-            <Camera className="w-4 h-4 mr-2" />
-            Edit Banner
-          </Button>
-        </div>
-
-        {/* Profile Info & Balance */}
+      <section className="pt-24 pb-8">
         <div className="container mx-auto px-4 lg:px-8 max-w-[1400px]">
-          <div className="relative -mt-16 md:-mt-20 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-            {/* Profile Info */}
-            <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-6">
-              <div className="relative group">
-                <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-background shadow-xl">
-                  <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="bg-gold/20 text-gold text-2xl font-serif">
-                    {userData.name.split(" ").map(n => n[0]).join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="absolute bottom-1 right-1 rounded-full w-7 h-7 bg-background/80 backdrop-blur-sm border-border/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Camera className="w-3 h-3" />
-                </Button>
+          {/* Banner with rounded corners */}
+          <div className="relative h-40 md:h-52 rounded-xl overflow-hidden bg-muted/30">
+            <img
+              src={userData.banner}
+              alt="Profile Banner"
+              className="w-full h-full object-cover"
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/10 tracking-wider uppercase text-xs"
+            >
+              Edit
+            </Button>
+          </div>
+
+          {/* Profile Row with Balance */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mt-4">
+            {/* Left: Avatar + Name + Action Buttons */}
+            <div className="flex flex-col">
+              {/* Avatar overlapping banner */}
+              <div className="relative -mt-16 ml-4 mb-4">
+                <div className="relative group">
+                  <Avatar className="w-24 h-24 border-4 border-background shadow-xl">
+                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                    <AvatarFallback className="bg-gold/20 text-gold text-xl font-serif">
+                      {userData.name.split(" ").map(n => n[0]).join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
-              <div className="text-center md:text-left pb-2">
-                <h1 className="text-xl md:text-2xl font-serif text-foreground">{userData.name}</h1>
-                <p className="text-sm text-muted-foreground">{userData.email}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Member since {userData.memberSince}</p>
+
+              {/* Name + Action Buttons Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-4">
+                <h1 className="text-xl font-serif text-foreground flex items-center gap-2">
+                  {userData.name}
+                  <span className="text-gold">✓</span>
+                </h1>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border text-xs tracking-wider uppercase hover:border-gold hover:text-gold"
+                  >
+                    Visit Store
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border text-xs tracking-wider uppercase hover:border-gold hover:text-gold"
+                  >
+                    Marketplace
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border text-xs tracking-wider uppercase hover:border-gold hover:text-gold"
+                  >
+                    Auction Live
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border text-xs tracking-wider uppercase hover:border-gold hover:text-gold"
+                  >
+                    Buy Toto
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Balance Card */}
+            {/* Right: Balance Card */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="w-full lg:w-auto"
+              className="w-full lg:w-auto px-4 lg:px-0"
             >
-              <Card className="bg-muted/10 border-border lg:min-w-[340px]">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between py-2">
+              <Card className="bg-muted/10 border-border lg:min-w-[320px]">
+                <CardContent className="p-4 space-y-0">
+                  <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Owned Diamonds</span>
-                    <span className="px-3 py-1 bg-muted/30 border border-border rounded-full text-foreground font-serif text-xs">
-                      {balanceData.ownedDiamonds} DIAMOND
-                    </span>
+                    <span className="text-foreground font-serif text-sm">{balanceData.ownedDiamonds} DIAMOND</span>
                   </div>
-                  <div className="border-t border-border" />
-                  <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimed Toto</span>
                     <span className="text-muted-foreground font-serif text-sm">{balanceData.claimedToto.toLocaleString()} TOTO</span>
                   </div>
-                  <div className="border-t border-border" />
-                  <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimable Toto</span>
                     <span className="px-3 py-1 border border-gold text-gold rounded-full font-serif text-xs">
                       {balanceData.claimableToto.toLocaleString()} TOTO
                     </span>
                   </div>
-                  <div className="border-t border-border" />
-                  <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Total Toto</span>
                     <span className="text-muted-foreground font-serif text-sm">{balanceData.totalToto.toLocaleString()} TOTO</span>
                   </div>
                   {balanceData.claimableToto > 0 && (
-                    <Button className="w-full mt-3 rounded-full border border-gold bg-transparent text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase text-xs py-2 h-auto">
+                    <Button className="w-full mt-3 rounded-full bg-gold/10 border border-gold text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase text-xs py-2.5 h-auto">
                       Claim Toto
                     </Button>
                   )}
