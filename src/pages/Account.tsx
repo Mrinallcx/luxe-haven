@@ -31,7 +31,7 @@ const balanceData = {
 };
 
 // Mock owned diamonds
-const ownedDiamonds = allProducts.filter(p => p.category === "Diamonds").slice(0, 6);
+const ownedDiamonds = allProducts.filter(p => p.category === "diamonds").slice(0, 6);
 
 // Mock bids data with product references
 const bidsProducts = allProducts.filter(p => p.category === "diamonds").slice(10, 16);
