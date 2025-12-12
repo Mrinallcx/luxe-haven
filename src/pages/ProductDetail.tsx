@@ -6,8 +6,11 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag } from "lucide-react";
+import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -35,6 +38,9 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
   const [visibleTransactions, setVisibleTransactions] = useState(10);
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { toast } = useToast();
   
   // Get related products from same category (excluding current product)
   const relatedProducts = allProducts
@@ -258,9 +264,25 @@ const ProductDetail = () => {
                 {product.purity} | {product.weight} | Premium
               </p>
               <div className="flex items-center gap-4">
-                <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                  <Heart className="w-4 h-4" />
-                  <span className="text-sm">64</span>
+                <button 
+                  onClick={() => {
+                    if (isInWishlist(product.id)) {
+                      removeFromWishlist(product.id);
+                      toast({
+                        title: "Removed from wishlist",
+                        description: `${product.name} has been removed from your wishlist.`,
+                      });
+                    } else {
+                      addToWishlist(product);
+                      toast({
+                        title: "Added to wishlist",
+                        description: `${product.name} has been added to your wishlist.`,
+                      });
+                    }
+                  }}
+                  className="flex items-center gap-1 text-muted-foreground hover:text-gold transition-colors"
+                >
+                  <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : ""}`} />
                 </button>
                 <button className="text-muted-foreground hover:text-foreground transition-colors">
                   <Share2 className="w-4 h-4" />
@@ -292,8 +314,28 @@ const ProductDetail = () => {
               <p className="text-3xl font-semibold text-foreground mb-4">
                 €{product.price.toLocaleString()}
               </p>
-              <Button className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base">
-                BUY NOW
+              <Button 
+                onClick={() => {
+                  if (product.status === "auction") return;
+                  addToCart(product);
+                  toast({
+                    title: "Added to cart",
+                    description: `${product.name} has been added to your cart.`,
+                  });
+                }}
+                className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base gap-2"
+              >
+                {product.status === "auction" ? (
+                  <>
+                    <Gavel className="w-5 h-5" />
+                    PLACE BID
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-5 h-5" />
+                    ADD TO CART
+                  </>
+                )}
               </Button>
             </div>
 

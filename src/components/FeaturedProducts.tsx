@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingBag, Gavel, Tag, ChevronDown } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -113,6 +116,59 @@ const statusFilters = [
 ];
 
 const ProductCard = ({ product, index }: { product: typeof products[0]; index: number }) => {
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { toast } = useToast();
+  const inWishlist = isInWishlist(product.id);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product.status === "auction") return;
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      pricePerUnit: product.pricePerUnit,
+      image: product.image,
+      category: product.category,
+      purity: product.purity,
+      weight: product.weight,
+      status: product.status,
+    });
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const productData = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      pricePerUnit: product.pricePerUnit,
+      image: product.image,
+      category: product.category,
+      purity: product.purity,
+      weight: product.weight,
+      status: product.status,
+    };
+    if (inWishlist) {
+      removeFromWishlist(product.id);
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      });
+    } else {
+      addToWishlist(productData);
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist.`,
+      });
+    }
+  };
+
   return (
     <Link to={`/product/${product.id}`}>
       <motion.article
@@ -152,15 +208,17 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
           </div>
           {/* Wishlist Button */}
           <button 
-            onClick={(e) => e.preventDefault()}
-            className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-background"
+            onClick={handleWishlist}
+            className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
+              inWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
           >
-            <Heart className="w-5 h-5 text-foreground" />
+            <Heart className={`w-5 h-5 ${inWishlist ? "fill-gold text-gold" : "text-foreground"}`} />
           </button>
           {/* Quick Add Button */}
           <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button 
-              onClick={(e) => e.preventDefault()}
+              onClick={handleAddToCart}
               className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
             >
               {product.status === "auction" ? (

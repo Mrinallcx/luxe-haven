@@ -12,6 +12,8 @@ import { allProducts, Product } from "@/data/products";
 import { Link } from "react-router-dom";
 import AccountProductCard from "@/components/AccountProductCard";
 import ViewToggle from "@/components/ViewToggle";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock user data
 const userData = {
@@ -65,14 +67,21 @@ const referralData = {
   ],
 };
 
-// Mock wishlist
-const wishlistItems = allProducts.slice(5, 9);
-
 const Account = () => {
   const [copied, setCopied] = useState(false);
   const [ownedViewMode, setOwnedViewMode] = useState<"grid" | "list">("grid");
   const [bidsViewMode, setBidsViewMode] = useState<"grid" | "list">("grid");
   const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
+  const { items: wishlistItems, removeFromWishlist } = useWishlist();
+  const { toast } = useToast();
+
+  const handleRemoveFromWishlist = (productId: number) => {
+    removeFromWishlist(productId);
+    toast({
+      title: "Removed from wishlist",
+      description: "Item has been removed from your wishlist.",
+    });
+  };
 
   const copyReferralCode = () => {
     navigator.clipboard.writeText(referralData.code);
@@ -389,21 +398,34 @@ const Account = () => {
               <p className="text-muted-foreground text-sm">{wishlistItems.length} saved items</p>
               <ViewToggle viewMode={wishlistViewMode} onViewChange={setWishlistViewMode} />
             </div>
-            <div className={wishlistViewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"
-            }>
-              {wishlistItems.map((product, index) => (
-                <AccountProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  viewMode={wishlistViewMode}
-                  variant="wishlist"
-                  onRemove={() => console.log("Remove from wishlist:", product.id)}
-                />
-              ))}
-            </div>
+            {wishlistItems.length === 0 ? (
+              <div className="text-center py-16">
+                <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">Your wishlist is empty</p>
+                <p className="text-muted-foreground text-sm mb-6">Add items to your wishlist by clicking the heart icon on any product.</p>
+                <Link to="/">
+                  <Button className="rounded-full bg-gold hover:bg-gold/90 text-charcoal">
+                    Browse Products
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className={wishlistViewMode === "grid" 
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+                : "flex flex-col gap-4"
+              }>
+                {wishlistItems.map((product, index) => (
+                  <AccountProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    viewMode={wishlistViewMode}
+                    variant="wishlist"
+                    onRemove={() => handleRemoveFromWishlist(product.id)}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </section>
