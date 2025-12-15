@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -161,6 +162,10 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden bg-background border-border">
+        <VisuallyHidden>
+          <DialogTitle>Demand Us</DialogTitle>
+          <DialogDescription>Find assets based on your preferences and budget</DialogDescription>
+        </VisuallyHidden>
         <div className="p-6 pb-0">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-xl text-foreground">Demand Us</h2>
