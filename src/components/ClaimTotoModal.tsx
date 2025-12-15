@@ -69,7 +69,7 @@ const ClaimTotoModal = ({
                   <p className="text-xs tracking-wider uppercase text-muted-foreground mb-1">
                     Unclaimed Rewards
                   </p>
-                  <p className="text-2xl font-serif text-gold">
+                  <p className="text-2xl font-sans font-medium text-gold">
                     {claimableAmount.toLocaleString()} TOTO
                   </p>
                 </div>
@@ -164,7 +164,7 @@ const ClaimTotoModal = ({
                 <p className="text-lg font-serif text-foreground">
                   Rewards Credited to Your Wallet
                 </p>
-                <p className="text-2xl font-serif text-gold">
+                <p className="text-2xl font-sans font-medium text-gold">
                   +{claimableAmount.toLocaleString()} TOTO
                 </p>
               </div>
