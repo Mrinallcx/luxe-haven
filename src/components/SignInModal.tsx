@@ -19,11 +19,12 @@ import { CheckCircle, Mail, KeyRound } from "lucide-react";
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSignIn?: () => void;
 }
 
 type Step = "email" | "otp" | "success";
 
-const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
+const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -42,6 +43,7 @@ const SignInModal = ({ open, onOpenChange }: SignInModalProps) => {
       setStep("success");
       setTimeout(() => {
         onOpenChange(false);
+        onSignIn?.();
         navigate("/account");
         // Reset state for next time
         setStep("email");
