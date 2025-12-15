@@ -108,7 +108,8 @@ const ViewOfferModal = ({
             {/* Cancel Button */}
             <Button
               onClick={handleCancel}
-              className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
+              variant="outline"
+              className="w-full rounded-full border-charcoal/30 text-charcoal font-medium py-6 hover:bg-charcoal/5"
             >
               Cancel Offer
             </Button>
