@@ -50,7 +50,7 @@ const PlaceBidModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-charcoal border-border/50 p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md bg-cream border-border/50 p-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {step === "form" && (
             <motion.div
@@ -62,46 +62,46 @@ const PlaceBidModal = ({
             >
               {/* Header */}
               <div className="text-center mb-6">
-                <h2 className="font-serif text-xl text-cream mb-1">Place Your Bid</h2>
-                <p className="text-sm text-muted-foreground">{productName}</p>
+                <h2 className="font-serif text-xl text-charcoal mb-1">Place Your Bid</h2>
+                <p className="text-sm text-charcoal/60">{productName}</p>
               </div>
 
               {/* Price Calculator */}
               <div className="mb-6">
-                <p className="text-sm text-cream mb-3">Price</p>
+                <p className="text-sm text-charcoal mb-3">Price</p>
                 <div className="flex items-center gap-2 justify-center">
-                  <span className="px-4 py-2.5 bg-muted/30 text-cream rounded-lg font-sans font-medium">
+                  <span className="px-4 py-2.5 bg-charcoal/10 text-charcoal rounded-lg font-sans font-medium">
                     {minimumBid.toLocaleString()}
                   </span>
-                  <span className="text-cream">+</span>
-                  <span className="px-4 py-2.5 bg-muted/30 text-cream rounded-lg font-sans font-medium">
+                  <span className="text-charcoal">+</span>
+                  <span className="px-4 py-2.5 bg-charcoal/10 text-charcoal rounded-lg font-sans font-medium">
                     {increment.toLocaleString()}
                   </span>
-                  <span className="text-cream">×</span>
+                  <span className="text-charcoal">×</span>
                   <Input
                     type="number"
                     min={1}
                     value={multiplier}
                     onChange={(e) => setMultiplier(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-20 text-center bg-charcoal border-gold/50 text-cream font-sans font-medium focus:border-gold"
+                    className="w-20 text-center bg-cream border-charcoal/30 text-charcoal font-sans font-medium focus:border-charcoal"
                   />
-                  <span className="px-3 py-2.5 bg-muted/30 text-cream rounded-lg text-sm">
+                  <span className="px-3 py-2.5 bg-charcoal/10 text-charcoal rounded-lg text-sm">
                     {currency}
                   </span>
                 </div>
               </div>
 
               {/* Bid Details */}
-              <div className="space-y-3 mb-6 pb-6 border-b border-border/30">
+              <div className="space-y-3 mb-6 pb-6 border-b border-charcoal/10">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Minimum bidding</span>
-                  <span className="text-cream font-sans font-medium">
+                  <span className="text-charcoal/60 text-sm">Minimum bidding</span>
+                  <span className="text-charcoal font-sans font-medium">
                     {minimumBid.toLocaleString()} {currency}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Must bid in increment of</span>
-                  <span className="text-cream font-sans font-medium">
+                  <span className="text-charcoal/60 text-sm">Must bid in increment of</span>
+                  <span className="text-charcoal font-sans font-medium">
                     {increment.toLocaleString()}
                   </span>
                 </div>
@@ -110,26 +110,26 @@ const PlaceBidModal = ({
               {/* Calculated Amounts */}
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Your bid amount</span>
-                  <span className="text-cream font-sans font-medium text-lg">
+                  <span className="text-charcoal/60 text-sm">Your bid amount</span>
+                  <span className="text-charcoal font-sans font-medium text-lg">
                     {bidAmount.toLocaleString()} {currency}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-muted-foreground text-sm">Service charge</span>
+                    <span className="text-charcoal/60 text-sm">Service charge</span>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                          <HelpCircle className="w-3.5 h-3.5 text-charcoal/40" />
                         </TooltipTrigger>
-                        <TooltipContent className="bg-background border-border">
+                        <TooltipContent className="bg-charcoal border-border text-cream">
                           <p className="text-sm">0.1% service fee on winning bids</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <span className="text-cream font-sans font-medium">
+                  <span className="text-charcoal font-sans font-medium">
                     {serviceCharge.toFixed(1)} {currency}
                   </span>
                 </div>
@@ -165,8 +165,8 @@ const PlaceBidModal = ({
               >
                 <Loader2 className="w-12 h-12 text-gold" />
               </motion.div>
-              <h3 className="font-serif text-xl text-cream mb-2">Processing</h3>
-              <p className="text-sm text-muted-foreground text-center">
+              <h3 className="font-serif text-xl text-charcoal mb-2">Processing</h3>
+              <p className="text-sm text-charcoal/60 text-center">
                 Submitting your bid...
               </p>
             </motion.div>
@@ -189,8 +189,8 @@ const PlaceBidModal = ({
                   <div className="w-6 h-6 rounded-full bg-gold/30" />
                 </div>
               </motion.div>
-              <h3 className="font-serif text-xl text-cream mb-2">Confirming</h3>
-              <p className="text-sm text-muted-foreground text-center">
+              <h3 className="font-serif text-xl text-charcoal mb-2">Confirming</h3>
+              <p className="text-sm text-charcoal/60 text-center">
                 Waiting for blockchain confirmation...
               </p>
             </motion.div>
@@ -212,8 +212,8 @@ const PlaceBidModal = ({
               >
                 <Check className="w-8 h-8 text-gold" />
               </motion.div>
-              <h3 className="font-serif text-xl text-cream mb-2">Bid Placed!</h3>
-              <p className="text-sm text-muted-foreground text-center mb-2">
+              <h3 className="font-serif text-xl text-charcoal mb-2">Bid Placed!</h3>
+              <p className="text-sm text-charcoal/60 text-center mb-2">
                 Your bid of {bidAmount.toLocaleString()} {currency} has been placed
               </p>
               <p className="text-gold font-sans font-medium text-lg mb-6">
@@ -222,7 +222,7 @@ const PlaceBidModal = ({
               <Button
                 onClick={handleClose}
                 variant="outline"
-                className="rounded-full border-cream/30 text-cream hover:bg-cream/10"
+                className="rounded-full border-charcoal/30 text-charcoal hover:bg-charcoal/10"
               >
                 Close
               </Button>
