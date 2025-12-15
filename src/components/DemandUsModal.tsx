@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus, Gavel } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -384,6 +384,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                   {filteredProducts.map((product) => {
                     const isInCart = cartItems.has(product.id);
                     const qty = cartItems.get(product.id) || 0;
+                    const isAuction = product.status === "auction";
                     
                     return (
                       <div
@@ -412,7 +413,20 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                           <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
                           <p className="text-xs text-gold font-semibold">${product.price.toLocaleString()}</p>
                           
-                          {isInCart ? (
+                          {isAuction ? (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                resetAndClose();
+                                // Navigate to product detail for bidding
+                                window.location.href = `/product/${product.id}`;
+                              }}
+                              className="w-full mt-2 h-7 text-xs bg-gold hover:bg-gold/90 text-charcoal rounded-lg gap-1"
+                            >
+                              <Gavel className="w-3 h-3" />
+                              Place Bid
+                            </Button>
+                          ) : isInCart ? (
                             <div className="flex items-center justify-between mt-2">
                               <button
                                 onClick={() => updateQuantity(product.id, -1)}
@@ -454,20 +468,20 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
           </AnimatePresence>
         </ScrollArea>
 
-        {/* Footer with Cart Summary */}
+        {/* Footer with Cart Summary - Fixed positioning */}
         {step === "results" && cartItems.size > 0 && (
-          <div className="border-t border-border p-4 bg-muted/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-gold" />
-                <span className="text-sm text-foreground">{totalCartItems} item(s) selected</span>
+          <div className="sticky bottom-0 left-0 right-0 border-t border-border p-4 bg-background z-10">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 min-w-0">
+                <ShoppingCart className="w-5 h-5 text-gold flex-shrink-0" />
+                <span className="text-sm text-foreground truncate">{totalCartItems} item(s) selected</span>
               </div>
               <Button
                 onClick={handleAddAllToCart}
-                className="bg-gold hover:bg-gold/90 text-charcoal rounded-full gap-2"
+                className="bg-gold hover:bg-gold/90 text-charcoal rounded-full gap-2 flex-shrink-0"
               >
                 <Check className="w-4 h-4" />
-                Add All to Cart
+                Add to Cart
               </Button>
             </div>
           </div>
