@@ -190,28 +190,23 @@ const Account = () => {
               <Card className="bg-muted/10 border-border lg:min-w-[320px]">
                 <CardContent className="p-4 space-y-0">
                   <div className="flex items-center justify-between py-2.5">
-                    <span className="text-xs tracking-wider uppercase text-muted-foreground">Owned Diamonds</span>
-                    <span className="text-foreground font-sans font-medium text-sm">{balanceData.ownedDiamonds} DIAMOND</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimed Toto</span>
-                    <span className="text-muted-foreground font-sans font-medium text-sm">{balanceData.claimedToto.toLocaleString()} TOTO</span>
+                    <span className="text-foreground font-sans font-medium text-sm">{balanceData.claimedToto.toLocaleString()} TOTO</span>
                   </div>
                   <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimable Toto</span>
-                    <span className="px-3 py-1 border border-gold text-gold rounded-full font-sans font-medium text-xs">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="px-3 py-1 h-auto border-gold text-gold rounded-full font-sans font-medium text-xs hover:bg-gold hover:text-charcoal"
+                    >
                       {balanceData.claimableToto.toLocaleString()} TOTO
-                    </span>
+                    </Button>
                   </div>
                   <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Total Toto</span>
-                    <span className="text-muted-foreground font-sans font-medium text-sm">{balanceData.totalToto.toLocaleString()} TOTO</span>
+                    <span className="text-foreground font-sans font-medium text-sm">{balanceData.totalToto.toLocaleString()} TOTO</span>
                   </div>
-                  {balanceData.claimableToto > 0 && (
-                    <Button className="w-full mt-3 rounded-full bg-gold/10 border border-gold text-gold hover:bg-gold hover:text-charcoal transition-all tracking-wider uppercase text-xs py-2.5 h-auto">
-                      Claim Toto
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
             </motion.div>
