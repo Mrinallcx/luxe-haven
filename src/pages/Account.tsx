@@ -71,8 +71,6 @@ const referralData = {
 
 const Account = () => {
   const [copied, setCopied] = useState(false);
-  const [ownedViewMode, setOwnedViewMode] = useState<"grid" | "list">("grid");
-  const [bidsViewMode, setBidsViewMode] = useState<"grid" | "list">("grid");
   const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
   const { items: wishlistItems, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
@@ -269,18 +267,14 @@ const Account = () => {
           <TabsContent value="owned" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{ownedDiamonds.length} items</p>
-              <ViewToggle viewMode={ownedViewMode} onViewChange={setOwnedViewMode} />
             </div>
-            <div className={ownedViewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"
-            }>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {ownedDiamonds.map((product, index) => (
                 <AccountProductCard
                   key={product.id}
                   product={product}
                   index={index}
-                  viewMode={ownedViewMode}
+                  viewMode="grid"
                   variant="owned"
                   onListForSale={() => handleListForSale(product)}
                 />
@@ -292,18 +286,14 @@ const Account = () => {
           <TabsContent value="bids" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{bidsData.length} active bids</p>
-              <ViewToggle viewMode={bidsViewMode} onViewChange={setBidsViewMode} />
             </div>
-            <div className={bidsViewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"
-            }>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {bidsData.map((bid, index) => (
                 <AccountProductCard
                   key={bid.product.id}
                   product={bid.product}
                   index={index}
-                  viewMode={bidsViewMode}
+                  viewMode="grid"
                   variant="bid"
                   bidData={{
                     bidAmount: bid.bidAmount,
