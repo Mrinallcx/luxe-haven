@@ -381,7 +381,7 @@ const Category = () => {
         onOpenChange={(open) => !open && setBidModalProduct(null)}
         productName={bidModalProduct?.name}
         minimumBid={bidModalProduct ? Math.floor(bidModalProduct.price / 10) : 100}
-        increment={bidModalProduct ? Math.floor(bidModalProduct.price / 100) : 1000}
+        increment={1000}
         currency="LCX"
       />
     </div>

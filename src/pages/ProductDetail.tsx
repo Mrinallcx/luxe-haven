@@ -487,7 +487,7 @@ const ProductDetail = () => {
         onOpenChange={setIsBidModalOpen}
         productName={product.name}
         minimumBid={Math.floor(product.price / 10)}
-        increment={Math.floor(product.price / 100)}
+        increment={1000}
         currency="LCX"
       />
     </div>
