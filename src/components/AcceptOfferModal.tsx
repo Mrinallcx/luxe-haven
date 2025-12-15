@@ -21,10 +21,11 @@ const formatTimeRemaining = (expiresAt: number) => {
   const days = Math.floor(diff / (24 * 60 * 60 * 1000));
   const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
   const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((diff % (60 * 1000)) / 1000);
   
-  if (days > 0) return `in ${days}d ${hours}h`;
-  if (hours > 0) return `in ${hours}h ${minutes}m`;
-  return `in ${minutes}m`;
+  if (days > 0) return `in ${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `in ${hours}h ${minutes}m ${seconds}s`;
+  return `in ${minutes}m ${seconds}s`;
 };
 
 const AcceptOfferModal = ({
