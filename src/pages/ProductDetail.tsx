@@ -406,23 +406,6 @@ const ProductDetail = () => {
                 )}
               </Button>
             </div>
-
-            {/* Price Comparison */}
-            <div>
-              <h4 className="font-serif text-foreground mb-3">Price Comparison</h4>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="flex items-center gap-2 text-xs text-green-500">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  LIVE
-                </span>
-                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
-                  Competitor A - €{(product.price * 1.15).toLocaleString()}
-                </span>
-                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
-                  Competitor B - €{(product.price * 1.2).toLocaleString()}
-                </span>
-              </div>
-            </div>
           </motion.div>
         </div>
 
