@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus, Gavel } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus, Gavel, Shuffle } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [selectedSaleType, setSelectedSaleType] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
   const [caratRange, setCaratRange] = useState<number[]>([0.1, 10]);
+  const [shuffleSeed, setShuffleSeed] = useState(0);
 
   const { addToCart } = useCart();
 
@@ -91,8 +92,18 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
       }
     }
 
-    return products.slice(0, 12);
-  }, [selectedAsset, effectiveBudget, showAdvanced, priceRange, selectedCuts, selectedSaleType]);
+    // Shuffle products based on seed
+    const shuffled = [...products].sort(() => {
+      const rand = Math.sin(shuffleSeed + products.indexOf(products[0])) * 10000;
+      return rand - Math.floor(rand) - 0.5;
+    });
+
+    return shuffled.slice(0, 12);
+  }, [selectedAsset, effectiveBudget, showAdvanced, priceRange, selectedCuts, selectedSaleType, shuffleSeed]);
+
+  const handleReshuffle = () => {
+    setShuffleSeed(prev => prev + 1);
+  };
 
   const handleAssetSelect = (assetId: string) => {
     setSelectedAsset(assetId);
@@ -306,20 +317,31 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 gap-2">
                   <Button variant="ghost" size="sm" onClick={handleBack} className="gap-1">
                     <ChevronLeft className="w-4 h-4" />
                     Back
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="gap-2"
-                  >
-                    <Settings2 className="w-4 h-4" />
-                    {showAdvanced ? "Hide Filters" : "Advanced Filters"}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleReshuffle}
+                      className="gap-2"
+                    >
+                      <Shuffle className="w-4 h-4" />
+                      Reshuffle
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                      className="gap-2"
+                    >
+                      <Settings2 className="w-4 h-4" />
+                      {showAdvanced ? "Hide Filters" : "Filters"}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Advanced Filters */}
