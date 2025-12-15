@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Heart, Share2, FileText, Shield, Info, Gavel, Tag, ShoppingBag, HandCoins } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -118,9 +118,9 @@ const ProductDetail = () => {
                   <Shield className="w-4 h-4" />
                   <span className="hidden sm:inline">Insurance</span>
                 </TabsTrigger>
-                <TabsTrigger value="returns" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <RotateCcw className="w-4 h-4" />
-                  <span className="hidden sm:inline">Returns</span>
+                <TabsTrigger value="offers" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <HandCoins className="w-4 h-4" />
+                  <span className="hidden sm:inline">Offers</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -210,31 +210,76 @@ const ProductDetail = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="returns" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Return Policy</h3>
+              <TabsContent value="offers" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Current Offers</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  We offer a hassle-free return policy for your peace of mind.
+                  Review and respond to bid offers from potential buyers.
                 </p>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">14-Day Return Window</p>
-                      <p className="text-xs text-muted-foreground">Full refund within 14 days of purchase</p>
+                <div className="space-y-3">
+                  {/* Offer 1 */}
+                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bid Amount</p>
+                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.85).toLocaleString()}</p>
+                      </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-foreground font-medium">LCX</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
+                        Accept
+                      </Button>
+                      <Button size="sm" variant="outline" className="rounded-full text-xs">
+                        Counter
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">Free Return Shipping</p>
-                      <p className="text-xs text-muted-foreground">We cover all return shipping costs</p>
+                  {/* Offer 2 */}
+                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bid Amount</p>
+                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.78).toLocaleString()}</p>
+                      </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-foreground font-medium">USDT</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
+                        Accept
+                      </Button>
+                      <Button size="sm" variant="outline" className="rounded-full text-xs">
+                        Counter
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">Quick Processing</p>
-                      <p className="text-xs text-muted-foreground">Refunds processed within 3-5 business days</p>
+                  {/* Offer 3 */}
+                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bid Amount</p>
+                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.72).toLocaleString()}</p>
+                      </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-foreground font-medium">wETH</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
+                        Accept
+                      </Button>
+                      <Button size="sm" variant="outline" className="rounded-full text-xs">
+                        Counter
+                      </Button>
                     </div>
                   </div>
                 </div>
