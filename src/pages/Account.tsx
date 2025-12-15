@@ -15,6 +15,7 @@ import ViewToggle from "@/components/ViewToggle";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import ListingModal from "@/components/ListingModal";
+import ClaimTotoModal from "@/components/ClaimTotoModal";
 
 // Mock user data
 const userData = {
@@ -77,6 +78,8 @@ const Account = () => {
   const { toast } = useToast();
   const [listingModalOpen, setListingModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [isClaimHovered, setIsClaimHovered] = useState(false);
 
   const handleListForSale = (product: Product) => {
     setSelectedProduct(product);
@@ -198,9 +201,12 @@ const Account = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="px-3 py-1 h-auto border-gold text-gold rounded-full font-sans font-medium text-xs hover:bg-gold hover:text-charcoal"
+                      className="px-3 py-1 h-auto border-gold text-gold rounded-full font-sans font-medium text-xs hover:bg-gold hover:text-charcoal min-w-[90px] transition-all"
+                      onMouseEnter={() => setIsClaimHovered(true)}
+                      onMouseLeave={() => setIsClaimHovered(false)}
+                      onClick={() => setClaimModalOpen(true)}
                     >
-                      {balanceData.claimableToto.toLocaleString()} TOTO
+                      {isClaimHovered ? "Claim" : `${balanceData.claimableToto.toLocaleString()} TOTO`}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between py-2.5">
@@ -449,6 +455,19 @@ const Account = () => {
         onOpenChange={setListingModalOpen}
         productName={selectedProduct?.name}
         onListingComplete={handleListingComplete}
+      />
+
+      {/* Claim Toto Modal */}
+      <ClaimTotoModal
+        open={claimModalOpen}
+        onOpenChange={setClaimModalOpen}
+        claimableAmount={balanceData.claimableToto}
+        onClaimComplete={() => {
+          toast({
+            title: "Rewards claimed",
+            description: `${balanceData.claimableToto.toLocaleString()} TOTO has been credited to your wallet.`,
+          });
+        }}
       />
     </div>
   );
