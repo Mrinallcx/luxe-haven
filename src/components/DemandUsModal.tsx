@@ -177,11 +177,8 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
           <DialogDescription>Find assets based on your preferences and budget</DialogDescription>
         </VisuallyHidden>
         <div className="p-6 pb-0">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h2 className="font-serif text-xl text-foreground">Demand Us</h2>
-            <Button variant="ghost" size="icon" onClick={resetAndClose}>
-              <X className="w-5 h-5" />
-            </Button>
           </div>
 
           {/* Progress Indicator */}
