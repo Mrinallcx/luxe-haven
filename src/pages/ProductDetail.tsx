@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import PlaceBidModal from "@/components/PlaceBidModal";
 import AcceptOfferModal from "@/components/AcceptOfferModal";
 import CounterOfferModal from "@/components/CounterOfferModal";
+import ViewOfferModal from "@/components/ViewOfferModal";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -68,6 +69,7 @@ const ProductDetail = () => {
   const [offers] = useState(getInitialOffers);
   const [selectedOffer, setSelectedOffer] = useState<typeof offers[0] | null>(null);
   const [counterOffer, setCounterOffer] = useState<typeof offers[0] | null>(null);
+  const [viewOffer, setViewOffer] = useState<typeof offers[0] | null>(null);
   const [, setTick] = useState(0);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -291,7 +293,7 @@ const ProductDetail = () => {
                           size="sm" 
                           variant="outline" 
                           className="rounded-full text-xs flex-1 sm:flex-none"
-                          onClick={() => {}}
+                          onClick={() => setViewOffer(offer)}
                         >
                           View Offer
                         </Button>
@@ -568,6 +570,16 @@ const ProductDetail = () => {
         originalPrice={counterOffer ? Math.floor(product.price * counterOffer.priceMultiplier) : 0}
         token={counterOffer?.token || "LCX"}
         expiresAt={counterOffer?.expiresAt || Date.now()}
+      />
+
+      {/* View Offer Modal */}
+      <ViewOfferModal
+        open={!!viewOffer}
+        onOpenChange={(open) => !open && setViewOffer(null)}
+        originalPrice={viewOffer ? Math.floor(product.price * viewOffer.priceMultiplier) : 0}
+        counteredPrice={viewOffer ? Math.floor(product.price * viewOffer.priceMultiplier * 1.2) : 0}
+        token={viewOffer?.token || "LCX"}
+        expiresAt={viewOffer?.expiresAt || Date.now()}
       />
     </div>
   );
