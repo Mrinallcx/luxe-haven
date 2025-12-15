@@ -224,10 +224,10 @@ const Account = () => {
       <section className="container mx-auto px-4 lg:px-8 max-w-[1400px] mt-12 pb-20">
         <Tabs defaultValue="owned" className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <TabsList className="w-max sm:w-full justify-start bg-muted/20 border border-border rounded-lg p-1 h-auto flex sm:grid sm:grid-cols-5 gap-1">
+            <TabsList className="w-max sm:w-auto sm:inline-flex justify-start bg-muted/20 border border-border rounded-xl p-1.5 h-auto flex gap-1 sm:gap-2">
               <TabsTrigger
                 value="owned"
-                className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
                 <Diamond className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
                 <span className="hidden sm:inline">Owned Diamonds</span>
@@ -235,7 +235,7 @@ const Account = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="bids"
-                className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
                 <Gavel className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
                 <span className="hidden sm:inline">Your Bids</span>
@@ -243,21 +243,21 @@ const Account = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="activity"
-                className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
                 <Activity className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
                 Activity
               </TabsTrigger>
               <TabsTrigger
                 value="referral"
-                className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
                 <Users className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
                 Referral
               </TabsTrigger>
               <TabsTrigger
                 value="wishlist"
-                className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
                 <Heart className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
                 Wishlist
