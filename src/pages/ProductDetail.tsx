@@ -228,6 +228,11 @@ const ProductDetail = () => {
                         <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">LCX</p>
                       </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Expires</p>
+                        <p className="text-foreground font-medium">2d 14h</p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
@@ -250,6 +255,11 @@ const ProductDetail = () => {
                         <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">USDT</p>
                       </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Expires</p>
+                        <p className="text-foreground font-medium">5d 8h</p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
@@ -271,6 +281,11 @@ const ProductDetail = () => {
                       <div>
                         <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">wETH</p>
+                      </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Expires</p>
+                        <p className="text-foreground font-medium">12h 30m</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
