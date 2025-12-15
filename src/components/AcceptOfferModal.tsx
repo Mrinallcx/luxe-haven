@@ -61,7 +61,7 @@ const AcceptOfferModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md p-0 bg-cream border-champagne/30 overflow-hidden">
+      <DialogContent className="sm:max-w-md p-0 bg-cream border-champagne/30 overflow-hidden [&>button]:hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
           <h2 className="text-2xl font-serif text-charcoal">Accept Offer</h2>
