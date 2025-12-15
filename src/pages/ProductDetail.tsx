@@ -271,7 +271,7 @@ const ProductDetail = () => {
                           <p className="text-foreground font-medium font-mono text-xs sm:text-sm">{formatTimeRemaining(offer.expiresAt)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                         <Button 
                           size="sm" 
                           className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs flex-1 sm:flex-none"
@@ -286,6 +286,14 @@ const ProductDetail = () => {
                           onClick={() => setCounterOffer(offer)}
                         >
                           Counter
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full text-xs flex-1 sm:flex-none"
+                          onClick={() => {}}
+                        >
+                          View Offer
                         </Button>
                       </div>
                     </div>
