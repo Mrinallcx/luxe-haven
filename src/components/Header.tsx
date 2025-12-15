@@ -5,6 +5,7 @@ import { ShoppingBag, User, Menu, X, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "@/components/SignInModal";
 import {
   DropdownMenu,
@@ -16,17 +17,9 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
   const { getCartCount } = useCart();
+  const { isSignedIn, signIn, signOut } = useAuth();
   const cartCount = getCartCount();
-
-  const handleSignIn = () => {
-    setIsSignedIn(true);
-  };
-
-  const handleSignOut = () => {
-    setIsSignedIn(false);
-  };
 
   const assetLinks = [
     { label: "Diamonds", href: "/category/diamonds" },
@@ -118,7 +111,7 @@ const Header = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={handleSignOut}
+                    onClick={signOut}
                     className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
                   >
                     <LogOut className="w-4 h-4" />
@@ -206,7 +199,7 @@ const Header = () => {
                       className="gap-2 w-full justify-start"
                       onClick={() => {
                         setIsMenuOpen(false);
-                        handleSignOut();
+                        signOut();
                       }}
                     >
                       <LogOut className="w-4 h-4" />
@@ -221,7 +214,7 @@ const Header = () => {
       </AnimatePresence>
 
       {/* Sign In Modal */}
-      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={handleSignIn} />
+      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={signIn} />
     </header>
   );
 };
