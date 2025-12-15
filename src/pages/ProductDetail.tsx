@@ -13,6 +13,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import PlaceBidModal from "@/components/PlaceBidModal";
 import AcceptOfferModal from "@/components/AcceptOfferModal";
+import CounterOfferModal from "@/components/CounterOfferModal";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -66,6 +67,7 @@ const ProductDetail = () => {
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [offers] = useState(getInitialOffers);
   const [selectedOffer, setSelectedOffer] = useState<typeof offers[0] | null>(null);
+  const [counterOffer, setCounterOffer] = useState<typeof offers[0] | null>(null);
   const [, setTick] = useState(0);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -277,7 +279,12 @@ const ProductDetail = () => {
                         >
                           Accept
                         </Button>
-                        <Button size="sm" variant="outline" className="rounded-full text-xs flex-1 sm:flex-none">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full text-xs flex-1 sm:flex-none"
+                          onClick={() => setCounterOffer(offer)}
+                        >
                           Counter
                         </Button>
                       </div>
@@ -544,6 +551,15 @@ const ProductDetail = () => {
         price={selectedOffer ? Math.floor(product.price * selectedOffer.priceMultiplier) : 0}
         token={selectedOffer?.token || "LCX"}
         expiresAt={selectedOffer?.expiresAt || Date.now()}
+      />
+
+      {/* Counter Offer Modal */}
+      <CounterOfferModal
+        open={!!counterOffer}
+        onOpenChange={(open) => !open && setCounterOffer(null)}
+        originalPrice={counterOffer ? Math.floor(product.price * counterOffer.priceMultiplier) : 0}
+        token={counterOffer?.token || "LCX"}
+        expiresAt={counterOffer?.expiresAt || Date.now()}
       />
     </div>
   );
