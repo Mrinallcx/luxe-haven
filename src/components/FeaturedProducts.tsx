@@ -264,7 +264,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
       onOpenChange={setIsBidModalOpen}
       productName={product.name}
       minimumBid={Math.floor(product.price / 10)}
-      increment={Math.floor(product.price / 100)}
+      increment={1000}
       currency="LCX"
     />
     </>
