@@ -12,6 +12,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import PlaceBidModal from "@/components/PlaceBidModal";
+import AcceptOfferModal from "@/components/AcceptOfferModal";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -64,6 +65,7 @@ const ProductDetail = () => {
   const [visibleTransactions, setVisibleTransactions] = useState(10);
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [offers] = useState(getInitialOffers);
+  const [selectedOffer, setSelectedOffer] = useState<typeof offers[0] | null>(null);
   const [, setTick] = useState(0);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -268,7 +270,11 @@ const ProductDetail = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 w-full sm:w-auto">
-                        <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs flex-1 sm:flex-none">
+                        <Button 
+                          size="sm" 
+                          className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs flex-1 sm:flex-none"
+                          onClick={() => setSelectedOffer(offer)}
+                        >
                           Accept
                         </Button>
                         <Button size="sm" variant="outline" className="rounded-full text-xs flex-1 sm:flex-none">
@@ -529,6 +535,15 @@ const ProductDetail = () => {
         minimumBid={Math.floor(product.price / 10)}
         increment={1000}
         currency="LCX"
+      />
+
+      {/* Accept Offer Modal */}
+      <AcceptOfferModal
+        open={!!selectedOffer}
+        onOpenChange={(open) => !open && setSelectedOffer(null)}
+        price={selectedOffer ? Math.floor(product.price * selectedOffer.priceMultiplier) : 0}
+        token={selectedOffer?.token || "LCX"}
+        expiresAt={selectedOffer?.expiresAt || Date.now()}
       />
     </div>
   );
