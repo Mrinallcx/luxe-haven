@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { allProducts, Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import PlaceBidModal from "@/components/PlaceBidModal";
 
 interface DemandUsModalProps {
   open: boolean;
@@ -47,6 +48,10 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [cartItems, setCartItems] = useState<Map<number, number>>(new Map());
   
+  // Place Bid Modal state
+  const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [selectedBidProduct, setSelectedBidProduct] = useState<Product | null>(null);
+  
   // Advanced filters
   const [selectedCuts, setSelectedCuts] = useState<string[]>([]);
   const [selectedClarity, setSelectedClarity] = useState<string[]>([]);
@@ -54,6 +59,11 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
 
   const { addToCart } = useCart();
+
+  const handlePlaceBid = (product: Product) => {
+    setSelectedBidProduct(product);
+    setIsBidModalOpen(true);
+  };
 
   const effectiveBudget = customBudget ? parseInt(customBudget) : selectedBudget;
 
@@ -416,11 +426,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                           {isAuction ? (
                             <Button
                               size="sm"
-                              onClick={() => {
-                                resetAndClose();
-                                // Navigate to product detail for bidding
-                                window.location.href = `/product/${product.id}`;
-                              }}
+                              onClick={() => handlePlaceBid(product)}
                               className="w-full mt-2 h-7 text-xs bg-gold hover:bg-gold/90 text-charcoal rounded-lg gap-1"
                             >
                               <Gavel className="w-3 h-3" />
@@ -487,6 +493,16 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
           </div>
         )}
       </DialogContent>
+      
+      {/* Place Bid Modal */}
+      <PlaceBidModal
+        open={isBidModalOpen}
+        onOpenChange={setIsBidModalOpen}
+        productName={selectedBidProduct?.name}
+        minimumBid={selectedBidProduct?.price ? Math.floor(selectedBidProduct.price * 0.8) : 100}
+        increment={1000}
+        currency="LCX"
+      />
     </Dialog>
   );
 };
