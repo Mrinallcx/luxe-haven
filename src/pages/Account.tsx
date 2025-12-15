@@ -71,7 +71,7 @@ const referralData = {
 
 const Account = () => {
   const [copied, setCopied] = useState(false);
-  const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
+  // Wishlist uses grid view only
   const { items: wishlistItems, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
   const [listingModalOpen, setListingModalOpen] = useState(false);
@@ -407,7 +407,6 @@ const Account = () => {
           <TabsContent value="wishlist" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{wishlistItems.length} saved items</p>
-              <ViewToggle viewMode={wishlistViewMode} onViewChange={setWishlistViewMode} />
             </div>
             {wishlistItems.length === 0 ? (
               <div className="text-center py-16">
@@ -421,16 +420,13 @@ const Account = () => {
                 </Link>
               </div>
             ) : (
-              <div className={wishlistViewMode === "grid" 
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                : "flex flex-col gap-4"
-              }>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {wishlistItems.map((product, index) => (
                   <AccountProductCard
                     key={product.id}
                     product={product}
                     index={index}
-                    viewMode={wishlistViewMode}
+                    viewMode="grid"
                     variant="wishlist"
                     onRemove={() => handleRemoveFromWishlist(product.id)}
                   />
