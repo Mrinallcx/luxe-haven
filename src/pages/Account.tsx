@@ -223,41 +223,46 @@ const Account = () => {
       {/* Tabs Section */}
       <section className="container mx-auto px-4 lg:px-8 max-w-[1400px] mt-12 pb-20">
         <Tabs defaultValue="owned" className="w-full">
-          <TabsList className="w-full justify-start bg-muted/20 border border-border rounded-lg p-1 h-auto flex-wrap">
+          <TabsList className="w-full justify-start bg-muted/20 border border-border rounded-lg p-1 h-auto grid grid-cols-3 sm:grid-cols-5 gap-1">
             <TabsTrigger
               value="owned"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
+              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
-              <Diamond className="w-4 h-4 mr-2" />
-              Owned Diamonds
+              <Diamond className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Owned Diamonds</span>
+              <span className="sm:hidden">Owned</span>
             </TabsTrigger>
             <TabsTrigger
               value="bids"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
+              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
-              <Gavel className="w-4 h-4 mr-2" />
-              Your Bids
+              <Gavel className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Your Bids</span>
+              <span className="sm:hidden">Bids</span>
             </TabsTrigger>
             <TabsTrigger
               value="activity"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
+              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
-              <Activity className="w-4 h-4 mr-2" />
-              Activity
+              <Activity className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Activity</span>
+              <span className="sm:hidden">Activity</span>
             </TabsTrigger>
             <TabsTrigger
               value="referral"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
+              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
-              <Users className="w-4 h-4 mr-2" />
-              Referral
+              <Users className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Referral</span>
+              <span className="sm:hidden">Referral</span>
             </TabsTrigger>
             <TabsTrigger
               value="wishlist"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
+              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
-              <Heart className="w-4 h-4 mr-2" />
-              Wishlist
+              <Heart className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Wishlist</span>
+              <span className="sm:hidden">Wishlist</span>
             </TabsTrigger>
           </TabsList>
 
