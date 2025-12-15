@@ -533,8 +533,71 @@ const ProductDetail = () => {
               </Carousel>
             </div>
 
+            {/* Tablet Carousel */}
+            <div className="hidden md:block lg:hidden">
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-4">
+                  {relatedProducts.map((relatedProduct, index) => (
+                    <CarouselItem key={relatedProduct.id} className="pl-4 basis-1/3">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                      >
+                        <Link to={`/product/${relatedProduct.id}`} className="group block">
+                          <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg">
+                            <div className="relative aspect-square overflow-hidden bg-secondary">
+                              <img
+                                src={relatedProduct.image}
+                                alt={relatedProduct.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute top-4 left-4">
+                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+                                  relatedProduct.status === "auction" 
+                                    ? "bg-gold/90 text-charcoal" 
+                                    : "bg-charcoal/90 text-cream"
+                                }`}>
+                                  {relatedProduct.status === "auction" ? (
+                                    <>
+                                      <Gavel className="w-3 h-3" />
+                                      Auction
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Tag className="w-3 h-3" />
+                                      On Sale
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                                {relatedProduct.name}
+                              </h3>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-lg font-semibold text-foreground">
+                                  €{relatedProduct.price.toLocaleString()}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 bg-background/80 border-border" />
+                <CarouselNext className="right-2 bg-background/80 border-border" />
+              </Carousel>
+            </div>
+
             {/* Desktop Grid */}
-            <div className="hidden md:grid md:grid-cols-4 gap-6">
+            <div className="hidden lg:grid lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct, index) => (
                 <motion.div
                   key={relatedProduct.id}
