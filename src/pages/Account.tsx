@@ -14,6 +14,7 @@ import AccountProductCard from "@/components/AccountProductCard";
 import ViewToggle from "@/components/ViewToggle";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
+import ListingModal from "@/components/ListingModal";
 
 // Mock user data
 const userData = {
@@ -74,6 +75,20 @@ const Account = () => {
   const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
   const { items: wishlistItems, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
+  const [listingModalOpen, setListingModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleListForSale = (product: Product) => {
+    setSelectedProduct(product);
+    setListingModalOpen(true);
+  };
+
+  const handleListingComplete = () => {
+    toast({
+      title: "Listing created",
+      description: `${selectedProduct?.name} has been listed for sale.`,
+    });
+  };
 
   const handleRemoveFromWishlist = (productId: number) => {
     removeFromWishlist(productId);
@@ -262,6 +277,7 @@ const Account = () => {
                   index={index}
                   viewMode={ownedViewMode}
                   variant="owned"
+                  onListForSale={() => handleListForSale(product)}
                 />
               ))}
             </div>
@@ -431,6 +447,14 @@ const Account = () => {
       </section>
 
       <Footer />
+
+      {/* Listing Modal */}
+      <ListingModal
+        open={listingModalOpen}
+        onOpenChange={setListingModalOpen}
+        productName={selectedProduct?.name}
+        onListingComplete={handleListingComplete}
+      />
     </div>
   );
 };
