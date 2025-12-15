@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShoppingBag, Trash2, Gavel } from "lucide-react";
+import { Heart, ShoppingBag, Trash2, Gavel, Tag } from "lucide-react";
 import { Product } from "@/data/products";
 
 interface AccountProductCardProps {
@@ -17,6 +17,7 @@ interface AccountProductCardProps {
     date: string;
   };
   onRemove?: () => void;
+  onListForSale?: () => void;
 }
 
 const AccountProductCard = ({
@@ -26,6 +27,7 @@ const AccountProductCard = ({
   variant = "owned",
   bidData,
   onRemove,
+  onListForSale,
 }: AccountProductCardProps) => {
   if (viewMode === "list") {
     return (
@@ -100,13 +102,23 @@ const AccountProductCard = ({
                   Update Bid
                 </Button>
               )}
-              {variant !== "bid" && (
+              {variant === "owned" && onListForSale && (
+                <Button
+                  size="sm"
+                  className="rounded-full bg-gold text-charcoal hover:bg-gold/90"
+                  onClick={(e) => { e.preventDefault(); onListForSale(); }}
+                >
+                  <Tag className="w-4 h-4 mr-1" />
+                  List for Sale
+                </Button>
+              )}
+              {variant === "wishlist" && (
                 <Button
                   size="sm"
                   className="rounded-full bg-charcoal text-cream hover:bg-charcoal/90"
                 >
                   <ShoppingBag className="w-4 h-4 mr-1" />
-                  {variant === "owned" ? "Sell" : "Buy"}
+                  Buy
                 </Button>
               )}
             </div>
@@ -152,24 +164,34 @@ const AccountProductCard = ({
             </div>
           )}
           
-          <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button
-              onClick={(e) => e.preventDefault()}
-              className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 text-sm"
-            >
-              {variant === "bid" ? (
-                <>
-                  <Gavel className="w-4 h-4" />
-                  Update Bid
-                </>
+            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {variant === "owned" && onListForSale ? (
+                <Button
+                  onClick={(e) => { e.preventDefault(); onListForSale(); }}
+                  className="w-full bg-gold hover:bg-gold/90 text-charcoal rounded-lg gap-2 text-sm"
+                >
+                  <Tag className="w-4 h-4" />
+                  List for Sale
+                </Button>
               ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4" />
-                  {variant === "owned" ? "Sell Now" : "Buy Now"}
-                </>
+                <Button
+                  onClick={(e) => e.preventDefault()}
+                  className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 text-sm"
+                >
+                  {variant === "bid" ? (
+                    <>
+                      <Gavel className="w-4 h-4" />
+                      Update Bid
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" />
+                      Buy Now
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
-          </div>
+            </div>
         </div>
         
         <div className="p-4">
