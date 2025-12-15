@@ -5,6 +5,7 @@ import { ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
+import SignInModal from "@/components/SignInModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const { getCartCount } = useCart();
   const cartCount = getCartCount();
 
@@ -80,7 +82,12 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center gap-2 lg:gap-4">
             <UniversalSearchBar className="hidden lg:block w-64" />
-            <Button variant="outline" size="sm" className="hidden lg:flex rounded-full">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden lg:flex rounded-full"
+              onClick={() => setIsSignInOpen(true)}
+            >
               Sign In
             </Button>
             <Link to="/account">
@@ -141,6 +148,17 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-border mt-2 space-y-3">
                 <UniversalSearchBar className="w-full" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full rounded-full"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsSignInOpen(true);
+                  }}
+                >
+                  Sign In
+                </Button>
                 <Link to="/account" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
                     <User className="w-4 h-4" />
@@ -152,6 +170,9 @@ const Header = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Sign In Modal */}
+      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} />
     </header>
   );
 };
