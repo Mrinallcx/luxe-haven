@@ -36,8 +36,10 @@ const budgetOptions = [
   { value: 100000, label: "$100,000" },
 ];
 
-const cutOptions = ["Round", "Princess", "Cushion", "Oval", "Pear", "Emerald"];
-const clarityOptions = ["SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1"];
+const cutOptions = ["Round", "Princess", "Cushion", "Oval", "Pear", "Emerald", "Heart", "Radiant"];
+const clarityOptions = ["SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "IF"];
+const colorOptions = ["Natural", "Coloured"];
+const purityOptions = ["999", "995", "990", "958", "916", "750"];
 const saleTypeOptions = ["Fixed", "Auction"];
 
 const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
@@ -55,8 +57,11 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   // Advanced filters
   const [selectedCuts, setSelectedCuts] = useState<string[]>([]);
   const [selectedClarity, setSelectedClarity] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedPurity, setSelectedPurity] = useState<string[]>([]);
   const [selectedSaleType, setSelectedSaleType] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
+  const [caratRange, setCaratRange] = useState<number[]>([0.1, 10]);
 
   const { addToCart } = useCart();
 
@@ -154,8 +159,11 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
     setCartItems(new Map());
     setSelectedCuts([]);
     setSelectedClarity([]);
+    setSelectedColors([]);
+    setSelectedPurity([]);
     setSelectedSaleType([]);
     setPriceRange([0, 100000]);
+    setCaratRange([0.1, 10]);
     onOpenChange(false);
   };
 
@@ -354,6 +362,82 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                               }`}
                             >
                               {cut}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Clarity Filter */}
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Clarity</label>
+                        <div className="flex flex-wrap gap-2">
+                          {clarityOptions.map((clarity) => (
+                            <button
+                              key={clarity}
+                              onClick={() => toggleFilter(clarity, selectedClarity, setSelectedClarity)}
+                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                                selectedClarity.includes(clarity) 
+                                  ? "bg-gold/20 border-gold text-foreground" 
+                                  : "border-border text-muted-foreground hover:border-gold/50"
+                              }`}
+                            >
+                              {clarity}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Color Filter */}
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Color</label>
+                        <div className="flex flex-wrap gap-2">
+                          {colorOptions.map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => toggleFilter(color, selectedColors, setSelectedColors)}
+                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                                selectedColors.includes(color) 
+                                  ? "bg-gold/20 border-gold text-foreground" 
+                                  : "border-border text-muted-foreground hover:border-gold/50"
+                              }`}
+                            >
+                              {color}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Carat Range */}
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Carat</label>
+                        <Slider
+                          value={caratRange}
+                          onValueChange={setCaratRange}
+                          min={0.1}
+                          max={10}
+                          step={0.1}
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>{caratRange[0].toFixed(1)} ct</span>
+                          <span>{caratRange[1].toFixed(1)} ct</span>
+                        </div>
+                      </div>
+
+                      {/* Purity Filter */}
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-2 block">Purity</label>
+                        <div className="flex flex-wrap gap-2">
+                          {purityOptions.map((purity) => (
+                            <button
+                              key={purity}
+                              onClick={() => toggleFilter(purity, selectedPurity, setSelectedPurity)}
+                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                                selectedPurity.includes(purity) 
+                                  ? "bg-gold/20 border-gold text-foreground" 
+                                  : "border-border text-muted-foreground hover:border-gold/50"
+                              }`}
+                            >
+                              {purity}
                             </button>
                           ))}
                         </div>
