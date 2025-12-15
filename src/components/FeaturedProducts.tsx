@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Gavel, Tag, ChevronDown } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
+import PlaceBidModal from "@/components/PlaceBidModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,10 +121,14 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
   const inWishlist = isInWishlist(product.id);
+  const [isBidModalOpen, setIsBidModalOpen] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (product.status === "auction") return;
+    if (product.status === "auction") {
+      setIsBidModalOpen(true);
+      return;
+    }
     addToCart({
       id: product.id,
       name: product.name,
@@ -170,6 +175,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
   };
 
   return (
+    <>
     <Link to={`/product/${product.id}`}>
       <motion.article
         layout
@@ -253,6 +259,15 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
         </div>
       </motion.article>
     </Link>
+    <PlaceBidModal
+      open={isBidModalOpen}
+      onOpenChange={setIsBidModalOpen}
+      productName={product.name}
+      minimumBid={Math.floor(product.price / 10)}
+      increment={Math.floor(product.price / 100)}
+      currency="LCX"
+    />
+    </>
   );
 };
 

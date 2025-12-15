@@ -11,6 +11,7 @@ import { allProducts, categoryDescriptions, Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
+import PlaceBidModal from "@/components/PlaceBidModal";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -20,13 +21,17 @@ const Category = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterState>(defaultFilterState);
+  const [bidModalProduct, setBidModalProduct] = useState<Product | null>(null);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
-    if (product.status === "auction") return;
+    if (product.status === "auction") {
+      setBidModalProduct(product);
+      return;
+    }
     addToCart(product);
     toast({
       title: "Added to cart",
@@ -369,6 +374,16 @@ const Category = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Bid Modal */}
+      <PlaceBidModal
+        open={!!bidModalProduct}
+        onOpenChange={(open) => !open && setBidModalProduct(null)}
+        productName={bidModalProduct?.name}
+        minimumBid={bidModalProduct ? Math.floor(bidModalProduct.price / 10) : 100}
+        increment={bidModalProduct ? Math.floor(bidModalProduct.price / 100) : 1000}
+        currency="LCX"
+      />
     </div>
   );
 };

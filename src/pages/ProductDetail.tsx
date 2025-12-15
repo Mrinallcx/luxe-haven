@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
+import PlaceBidModal from "@/components/PlaceBidModal";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -38,6 +39,7 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
   const [visibleTransactions, setVisibleTransactions] = useState(10);
+  const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
@@ -316,7 +318,10 @@ const ProductDetail = () => {
               </p>
               <Button 
                 onClick={() => {
-                  if (product.status === "auction") return;
+                  if (product.status === "auction") {
+                    setIsBidModalOpen(true);
+                    return;
+                  }
                   addToCart(product);
                   toast({
                     title: "Added to cart",
@@ -475,6 +480,16 @@ const ProductDetail = () => {
       </main>
 
       <Footer />
+
+      {/* Bid Modal */}
+      <PlaceBidModal
+        open={isBidModalOpen}
+        onOpenChange={setIsBidModalOpen}
+        productName={product.name}
+        minimumBid={Math.floor(product.price / 10)}
+        increment={Math.floor(product.price / 100)}
+        currency="LCX"
+      />
     </div>
   );
 };
