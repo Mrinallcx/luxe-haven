@@ -225,7 +225,7 @@ const ProductDetail = () => {
                       </div>
                       <div className="h-8 w-px bg-border" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">LCX</p>
                       </div>
                     </div>
@@ -247,7 +247,7 @@ const ProductDetail = () => {
                       </div>
                       <div className="h-8 w-px bg-border" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">USDT</p>
                       </div>
                     </div>
@@ -269,7 +269,7 @@ const ProductDetail = () => {
                       </div>
                       <div className="h-8 w-px bg-border" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Blockchain</p>
+                        <p className="text-sm text-muted-foreground">Token</p>
                         <p className="text-foreground font-medium">wETH</p>
                       </div>
                     </div>
