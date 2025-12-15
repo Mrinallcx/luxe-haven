@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { allProducts } from "@/data/products";
 import Header from "@/components/Header";
@@ -35,14 +35,47 @@ const generateTransactions = (count: number) => {
 
 const allTransactions = generateTransactions(30);
 
+// Mock offers with expiration times
+const getInitialOffers = () => [
+  { id: 1, priceMultiplier: 0.85, token: "LCX", expiresAt: Date.now() + (2 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) },
+  { id: 2, priceMultiplier: 0.78, token: "USDT", expiresAt: Date.now() + (5 * 24 * 60 * 60 * 1000) + (8 * 60 * 60 * 1000) },
+  { id: 3, priceMultiplier: 0.72, token: "wETH", expiresAt: Date.now() + (12 * 60 * 60 * 1000) + (30 * 60 * 1000) },
+];
+
+const formatTimeRemaining = (expiresAt: number) => {
+  const now = Date.now();
+  const diff = expiresAt - now;
+  
+  if (diff <= 0) return "Expired";
+  
+  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((diff % (60 * 1000)) / 1000);
+  
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+  return `${minutes}m ${seconds}s`;
+};
+
 const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
   const [visibleTransactions, setVisibleTransactions] = useState(10);
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [offers] = useState(getInitialOffers);
+  const [, setTick] = useState(0);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
+
+  // Live countdown timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Get related products from same category (excluding current product)
   const relatedProducts = allProducts
@@ -216,87 +249,34 @@ const ProductDetail = () => {
                   Review and respond to bid offers from potential buyers.
                 </p>
                 <div className="space-y-3">
-                  {/* Offer 1 */}
-                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Bid Amount</p>
-                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.85).toLocaleString()}</p>
+                  {offers.map((offer) => (
+                    <div key={offer.id} className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Bid Amount</p>
+                          <p className="text-foreground font-medium">€{Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
+                        </div>
+                        <div className="h-8 w-px bg-border" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Token</p>
+                          <p className="text-foreground font-medium">{offer.token}</p>
+                        </div>
+                        <div className="h-8 w-px bg-border" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Expires</p>
+                          <p className="text-foreground font-medium font-mono text-sm">{formatTimeRemaining(offer.expiresAt)}</p>
+                        </div>
                       </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Token</p>
-                        <p className="text-foreground font-medium">LCX</p>
-                      </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Expires</p>
-                        <p className="text-foreground font-medium">2d 14h</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
-                        Accept
-                      </Button>
-                      <Button size="sm" variant="outline" className="rounded-full text-xs">
-                        Counter
-                      </Button>
-                    </div>
-                  </div>
-                  {/* Offer 2 */}
-                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Bid Amount</p>
-                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.78).toLocaleString()}</p>
-                      </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Token</p>
-                        <p className="text-foreground font-medium">USDT</p>
-                      </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Expires</p>
-                        <p className="text-foreground font-medium">5d 8h</p>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
+                          Accept
+                        </Button>
+                        <Button size="sm" variant="outline" className="rounded-full text-xs">
+                          Counter
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
-                        Accept
-                      </Button>
-                      <Button size="sm" variant="outline" className="rounded-full text-xs">
-                        Counter
-                      </Button>
-                    </div>
-                  </div>
-                  {/* Offer 3 */}
-                  <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Bid Amount</p>
-                        <p className="text-foreground font-medium">€{Math.floor(product.price * 0.72).toLocaleString()}</p>
-                      </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Token</p>
-                        <p className="text-foreground font-medium">wETH</p>
-                      </div>
-                      <div className="h-8 w-px bg-border" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Expires</p>
-                        <p className="text-foreground font-medium">12h 30m</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
-                        Accept
-                      </Button>
-                      <Button size="sm" variant="outline" className="rounded-full text-xs">
-                        Counter
-                      </Button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </TabsContent>
             </Tabs>
