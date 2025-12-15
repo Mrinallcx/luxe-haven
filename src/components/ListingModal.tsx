@@ -29,7 +29,7 @@ const DURATIONS = [
   { value: "15", label: "15 Days" },
   { value: "30", label: "30 Days" },
 ];
-const DISCOUNTS = ["10%", "15%", "20%", "30%"];
+const DISCOUNTS = ["None", "10%", "15%", "20%", "30%"];
 
 const ListingModal = ({
   open,
@@ -40,9 +40,9 @@ const ListingModal = ({
   const [step, setStep] = useState<Step>("form");
   const [saleType, setSaleType] = useState<string>("fixed");
   const [price, setPrice] = useState<string>("");
-  const [token, setToken] = useState<string>("");
+  const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [duration, setDuration] = useState<string>("");
-  const [discount, setDiscount] = useState<string>("");
+  const [discount, setDiscount] = useState<string>("None");
 
   const handleCompleteListing = () => {
     setStep("processing");
@@ -67,13 +67,21 @@ const ListingModal = ({
       setStep("form");
       setSaleType("fixed");
       setPrice("");
-      setToken("");
+      setSelectedTokens([]);
       setDuration("");
-      setDiscount("");
+      setDiscount("None");
     }, 300);
   };
 
-  const isFormValid = price && token && duration && discount;
+  const toggleToken = (token: string) => {
+    setSelectedTokens((prev) =>
+      prev.includes(token)
+        ? prev.filter((t) => t !== token)
+        : [...prev, token]
+    );
+  };
+
+  const isFormValid = price && selectedTokens.length > 0 && duration;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -110,31 +118,36 @@ const ListingModal = ({
                 </Select>
               </div>
 
-              {/* Price & Token */}
+              {/* Price */}
               <div className="space-y-2">
                 <Label className="text-foreground font-sans">
                   {saleType === "auction" ? "Minimum Bid Price" : "Price"}
                 </Label>
-                <div className="flex gap-3">
-                  <Input
-                    type="number"
-                    placeholder="Enter amount"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Select value={token} onValueChange={setToken}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Token" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-border z-50">
-                      {TOKENS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Token Selection - Multi-select */}
+              <div className="space-y-2">
+                <Label className="text-foreground font-sans">Accepted Tokens</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TOKENS.map((t) => (
+                    <Button
+                      key={t}
+                      type="button"
+                      variant={selectedTokens.includes(t) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleToken(t)}
+                      className="rounded-full"
+                    >
+                      {t}
+                    </Button>
+                  ))}
                 </div>
               </div>
 
