@@ -250,28 +250,28 @@ const ProductDetail = () => {
                 </p>
                 <div className="space-y-3">
                   {offers.map((offer) => (
-                    <div key={offer.id} className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-border">
-                      <div className="flex items-center gap-4">
+                    <div key={offer.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background/50 rounded-lg border border-border gap-4">
+                      <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:gap-4">
                         <div>
-                          <p className="text-sm text-muted-foreground">Bid Amount</p>
-                          <p className="text-foreground font-medium">€{Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Bid Amount</p>
+                          <p className="text-foreground font-medium text-sm sm:text-base">€{Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
                         </div>
-                        <div className="h-8 w-px bg-border" />
+                        <div className="hidden sm:block h-8 w-px bg-border" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Token</p>
-                          <p className="text-foreground font-medium">{offer.token}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Token</p>
+                          <p className="text-foreground font-medium text-sm sm:text-base">{offer.token}</p>
                         </div>
-                        <div className="h-8 w-px bg-border" />
+                        <div className="hidden sm:block h-8 w-px bg-border" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Expires</p>
-                          <p className="text-foreground font-medium font-mono text-sm">{formatTimeRemaining(offer.expiresAt)}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Expires</p>
+                          <p className="text-foreground font-medium font-mono text-xs sm:text-sm">{formatTimeRemaining(offer.expiresAt)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs">
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Button size="sm" className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs flex-1 sm:flex-none">
                           Accept
                         </Button>
-                        <Button size="sm" variant="outline" className="rounded-full text-xs">
+                        <Button size="sm" variant="outline" className="rounded-full text-xs flex-1 sm:flex-none">
                           Counter
                         </Button>
                       </div>
