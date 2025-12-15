@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, User, Menu, X, ChevronDown, LogOut } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogOut, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInModal from "@/components/SignInModal";
+import DemandUsModal from "@/components/DemandUsModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isDemandUsOpen, setIsDemandUsOpen] = useState(false);
   const { getCartCount } = useCart();
   const { isSignedIn, signIn, signOut } = useAuth();
   const cartCount = getCartCount();
@@ -79,6 +81,13 @@ const Header = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            <button
+              onClick={() => setIsDemandUsOpen(true)}
+              className="flex items-center gap-1.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              <Sparkles className="w-4 h-4" />
+              Demand Us
+            </button>
           </nav>
 
           {/* Actions */}
@@ -158,6 +167,16 @@ const Header = () => {
               >
                 Blog
               </Link>
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsDemandUsOpen(true);
+                }}
+                className="flex items-center gap-1.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                <Sparkles className="w-4 h-4" />
+                Demand Us
+              </button>
               <div className="text-sm tracking-wider uppercase text-foreground font-medium pt-2">
                 Assets
               </div>
@@ -215,6 +234,9 @@ const Header = () => {
 
       {/* Sign In Modal */}
       <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={signIn} />
+      
+      {/* Demand Us Modal */}
+      <DemandUsModal open={isDemandUsOpen} onOpenChange={setIsDemandUsOpen} />
     </header>
   );
 };
