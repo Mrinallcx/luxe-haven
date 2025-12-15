@@ -430,39 +430,81 @@ const ProductDetail = () => {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
                   <Link to={`/product/${relatedProduct.id}`} className="group block">
-                    <div className="relative aspect-square bg-cream rounded-lg overflow-hidden mb-3">
-                      <img
-                        src={relatedProduct.image}
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {/* Status Badge */}
-                      {relatedProduct.status && (
-                        <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                          relatedProduct.status === "auction" 
-                            ? "bg-gold/90 text-charcoal" 
-                            : "bg-charcoal/90 text-cream"
-                        }`}>
-                          {relatedProduct.status === "auction" ? (
-                            <>
-                              <Gavel className="w-3 h-3" />
-                              Auction
-                            </>
-                          ) : (
-                            <>
-                              <Tag className="w-3 h-3" />
-                              On Sale
-                            </>
-                          )}
+                    <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg">
+                      {/* Image Container */}
+                      <div className="relative aspect-square overflow-hidden bg-secondary">
+                        <img
+                          src={relatedProduct.image}
+                          alt={relatedProduct.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        {/* Status Badge */}
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+                            relatedProduct.status === "auction" 
+                              ? "bg-gold/90 text-charcoal" 
+                              : "bg-charcoal/90 text-cream"
+                          }`}>
+                            {relatedProduct.status === "auction" ? (
+                              <>
+                                <Gavel className="w-3 h-3" />
+                                Auction
+                              </>
+                            ) : (
+                              <>
+                                <Tag className="w-3 h-3" />
+                                On Sale
+                              </>
+                            )}
+                          </span>
                         </div>
-                      )}
+                        {/* Quick Add Button */}
+                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <Button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (relatedProduct.status === "auction") {
+                                return;
+                              }
+                              addToCart(relatedProduct);
+                              toast({
+                                title: "Added to cart",
+                                description: `${relatedProduct.name} has been added to your cart.`,
+                              });
+                            }}
+                            className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+                          >
+                            {relatedProduct.status === "auction" ? (
+                              <>
+                                <Gavel className="w-4 h-4" />
+                                Place Bid
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingBag className="w-4 h-4" />
+                                Add to Cart
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Product Info */}
+                      <div className="p-5">
+                        <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                          {relatedProduct.name}
+                        </h3>
+                        
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-lg font-semibold text-foreground">
+                            €{relatedProduct.price.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="font-serif text-foreground text-sm mb-1 group-hover:text-gold transition-colors">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-gold text-sm font-medium">
-                      €{relatedProduct.price.toLocaleString()}
-                    </p>
                   </Link>
                 </motion.div>
               ))}
