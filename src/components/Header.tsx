@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
@@ -16,8 +16,17 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const { getCartCount } = useCart();
   const cartCount = getCartCount();
+
+  const handleSignIn = () => {
+    setIsSignedIn(true);
+  };
+
+  const handleSignOut = () => {
+    setIsSignedIn(false);
+  };
 
   const assetLinks = [
     { label: "Diamonds", href: "/category/diamonds" },
@@ -82,19 +91,42 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center gap-2 lg:gap-4">
             <UniversalSearchBar className="hidden lg:block w-64" />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="hidden lg:flex rounded-full"
-              onClick={() => setIsSignInOpen(true)}
-            >
-              Sign In
-            </Button>
-            <Link to="/account">
-              <Button variant="ghost" size="icon" className="hidden lg:flex">
-                <User className="w-5 h-5" />
+            {!isSignedIn ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden lg:flex rounded-full"
+                onClick={() => setIsSignInOpen(true)}
+              >
+                Sign In
               </Button>
-            </Link>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden lg:flex">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg" align="end">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/account"
+                      className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Account
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleSignOut}
+                    className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="w-5 h-5" />
@@ -148,23 +180,40 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-border mt-2 space-y-3">
                 <UniversalSearchBar className="w-full" />
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full rounded-full"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setIsSignInOpen(true);
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Link to="/account" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
-                    <User className="w-4 h-4" />
-                    Account
+                {!isSignedIn ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full rounded-full"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsSignInOpen(true);
+                    }}
+                  >
+                    Sign In
                   </Button>
-                </Link>
+                ) : (
+                  <>
+                    <Link to="/account" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" size="sm" className="gap-2 w-full justify-start">
+                        <User className="w-4 h-4" />
+                        Account
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2 w-full justify-start"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleSignOut();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </motion.div>
@@ -172,7 +221,7 @@ const Header = () => {
       </AnimatePresence>
 
       {/* Sign In Modal */}
-      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} />
+      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={handleSignIn} />
     </header>
   );
 };
