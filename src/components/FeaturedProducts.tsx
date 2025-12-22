@@ -187,7 +187,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {/* Status Badge */}
-          <div className="absolute top-4 left-4">
+          {/* <div className="absolute top-4 left-4">
             <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
               product.status === "auction" 
                 ? "bg-gold/90 text-charcoal" 
@@ -205,7 +205,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
                 </>
               )}
             </span>
-          </div>
+          </div> */}
           {/* Wishlist Button */}
           <button 
             onClick={handleWishlist}

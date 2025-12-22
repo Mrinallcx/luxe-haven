@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-image.jpg";
-import GoldSilverWidget from "./GoldSilverWidget";
+
 
 const slides = [
   {
@@ -133,9 +133,7 @@ const Hero = () => {
           </AnimatePresence>
 
           {/* Gold/Silver Trading Widget */}
-          <div className="hidden lg:block">
-            <GoldSilverWidget />
-            </div>
+         
           </div>
         </div>
       </div>
