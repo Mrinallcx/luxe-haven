@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { allProducts } from "../data/products";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { Button } from "../components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag, ShoppingBag } from "lucide-react";
+import { allProducts } from "@/data/products";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, Heart, Share2, FileText, Shield, Info, Gavel, Tag, ShoppingBag, HandCoins, Link2, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
-import { useCart } from "../contexts/CartContext";
-import { useWishlist } from "../contexts/WishlistContext";
-import { useToast } from "../hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useToast } from "@/hooks/use-toast";
+import PlaceBidModal from "@/components/PlaceBidModal";
+import AcceptOfferModal from "@/components/AcceptOfferModal";
+import CounterOfferModal from "@/components/CounterOfferModal";
+import ViewOfferModal from "@/components/ViewOfferModal";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -34,13 +40,74 @@ const generateTransactions = (count: number) => {
 
 const allTransactions = generateTransactions(30);
 
+// Mock offers with expiration times
+const getInitialOffers = () => [
+  { id: 1, priceMultiplier: 0.85, token: "LCX", expiresAt: Date.now() + (2 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) },
+  { id: 2, priceMultiplier: 0.78, token: "USDT", expiresAt: Date.now() + (5 * 24 * 60 * 60 * 1000) + (8 * 60 * 60 * 1000) },
+  { id: 3, priceMultiplier: 0.72, token: "wETH", expiresAt: Date.now() + (12 * 60 * 60 * 1000) + (30 * 60 * 1000) },
+];
+
+const formatTimeRemaining = (expiresAt: number) => {
+  const now = Date.now();
+  const diff = expiresAt - now;
+  
+  if (diff <= 0) return "Expired";
+  
+  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((diff % (60 * 1000)) / 1000);
+  
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+  return `${minutes}m ${seconds}s`;
+};
+
 const ProductDetail = () => {
   const { productId } = useParams();
   const product = allProducts.find((p) => p.id === Number(productId));
   const [visibleTransactions, setVisibleTransactions] = useState(10);
+  const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [offers] = useState(getInitialOffers);
+  const [selectedOffer, setSelectedOffer] = useState<typeof offers[0] | null>(null);
+  const [counterOffer, setCounterOffer] = useState<typeof offers[0] | null>(null);
+  const [viewOffer, setViewOffer] = useState<typeof offers[0] | null>(null);
+  const [, setTick] = useState(0);
+  const [linkCopied, setLinkCopied] = useState(false);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
+
+  const currentUrl = window.location.href;
+  const shareText = product ? `Check out ${product.name} on MAISON` : "Check out this product on MAISON";
+
+  const handleShareTwitter = () => {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareLinkedIn = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(currentUrl);
+    setLinkCopied(true);
+    toast({
+      title: "Link copied",
+      description: "Product link has been copied to clipboard.",
+    });
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  // Live countdown timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Get related products from same category (excluding current product)
   const relatedProducts = allProducts
@@ -116,9 +183,9 @@ const ProductDetail = () => {
                   <Shield className="w-4 h-4" />
                   <span className="hidden sm:inline">Insurance</span>
                 </TabsTrigger>
-                <TabsTrigger value="returns" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <RotateCcw className="w-4 h-4" />
-                  <span className="hidden sm:inline">Returns</span>
+                <TabsTrigger value="offers" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <HandCoins className="w-4 h-4" />
+                  <span className="hidden sm:inline">Offers</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -208,33 +275,57 @@ const ProductDetail = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="returns" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Return Policy</h3>
+              <TabsContent value="offers" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
+                <h3 className="font-serif text-foreground mb-3">Current Offers</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  We offer a hassle-free return policy for your peace of mind.
+                  Review and respond to bid offers from potential buyers.
                 </p>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">14-Day Return Window</p>
-                      <p className="text-xs text-muted-foreground">Full refund within 14 days of purchase</p>
+                <div className="space-y-3">
+                  {offers.map((offer) => (
+                    <div key={offer.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background/50 rounded-lg border border-border gap-4">
+                      <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:gap-4">
+                        <div>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Bid Amount</p>
+                          <p className="text-foreground font-medium text-sm sm:text-base">€{Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
+                        </div>
+                        <div className="hidden sm:block h-8 w-px bg-border" />
+                        <div>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Token</p>
+                          <p className="text-foreground font-medium text-sm sm:text-base">{offer.token}</p>
+                        </div>
+                        <div className="hidden sm:block h-8 w-px bg-border" />
+                        <div>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Expires</p>
+                          <p className="text-foreground font-medium font-mono text-xs sm:text-sm">{formatTimeRemaining(offer.expiresAt)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                        <Button 
+                          size="sm" 
+                          className="rounded-full bg-gold hover:bg-gold/90 text-charcoal text-xs flex-1 sm:flex-none"
+                          onClick={() => setSelectedOffer(offer)}
+                        >
+                          Accept
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full text-xs flex-1 sm:flex-none"
+                          onClick={() => setCounterOffer(offer)}
+                        >
+                          Counter
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full text-xs flex-1 sm:flex-none"
+                          onClick={() => setViewOffer(offer)}
+                        >
+                          View Offer
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">Free Return Shipping</p>
-                      <p className="text-xs text-muted-foreground">We cover all return shipping costs</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-gold mt-0.5" />
-                    <div>
-                      <p className="text-sm text-foreground font-medium">Quick Processing</p>
-                      <p className="text-xs text-muted-foreground">Refunds processed within 3-5 business days</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </TabsContent>
             </Tabs>
@@ -284,9 +375,31 @@ const ProductDetail = () => {
                 >
                   <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : ""}`} />
                 </button>
-                <button className="text-muted-foreground hover:text-foreground transition-colors">
-                  <Share2 className="w-4 h-4" />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="text-muted-foreground hover:text-foreground transition-colors">
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+                    <DropdownMenuItem onClick={handleShareTwitter} className="cursor-pointer gap-3">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                      X (Twitter)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleShareLinkedIn} className="cursor-pointer gap-3">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                      LinkedIn
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer gap-3">
+                      {linkCopied ? <Check className="w-4 h-4 text-green-500" /> : <Link2 className="w-4 h-4" />}
+                      {linkCopied ? "Copied!" : "Copy Link"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -316,7 +429,10 @@ const ProductDetail = () => {
               </p>
               <Button 
                 onClick={() => {
-                  if (product.status === "auction") return;
+                  if (product.status === "auction") {
+                    setIsBidModalOpen(true);
+                    return;
+                  }
                   addToCart(product);
                   toast({
                     title: "Added to cart",
@@ -338,23 +454,6 @@ const ProductDetail = () => {
                 )}
               </Button>
             </div>
-
-            {/* Price Comparison */}
-            <div>
-              <h4 className="font-serif text-foreground mb-3">Price Comparison</h4>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="flex items-center gap-2 text-xs text-green-500">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  LIVE
-                </span>
-                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
-                  Competitor A - €{(product.price * 1.15).toLocaleString()}
-                </span>
-                <span className="text-sm text-muted-foreground bg-charcoal/30 px-3 py-1 rounded">
-                  Competitor B - €{(product.price * 1.2).toLocaleString()}
-                </span>
-              </div>
-            </div>
           </motion.div>
         </div>
 
@@ -370,7 +469,135 @@ const ProductDetail = () => {
                 View All {categoryLabel}
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            
+            {/* Mobile Carousel */}
+            <div className="md:hidden">
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2">
+                  {relatedProducts.map((relatedProduct, index) => (
+                    <CarouselItem key={relatedProduct.id} className="pl-2 basis-[85%]">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                      >
+                        <Link to={`/product/${relatedProduct.id}`} className="group block">
+                          <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg">
+                            <div className="relative aspect-square overflow-hidden bg-secondary">
+                              <img
+                                src={relatedProduct.image}
+                                alt={relatedProduct.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute top-4 left-4">
+                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+                                  relatedProduct.status === "auction" 
+                                    ? "bg-gold/90 text-charcoal" 
+                                    : "bg-charcoal/90 text-cream"
+                                }`}>
+                                  {relatedProduct.status === "auction" ? (
+                                    <>
+                                      <Gavel className="w-3 h-3" />
+                                      Auction
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Tag className="w-3 h-3" />
+                                      On Sale
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                                {relatedProduct.name}
+                              </h3>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-lg font-semibold text-foreground">
+                                  €{relatedProduct.price.toLocaleString()}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 bg-background/80 border-border" />
+                <CarouselNext className="right-2 bg-background/80 border-border" />
+              </Carousel>
+            </div>
+
+            {/* Tablet Carousel */}
+            <div className="hidden md:block lg:hidden">
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-4">
+                  {relatedProducts.map((relatedProduct, index) => (
+                    <CarouselItem key={relatedProduct.id} className="pl-4 basis-1/3">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                      >
+                        <Link to={`/product/${relatedProduct.id}`} className="group block">
+                          <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg">
+                            <div className="relative aspect-square overflow-hidden bg-secondary">
+                              <img
+                                src={relatedProduct.image}
+                                alt={relatedProduct.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute top-4 left-4">
+                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+                                  relatedProduct.status === "auction" 
+                                    ? "bg-gold/90 text-charcoal" 
+                                    : "bg-charcoal/90 text-cream"
+                                }`}>
+                                  {relatedProduct.status === "auction" ? (
+                                    <>
+                                      <Gavel className="w-3 h-3" />
+                                      Auction
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Tag className="w-3 h-3" />
+                                      On Sale
+                                    </>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                                {relatedProduct.name}
+                              </h3>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-lg font-semibold text-foreground">
+                                  €{relatedProduct.price.toLocaleString()}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 bg-background/80 border-border" />
+                <CarouselNext className="right-2 bg-background/80 border-border" />
+              </Carousel>
+            </div>
+
+            {/* Desktop Grid */}
+            <div className="hidden lg:grid lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct, index) => (
                 <motion.div
                   key={relatedProduct.id}
@@ -379,39 +606,75 @@ const ProductDetail = () => {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                 >
                   <Link to={`/product/${relatedProduct.id}`} className="group block">
-                    <div className="relative aspect-square bg-cream rounded-lg overflow-hidden mb-3">
-                      <img
-                        src={relatedProduct.image}
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {/* Status Badge */}
-                      {relatedProduct.status && (
-                        <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                          relatedProduct.status === "auction" 
-                            ? "bg-gold/90 text-charcoal" 
-                            : "bg-charcoal/90 text-cream"
-                        }`}>
-                          {relatedProduct.status === "auction" ? (
-                            <>
-                              <Gavel className="w-3 h-3" />
-                              Auction
-                            </>
-                          ) : (
-                            <>
-                              <Tag className="w-3 h-3" />
-                              On Sale
-                            </>
-                          )}
+                    <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-gold/30 transition-all duration-300 hover:shadow-lg">
+                      <div className="relative aspect-square overflow-hidden bg-secondary">
+                        <img
+                          src={relatedProduct.image}
+                          alt={relatedProduct.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute top-4 left-4">
+                          <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+                            relatedProduct.status === "auction" 
+                              ? "bg-gold/90 text-charcoal" 
+                              : "bg-charcoal/90 text-cream"
+                          }`}>
+                            {relatedProduct.status === "auction" ? (
+                              <>
+                                <Gavel className="w-3 h-3" />
+                                Auction
+                              </>
+                            ) : (
+                              <>
+                                <Tag className="w-3 h-3" />
+                                On Sale
+                              </>
+                            )}
+                          </span>
                         </div>
-                      )}
+                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <Button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (relatedProduct.status === "auction") {
+                                return;
+                              }
+                              addToCart(relatedProduct);
+                              toast({
+                                title: "Added to cart",
+                                description: `${relatedProduct.name} has been added to your cart.`,
+                              });
+                            }}
+                            className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+                          >
+                            {relatedProduct.status === "auction" ? (
+                              <>
+                                <Gavel className="w-4 h-4" />
+                                Place Bid
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingBag className="w-4 h-4" />
+                                Add to Cart
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
+                          {relatedProduct.name}
+                        </h3>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-lg font-semibold text-foreground">
+                            €{relatedProduct.price.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="font-serif text-foreground text-sm mb-1 group-hover:text-gold transition-colors">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-gold text-sm font-medium">
-                      €{relatedProduct.price.toLocaleString()}
-                    </p>
                   </Link>
                 </motion.div>
               ))}
@@ -475,6 +738,44 @@ const ProductDetail = () => {
       </main>
 
       <Footer />
+
+      {/* Bid Modal */}
+      <PlaceBidModal
+        open={isBidModalOpen}
+        onOpenChange={setIsBidModalOpen}
+        productName={product.name}
+        minimumBid={Math.floor(product.price / 10)}
+        increment={1000}
+        currency="LCX"
+      />
+
+      {/* Accept Offer Modal */}
+      <AcceptOfferModal
+        open={!!selectedOffer}
+        onOpenChange={(open) => !open && setSelectedOffer(null)}
+        price={selectedOffer ? Math.floor(product.price * selectedOffer.priceMultiplier) : 0}
+        token={selectedOffer?.token || "LCX"}
+        expiresAt={selectedOffer?.expiresAt || Date.now()}
+      />
+
+      {/* Counter Offer Modal */}
+      <CounterOfferModal
+        open={!!counterOffer}
+        onOpenChange={(open) => !open && setCounterOffer(null)}
+        originalPrice={counterOffer ? Math.floor(product.price * counterOffer.priceMultiplier) : 0}
+        token={counterOffer?.token || "LCX"}
+        expiresAt={counterOffer?.expiresAt || Date.now()}
+      />
+
+      {/* View Offer Modal */}
+      <ViewOfferModal
+        open={!!viewOffer}
+        onOpenChange={(open) => !open && setViewOffer(null)}
+        originalPrice={viewOffer ? Math.floor(product.price * viewOffer.priceMultiplier) : 0}
+        counteredPrice={viewOffer ? Math.floor(product.price * viewOffer.priceMultiplier * 1.2) : 0}
+        token={viewOffer?.token || "LCX"}
+        expiresAt={viewOffer?.expiresAt || Date.now()}
+      />
     </div>
   );
 };

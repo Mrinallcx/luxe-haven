@@ -71,9 +71,7 @@ const referralData = {
 
 const Account = () => {
   const [copied, setCopied] = useState(false);
-  const [ownedViewMode, setOwnedViewMode] = useState<"grid" | "list">("grid");
-  const [bidsViewMode, setBidsViewMode] = useState<"grid" | "list">("grid");
-  const [wishlistViewMode, setWishlistViewMode] = useState<"grid" | "list">("grid");
+  // Wishlist uses grid view only
   const { items: wishlistItems, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
   const [listingModalOpen, setListingModalOpen] = useState(false);
@@ -223,60 +221,60 @@ const Account = () => {
       {/* Tabs Section */}
       <section className="container mx-auto px-4 lg:px-8 max-w-[1400px] mt-12 pb-20">
         <Tabs defaultValue="owned" className="w-full">
-          <TabsList className="w-full justify-start bg-muted/20 border border-border rounded-lg p-1 h-auto flex-wrap">
-            <TabsTrigger
-              value="owned"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
-            >
-              <Diamond className="w-4 h-4 mr-2" />
-              Owned Diamonds
-            </TabsTrigger>
-            <TabsTrigger
-              value="bids"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
-            >
-              <Gavel className="w-4 h-4 mr-2" />
-              Your Bids
-            </TabsTrigger>
-            <TabsTrigger
-              value="activity"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
-            >
-              <Activity className="w-4 h-4 mr-2" />
-              Activity
-            </TabsTrigger>
-            <TabsTrigger
-              value="referral"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Referral
-            </TabsTrigger>
-            <TabsTrigger
-              value="wishlist"
-              className="rounded-md data-[state=active]:bg-gold data-[state=active]:text-charcoal px-4 py-2"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Wishlist
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="w-max sm:w-auto sm:inline-flex justify-start bg-muted/20 border border-border rounded-xl p-1.5 h-auto flex gap-1 sm:gap-2">
+              <TabsTrigger
+                value="owned"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
+              >
+                <Diamond className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline">Owned Diamonds</span>
+                <span className="sm:hidden">Owned</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="bids"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
+              >
+                <Gavel className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline">Your Bids</span>
+                <span className="sm:hidden">Bids</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="activity"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
+              >
+                <Activity className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                Activity
+              </TabsTrigger>
+              <TabsTrigger
+                value="referral"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
+              >
+                <Users className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                Referral
+              </TabsTrigger>
+              <TabsTrigger
+                value="wishlist"
+                className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
+              >
+                <Heart className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                Wishlist
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Owned Diamonds Tab */}
           <TabsContent value="owned" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{ownedDiamonds.length} items</p>
-              <ViewToggle viewMode={ownedViewMode} onViewChange={setOwnedViewMode} />
             </div>
-            <div className={ownedViewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"
-            }>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {ownedDiamonds.map((product, index) => (
                 <AccountProductCard
                   key={product.id}
                   product={product}
                   index={index}
-                  viewMode={ownedViewMode}
+                  viewMode="grid"
                   variant="owned"
                   onListForSale={() => handleListForSale(product)}
                 />
@@ -288,18 +286,14 @@ const Account = () => {
           <TabsContent value="bids" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{bidsData.length} active bids</p>
-              <ViewToggle viewMode={bidsViewMode} onViewChange={setBidsViewMode} />
             </div>
-            <div className={bidsViewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"
-            }>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {bidsData.map((bid, index) => (
                 <AccountProductCard
                   key={bid.product.id}
                   product={bid.product}
                   index={index}
-                  viewMode={bidsViewMode}
+                  viewMode="grid"
                   variant="bid"
                   bidData={{
                     bidAmount: bid.bidAmount,
@@ -413,7 +407,6 @@ const Account = () => {
           <TabsContent value="wishlist" className="mt-8">
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-sm">{wishlistItems.length} saved items</p>
-              <ViewToggle viewMode={wishlistViewMode} onViewChange={setWishlistViewMode} />
             </div>
             {wishlistItems.length === 0 ? (
               <div className="text-center py-16">
@@ -427,16 +420,13 @@ const Account = () => {
                 </Link>
               </div>
             ) : (
-              <div className={wishlistViewMode === "grid" 
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                : "flex flex-col gap-4"
-              }>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {wishlistItems.map((product, index) => (
                   <AccountProductCard
                     key={product.id}
                     product={product}
                     index={index}
-                    viewMode={wishlistViewMode}
+                    viewMode="grid"
                     variant="wishlist"
                     onRemove={() => handleRemoveFromWishlist(product.id)}
                   />

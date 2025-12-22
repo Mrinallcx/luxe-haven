@@ -152,17 +152,6 @@ const AccountProductCard = ({
             </button>
           )}
           
-          {bidData && (
-            <div className="absolute top-3 left-3">
-              <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                bidData.status === "Winning" 
-                  ? "bg-green-500/90 text-white" 
-                  : "bg-red-500/90 text-white"
-              }`}>
-                {bidData.status}
-              </span>
-            </div>
-          )}
           
             <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {variant === "owned" && onListForSale ? (
@@ -173,24 +162,15 @@ const AccountProductCard = ({
                   <Tag className="w-4 h-4" />
                   List for Sale
                 </Button>
-              ) : (
+              ) : variant === "wishlist" ? (
                 <Button
                   onClick={(e) => e.preventDefault()}
                   className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 text-sm"
                 >
-                  {variant === "bid" ? (
-                    <>
-                      <Gavel className="w-4 h-4" />
-                      Update Bid
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4" />
-                      Buy Now
-                    </>
-                  )}
+                  <ShoppingBag className="w-4 h-4" />
+                  Buy Now
                 </Button>
-              )}
+              ) : null}
             </div>
         </div>
         

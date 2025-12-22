@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, User, Menu, X, ChevronDown, LogOut } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogOut, Sparkles, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWallet } from "@/contexts/WalletContext";
 import SignInModal from "@/components/SignInModal";
+import DemandUsModal from "@/components/DemandUsModal";
+import WalletConnectModal from "@/components/WalletConnectModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +20,16 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isDemandUsOpen, setIsDemandUsOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const { getCartCount } = useCart();
   const { isSignedIn, signIn, signOut } = useAuth();
+  const { isConnected, walletAddress, disconnect } = useWallet();
   const cartCount = getCartCount();
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   const assetLinks = [
     { label: "Diamonds", href: "/category/diamonds" },
@@ -79,6 +89,13 @@ const Header = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            <button
+              onClick={() => setIsDemandUsOpen(true)}
+              className="flex items-center gap-1.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              <Sparkles className="w-4 h-4" />
+              Demand Us
+            </button>
           </nav>
 
           {/* Actions */}
@@ -94,31 +111,54 @@ const Header = () => {
                 Sign In
               </Button>
             ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="hidden lg:flex">
-                    <User className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg" align="end">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/account"
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="hidden lg:flex">
+                      <User className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg" align="end">
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/account"
+                        className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                      >
+                        <User className="w-4 h-4" />
+                        Account
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={signOut}
                       className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
                     >
-                      <User className="w-4 h-4" />
-                      Account
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={signOut}
-                    className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {!isConnected ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hidden lg:flex rounded-full gap-2"
+                    onClick={() => setIsWalletModalOpen(true)}
                   >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <Wallet className="w-4 h-4" />
+                    Connect Wallet
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hidden lg:flex rounded-full gap-2 font-mono text-xs"
+                    onClick={disconnect}
+                  >
+                    <Wallet className="w-4 h-4" />
+                    {formatAddress(walletAddress!)}
+                  </Button>
+                )}
+              </>
             )}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
@@ -158,6 +198,16 @@ const Header = () => {
               >
                 Blog
               </Link>
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsDemandUsOpen(true);
+                }}
+                className="flex items-center gap-1.5 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors text-left"
+              >
+                <Sparkles className="w-4 h-4" />
+                Demand Us
+              </button>
               <div className="text-sm tracking-wider uppercase text-foreground font-medium pt-2">
                 Assets
               </div>
@@ -193,6 +243,33 @@ const Header = () => {
                         Account
                       </Button>
                     </Link>
+                    {!isConnected ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 w-full justify-start rounded-full"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsWalletModalOpen(true);
+                        }}
+                      >
+                        <Wallet className="w-4 h-4" />
+                        Connect Wallet
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 w-full justify-start rounded-full font-mono text-xs"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          disconnect();
+                        }}
+                      >
+                        <Wallet className="w-4 h-4" />
+                        {formatAddress(walletAddress!)}
+                      </Button>
+                    )}
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -215,6 +292,12 @@ const Header = () => {
 
       {/* Sign In Modal */}
       <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={signIn} />
+      
+      {/* Demand Us Modal */}
+      <DemandUsModal open={isDemandUsOpen} onOpenChange={setIsDemandUsOpen} />
+
+      {/* Wallet Connect Modal */}
+      <WalletConnectModal open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen} />
     </header>
   );
 };
