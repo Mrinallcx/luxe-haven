@@ -1,18 +1,18 @@
 import * as React from "react";
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 import styled from "styled-components";
 
 import { cn } from "../../lib/utils";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
-const DropdownMenuGroup = DropdownMenuPrimitive.Group;
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
-const DropdownMenuSub = DropdownMenuPrimitive.Sub;
-const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+const ContextMenu = ContextMenuPrimitive.Root;
+const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
+const ContextMenuGroup = ContextMenuPrimitive.Group;
+const ContextMenuPortal = ContextMenuPrimitive.Portal;
+const ContextMenuSub = ContextMenuPrimitive.Sub;
+const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
 
-const SubTriggerRoot = styled(DropdownMenuPrimitive.SubTrigger)`
+const SubTrigger = styled(ContextMenuPrimitive.SubTrigger)`
   display: flex;
   cursor: default;
   user-select: none;
@@ -29,13 +29,13 @@ const SubTriggerRoot = styled(DropdownMenuPrimitive.SubTrigger)`
   }
 `;
 
-const SubChevron = styled(ChevronRight)`
+const SubTriggerChevron = styled(ChevronRight)`
   margin-left: auto;
   width: 1rem;
   height: 1rem;
 `;
 
-const SubContentRoot = styled(DropdownMenuPrimitive.SubContent)`
+const SubContent = styled(ContextMenuPrimitive.SubContent)`
   z-index: 50;
   min-width: 8rem;
   overflow: hidden;
@@ -47,7 +47,7 @@ const SubContentRoot = styled(DropdownMenuPrimitive.SubContent)`
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.5);
 `;
 
-const ContentRoot = styled(DropdownMenuPrimitive.Content)`
+const ContentRoot = styled(ContextMenuPrimitive.Content)`
   z-index: 50;
   min-width: 8rem;
   overflow: hidden;
@@ -59,17 +59,16 @@ const ContentRoot = styled(DropdownMenuPrimitive.Content)`
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.5);
 `;
 
-const ItemRoot = styled(DropdownMenuPrimitive.Item)`
+const ItemRoot = styled(ContextMenuPrimitive.Item)`
   position: relative;
   display: flex;
   cursor: default;
   user-select: none;
   align-items: center;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   padding: 0.375rem 0.5rem;
   font-size: 0.875rem;
   outline: none;
-  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 
   &[data-disabled] {
     pointer-events: none;
@@ -82,7 +81,7 @@ const ItemRoot = styled(DropdownMenuPrimitive.Item)`
   }
 `;
 
-const CheckboxItemRoot = styled(DropdownMenuPrimitive.CheckboxItem)`
+const CheckboxItemRoot = styled(ContextMenuPrimitive.CheckboxItem)`
   position: relative;
   display: flex;
   cursor: default;
@@ -95,7 +94,6 @@ const CheckboxItemRoot = styled(DropdownMenuPrimitive.CheckboxItem)`
   padding-right: 0.5rem;
   font-size: 0.875rem;
   outline: none;
-  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 
   &[data-disabled] {
     pointer-events: none;
@@ -108,7 +106,7 @@ const CheckboxItemRoot = styled(DropdownMenuPrimitive.CheckboxItem)`
   }
 `;
 
-const RadioItemRoot = styled(DropdownMenuPrimitive.RadioItem)`
+const RadioItemRoot = styled(ContextMenuPrimitive.RadioItem)`
   position: relative;
   display: flex;
   cursor: default;
@@ -121,7 +119,6 @@ const RadioItemRoot = styled(DropdownMenuPrimitive.RadioItem)`
   padding-right: 0.5rem;
   font-size: 0.875rem;
   outline: none;
-  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 
   &[data-disabled] {
     pointer-events: none;
@@ -155,65 +152,61 @@ const IndicatorCircle = styled(Circle)`
   fill: currentColor;
 `;
 
-const LabelRoot = styled(DropdownMenuPrimitive.Label)`
+const LabelRoot = styled(ContextMenuPrimitive.Label)`
   padding: 0.375rem 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
+  color: hsl(var(--foreground));
 `;
 
-const SeparatorRoot = styled(DropdownMenuPrimitive.Separator)`
+const SeparatorRoot = styled(ContextMenuPrimitive.Separator)`
   margin: 0.25rem -0.25rem;
   height: 1px;
-  background-color: hsl(var(--muted));
+  background-color: hsl(var(--border));
 `;
 
 const Shortcut = styled.span`
   margin-left: auto;
   font-size: 0.75rem;
   letter-spacing: 0.1em;
-  opacity: 0.6;
+  color: hsl(var(--muted-foreground));
 `;
 
-const DropdownMenuSubTrigger = React.forwardRef(function DropdownMenuSubTrigger(
+const ContextMenuSubTrigger = React.forwardRef(function ContextMenuSubTrigger(
   { className, inset, children, ...props },
   ref,
 ) {
   return (
-    <SubTriggerRoot
+    <SubTrigger
       ref={ref}
       className={cn(inset ? "pl-8" : "", className)}
       {...props}
     >
       {children}
-      <SubChevron />
-    </SubTriggerRoot>
+      <SubTriggerChevron />
+    </SubTrigger>
   );
 });
 
-const DropdownMenuSubContent = React.forwardRef(function DropdownMenuSubContent(
+const ContextMenuSubContent = React.forwardRef(function ContextMenuSubContent(
   { className, ...props },
   ref,
 ) {
-  return <SubContentRoot ref={ref} className={cn("", className)} {...props} />;
+  return <SubContent ref={ref} className={cn("", className)} {...props} />;
 });
 
-const DropdownMenuContent = React.forwardRef(function DropdownMenuContent(
-  { className, sideOffset = 4, ...props },
+const ContextMenuContent = React.forwardRef(function ContextMenuContent(
+  { className, ...props },
   ref,
 ) {
   return (
-    <DropdownMenuPrimitive.Portal>
-      <ContentRoot
-        ref={ref}
-        sideOffset={sideOffset}
-        className={cn("", className)}
-        {...props}
-      />
-    </DropdownMenuPrimitive.Portal>
+    <ContextMenuPrimitive.Portal>
+      <ContentRoot ref={ref} className={cn("", className)} {...props} />
+    </ContextMenuPrimitive.Portal>
   );
 });
 
-const DropdownMenuItem = React.forwardRef(function DropdownMenuItem(
+const ContextMenuItem = React.forwardRef(function ContextMenuItem(
   { className, inset, ...props },
   ref,
 ) {
@@ -226,39 +219,39 @@ const DropdownMenuItem = React.forwardRef(function DropdownMenuItem(
   );
 });
 
-const DropdownMenuCheckboxItem = React.forwardRef(function DropdownMenuCheckboxItem(
+const ContextMenuCheckboxItem = React.forwardRef(function ContextMenuCheckboxItem(
   { className, children, checked, ...props },
   ref,
 ) {
   return (
     <CheckboxItemRoot ref={ref} className={cn("", className)} checked={checked} {...props}>
       <IndicatorWrapper>
-        <DropdownMenuPrimitive.ItemIndicator>
+        <ContextMenuPrimitive.ItemIndicator>
           <IndicatorCheck />
-        </DropdownMenuPrimitive.ItemIndicator>
+        </ContextMenuPrimitive.ItemIndicator>
       </IndicatorWrapper>
       {children}
     </CheckboxItemRoot>
   );
 });
 
-const DropdownMenuRadioItem = React.forwardRef(function DropdownMenuRadioItem(
+const ContextMenuRadioItem = React.forwardRef(function ContextMenuRadioItem(
   { className, children, ...props },
   ref,
 ) {
   return (
     <RadioItemRoot ref={ref} className={cn("", className)} {...props}>
       <IndicatorWrapper>
-        <DropdownMenuPrimitive.ItemIndicator>
+        <ContextMenuPrimitive.ItemIndicator>
           <IndicatorCircle />
-        </DropdownMenuPrimitive.ItemIndicator>
+        </ContextMenuPrimitive.ItemIndicator>
       </IndicatorWrapper>
       {children}
     </RadioItemRoot>
   );
 });
 
-const DropdownMenuLabel = React.forwardRef(function DropdownMenuLabel(
+const ContextMenuLabel = React.forwardRef(function ContextMenuLabel(
   { className, inset, ...props },
   ref,
 ) {
@@ -271,31 +264,31 @@ const DropdownMenuLabel = React.forwardRef(function DropdownMenuLabel(
   );
 });
 
-const DropdownMenuSeparator = React.forwardRef(function DropdownMenuSeparator(
+const ContextMenuSeparator = React.forwardRef(function ContextMenuSeparator(
   { className, ...props },
   ref,
 ) {
   return <SeparatorRoot ref={ref} className={cn("", className)} {...props} />;
 });
 
-const DropdownMenuShortcut = ({ className, ...props }) => {
+const ContextMenuShortcut = ({ className, ...props }) => {
   return <Shortcut className={cn("", className)} {...props} />;
 };
 
 export {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuRadioGroup,
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuGroup,
+  ContextMenuPortal,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuRadioGroup,
 };

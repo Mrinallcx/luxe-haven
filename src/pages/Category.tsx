@@ -116,7 +116,7 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* <Header /> */}
       <main className="pt-16 lg:pt-20">
         {/* Hero Banner */}
         <section className="relative h-[280px] md:h-[360px] bg-charcoal overflow-hidden">

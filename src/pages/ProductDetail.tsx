@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { allProducts } from "@/data/products";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { allProducts } from "../data/products";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { Button } from "../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { ArrowLeft, Heart, Share2, FileText, Shield, RotateCcw, Info, Gavel, Tag, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
-import { useCart } from "@/contexts/CartContext";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { useToast } from "@/hooks/use-toast";
+import { useCart } from "../contexts/CartContext";
+import { useWishlist } from "../contexts/WishlistContext";
+import { useToast } from "../hooks/use-toast";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {

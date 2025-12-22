@@ -1,9 +1,7 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
-import styled from "styled-components";
-
-import { cn } from "../../lib/utils";
+import styled, { css } from "styled-components";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
@@ -11,6 +9,29 @@ const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+
+const baseItemStyles = css`
+  position: relative;
+  display: flex;
+  cursor: default;
+  user-select: none;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+
+  &[data-disabled] {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  &:focus {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+`;
 
 const SubTriggerRoot = styled(DropdownMenuPrimitive.SubTrigger)`
   display: flex;
@@ -27,6 +48,8 @@ const SubTriggerRoot = styled(DropdownMenuPrimitive.SubTrigger)`
     background-color: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }
+
+  ${({ $inset }) => $inset && `padding-left: 2rem;`}
 `;
 
 const SubChevron = styled(ChevronRight)`
@@ -60,26 +83,11 @@ const ContentRoot = styled(DropdownMenuPrimitive.Content)`
 `;
 
 const ItemRoot = styled(DropdownMenuPrimitive.Item)`
-  position: relative;
-  display: flex;
-  cursor: default;
-  user-select: none;
-  align-items: center;
+  ${baseItemStyles};
+
   border-radius: 0.5rem;
-  padding: 0.375rem 0.5rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 
-  &[data-disabled] {
-    pointer-events: none;
-    opacity: 0.5;
-  }
-
-  &:focus {
-    background-color: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
-  }
+  ${({ $inset }) => $inset && `padding-left: 2rem;`}
 `;
 
 const CheckboxItemRoot = styled(DropdownMenuPrimitive.CheckboxItem)`
@@ -159,6 +167,8 @@ const LabelRoot = styled(DropdownMenuPrimitive.Label)`
   padding: 0.375rem 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
+
+  ${({ $inset }) => $inset && `padding-left: 2rem;`}
 `;
 
 const SeparatorRoot = styled(DropdownMenuPrimitive.Separator)`
@@ -181,7 +191,8 @@ const DropdownMenuSubTrigger = React.forwardRef(function DropdownMenuSubTrigger(
   return (
     <SubTriggerRoot
       ref={ref}
-      className={cn(inset ? "pl-8" : "", className)}
+      $inset={!!inset}
+      className={className}
       {...props}
     >
       {children}
@@ -194,7 +205,7 @@ const DropdownMenuSubContent = React.forwardRef(function DropdownMenuSubContent(
   { className, ...props },
   ref,
 ) {
-  return <SubContentRoot ref={ref} className={cn("", className)} {...props} />;
+  return <SubContentRoot ref={ref} className={className} {...props} />;
 });
 
 const DropdownMenuContent = React.forwardRef(function DropdownMenuContent(
@@ -206,7 +217,7 @@ const DropdownMenuContent = React.forwardRef(function DropdownMenuContent(
       <ContentRoot
         ref={ref}
         sideOffset={sideOffset}
-        className={cn("", className)}
+        className={className}
         {...props}
       />
     </DropdownMenuPrimitive.Portal>
@@ -220,7 +231,8 @@ const DropdownMenuItem = React.forwardRef(function DropdownMenuItem(
   return (
     <ItemRoot
       ref={ref}
-      className={cn(inset ? "pl-8" : "", className)}
+      $inset={!!inset}
+      className={className}
       {...props}
     />
   );
@@ -231,7 +243,7 @@ const DropdownMenuCheckboxItem = React.forwardRef(function DropdownMenuCheckboxI
   ref,
 ) {
   return (
-    <CheckboxItemRoot ref={ref} className={cn("", className)} checked={checked} {...props}>
+    <CheckboxItemRoot ref={ref} className={className} checked={checked} {...props}>
       <IndicatorWrapper>
         <DropdownMenuPrimitive.ItemIndicator>
           <IndicatorCheck />
@@ -247,7 +259,7 @@ const DropdownMenuRadioItem = React.forwardRef(function DropdownMenuRadioItem(
   ref,
 ) {
   return (
-    <RadioItemRoot ref={ref} className={cn("", className)} {...props}>
+    <RadioItemRoot ref={ref} className={className} {...props}>
       <IndicatorWrapper>
         <DropdownMenuPrimitive.ItemIndicator>
           <IndicatorCircle />
@@ -265,7 +277,8 @@ const DropdownMenuLabel = React.forwardRef(function DropdownMenuLabel(
   return (
     <LabelRoot
       ref={ref}
-      className={cn(inset ? "pl-8" : "", className)}
+      $inset={!!inset}
+      className={className}
       {...props}
     />
   );
@@ -275,11 +288,11 @@ const DropdownMenuSeparator = React.forwardRef(function DropdownMenuSeparator(
   { className, ...props },
   ref,
 ) {
-  return <SeparatorRoot ref={ref} className={cn("", className)} {...props} />;
+  return <SeparatorRoot ref={ref} className={className} {...props} />;
 });
 
 const DropdownMenuShortcut = ({ className, ...props }) => {
-  return <Shortcut className={cn("", className)} {...props} />;
+  return <Shortcut className={className} {...props} />;
 };
 
 export {
