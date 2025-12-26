@@ -15,24 +15,24 @@ const slides = [
     primaryCta: "Shop Collection",
     secondaryCta: "Explore",
   },
-  {
-    id: 2,
-    image: heroImage,
-    subtitle: "Exclusive Offers",
-    title: ["Golden", "Investments"],
-    description: "Invest in digital gold and silver with real-time pricing and secure transactions.",
-    primaryCta: "Start Investing",
-    secondaryCta: "Learn More",
-  },
-  {
-    id: 3,
-    image: heroImage,
-    subtitle: "New Arrivals",
-    title: ["Premium", "Collection"],
-    description: "Explore our latest collection of handcrafted jewelry and precious metals.",
-    primaryCta: "View Collection",
-    secondaryCta: "Discover",
-  },
+  // {
+  //   id: 2,
+  //   image: heroImage,
+  //   subtitle: "Exclusive Offers",
+  //   title: ["Golden", "Investments"],
+  //   description: "Invest in digital gold and silver with real-time pricing and secure transactions.",
+  //   primaryCta: "Start Investing",
+  //   secondaryCta: "Learn More",
+  // },
+  // {
+  //   id: 3,
+  //   image: heroImage,
+  //   subtitle: "New Arrivals",
+  //   title: ["Premium", "Collection"],
+  //   description: "Explore our latest collection of handcrafted jewelry and precious metals.",
+  //   primaryCta: "View Collection",
+  //   secondaryCta: "Discover",
+  // },
 ];
 
 const Hero = () => {
