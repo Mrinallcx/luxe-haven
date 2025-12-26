@@ -13,10 +13,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
+import diamondProduct from "@/assets/diamond-product.webp";
+import goldProduct from "@/assets/gold-product.webp";
+import silverProduct from "@/assets/silver-product.webp";
 
 const products = [
   {
@@ -24,7 +24,7 @@ const products = [
     name: "Round Brilliant Diamond",
     price: 12500,
     pricePerUnit: "per carat",
-    image: product1,
+    image: diamondProduct,
     category: "Diamonds",
     purity: "VVS1",
     weight: "1.5 ct",
@@ -35,7 +35,7 @@ const products = [
     name: "24K Gold Bar",
     price: 5890,
     pricePerUnit: "per 100g",
-    image: product2,
+    image: goldProduct,
     category: "Gold",
     purity: "999.9",
     weight: "100g",
@@ -46,7 +46,7 @@ const products = [
     name: "999 Silver Bar",
     price: 890,
     pricePerUnit: "per 1kg",
-    image: product3,
+    image: silverProduct,
     category: "Silver",
     purity: "999",
     weight: "1kg",
@@ -68,7 +68,7 @@ const products = [
     name: "Ceylon Sapphire",
     price: 12000,
     pricePerUnit: "per carat",
-    image: product1,
+    image: diamondProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "3.0 ct",
@@ -79,7 +79,7 @@ const products = [
     name: "Princess Cut Diamond",
     price: 9800,
     pricePerUnit: "per carat",
-    image: product3,
+    image: diamondProduct,
     category: "Diamonds",
     purity: "VS1",
     weight: "1.2 ct",
@@ -90,7 +90,7 @@ const products = [
     name: "Gold Krugerrand",
     price: 1950,
     pricePerUnit: "per oz",
-    image: product4,
+    image: goldProduct,
     category: "Gold",
     purity: "916",
     weight: "1 oz",
@@ -101,7 +101,7 @@ const products = [
     name: "Star Sapphire",
     price: 15000,
     pricePerUnit: "per carat",
-    image: product2,
+    image: diamondProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "4.0 ct",
