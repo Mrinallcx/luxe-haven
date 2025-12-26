@@ -4,6 +4,7 @@ import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
 import diamondProduct from "@/assets/diamond-product.webp";
 import goldProduct from "@/assets/gold-product.webp";
+import silverProduct from "@/assets/silver-product.webp";
 
 export interface Product {
   id: number;
@@ -92,7 +93,7 @@ const generateProducts = (): Product[] => {
       name,
       price: 30 + Math.floor(Math.random() * 3000),
       pricePerUnit: i < 4 ? "per bar" : "per unit",
-      image: images[i % 4],
+      image: silverProduct,
       category: "silver",
       purity: ["999", "9999", "925"][i % 3],
       weight: ["1 oz", "100g", "500g", "1kg", "5kg"][i % 5],
