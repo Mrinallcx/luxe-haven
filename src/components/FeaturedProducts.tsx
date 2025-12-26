@@ -17,6 +17,7 @@ import product4 from "@/assets/product-4.jpg";
 import diamondProduct from "@/assets/diamond-product.webp";
 import goldProduct from "@/assets/gold-product.webp";
 import silverProduct from "@/assets/silver-product.webp";
+import sapphireProduct from "@/assets/sapphire-product.webp";
 
 const products = [
   // Diamonds (4 products)
@@ -205,7 +206,7 @@ const products = [
     name: "Ceylon Sapphire",
     price: 12000,
     pricePerUnit: "per carat",
-    image: diamondProduct,
+    image: sapphireProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "3.0 ct",
@@ -216,7 +217,7 @@ const products = [
     name: "Star Sapphire",
     price: 15000,
     pricePerUnit: "per carat",
-    image: diamondProduct,
+    image: sapphireProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "4.0 ct",
@@ -227,7 +228,7 @@ const products = [
     name: "Kashmir Sapphire",
     price: 25000,
     pricePerUnit: "per carat",
-    image: diamondProduct,
+    image: sapphireProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "2.5 ct",
@@ -238,7 +239,7 @@ const products = [
     name: "Padparadscha Sapphire",
     price: 18000,
     pricePerUnit: "per carat",
-    image: diamondProduct,
+    image: sapphireProduct,
     category: "Sapphire",
     purity: "AAA+",
     weight: "3.2 ct",
