@@ -6,6 +6,7 @@ import diamondProduct from "@/assets/diamond-product.webp";
 import goldProduct from "@/assets/gold-product.webp";
 import silverProduct from "@/assets/silver-product.webp";
 import sapphireProduct from "@/assets/sapphire-product.webp";
+import platinumProduct from "@/assets/platinum-product.webp";
 
 export interface Product {
   id: number;
@@ -119,7 +120,7 @@ const generateProducts = (): Product[] => {
       name,
       price: 1000 + Math.floor(Math.random() * 45000),
       pricePerUnit: i < 4 ? "per bar" : "per unit",
-      image: images[i % 4],
+      image: platinumProduct,
       category: "platinum",
       purity: "999.5",
       weight: ["1 oz", "100g", "250g", "500g", "1kg"][i % 5],
