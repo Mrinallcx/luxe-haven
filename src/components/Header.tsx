@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, User, Menu, X, ChevronDown, LogOut, Sparkles, Wallet, Bot } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogOut, Sparkles, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UniversalSearchBar from "@/components/UniversalSearchBar";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWallet } from "@/contexts/WalletContext";
-import { useAIChat } from "@/contexts/AIChatContext";
 import SignInModal from "@/components/SignInModal";
 import DemandUsModal from "@/components/DemandUsModal";
 import WalletConnectModal from "@/components/WalletConnectModal";
@@ -17,11 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +25,6 @@ const Header = () => {
   const { getCartCount } = useCart();
   const { isSignedIn, signIn, signOut } = useAuth();
   const { isConnected, walletAddress, disconnect } = useWallet();
-  const { toggleChat, isOpen: isChatOpen } = useAIChat();
   const cartCount = getCartCount();
 
   const formatAddress = (address: string) => {
@@ -106,26 +99,7 @@ const Header = () => {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 lg:gap-3">
-            <UniversalSearchBar className="hidden lg:block w-64" />
-            
-            {/* AI Chat Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={toggleChat}
-                  className={`relative ${isChatOpen ? 'text-gold' : ''}`}
-                >
-                  <Bot className="w-5 h-5" />
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gold rounded-full animate-pulse" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Ask MAISON AI</p>
-              </TooltipContent>
-            </Tooltip>
+          <div className="flex items-center gap-2 lg:gap-4">
             <UniversalSearchBar className="hidden lg:block w-64" />
             {!isSignedIn ? (
               <Button 
