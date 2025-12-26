@@ -180,14 +180,18 @@ const AIChatSidebar = () => {
                     <Bot className="w-8 h-8 text-gold" />
                   </div>
                   <h3 className="font-serif text-lg mb-2">Welcome to MAISON AI</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
+                  <p className="text-sm text-muted-foreground mb-2">
                     Ask me anything about our precious metals and gems marketplace.
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 mb-6">
+                    I can search the web for live market prices and read webpages you share.
                   </p>
                   <div className="space-y-2 w-full">
                     {[
-                      "What diamonds do you offer?",
-                      "Tell me about gold investment",
+                      "What's the current gold price?",
+                      "Tell me about your diamond collection",
                       "How do auctions work?",
+                      "What platinum products do you offer?",
                     ].map((suggestion) => (
                       <button
                         key={suggestion}
