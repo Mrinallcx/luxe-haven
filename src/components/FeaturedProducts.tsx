@@ -13,11 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import product4 from "@/assets/product-4.jpg";
 import diamondProduct from "@/assets/diamond-product.webp";
 import goldProduct from "@/assets/gold-product.webp";
 import silverProduct from "@/assets/silver-product.webp";
 import sapphireProduct from "@/assets/sapphire-product.webp";
+import platinumProduct from "@/assets/platinum-product.webp";
 
 const products = [
   // Diamonds (4 products)
@@ -161,7 +161,7 @@ const products = [
     name: "Platinum Bar",
     price: 4200,
     pricePerUnit: "per 100g",
-    image: product4,
+    image: platinumProduct,
     category: "Platinum",
     purity: "999.5",
     weight: "100g",
@@ -172,7 +172,7 @@ const products = [
     name: "Platinum Maple Leaf",
     price: 1100,
     pricePerUnit: "per oz",
-    image: product4,
+    image: platinumProduct,
     category: "Platinum",
     purity: "999.5",
     weight: "1 oz",
@@ -183,7 +183,7 @@ const products = [
     name: "Platinum American Eagle",
     price: 1150,
     pricePerUnit: "per oz",
-    image: product4,
+    image: platinumProduct,
     category: "Platinum",
     purity: "999.5",
     weight: "1 oz",
@@ -194,7 +194,7 @@ const products = [
     name: "Platinum Britannia",
     price: 1080,
     pricePerUnit: "per oz",
-    image: product4,
+    image: platinumProduct,
     category: "Platinum",
     purity: "999.5",
     weight: "1 oz",
