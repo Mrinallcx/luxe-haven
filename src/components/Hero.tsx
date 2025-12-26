@@ -54,7 +54,7 @@ const Hero = () => {
   const slide = slides[currentSlide];
 
   return (
-    <section className="relative min-h-[80vh] flex items-center pt-20 overflow-hidden">
+    <section className="relative min-h-[60vh] flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
       <AnimatePresence mode="wait">
         <motion.div
