@@ -1,1 +1,4 @@
 project_id = "bomfvthxzugeasjfjtgn"
+
+[functions.marketplace-chat]
+verify_jwt = false

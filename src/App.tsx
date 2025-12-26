@@ -7,6 +7,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WalletProvider } from "@/contexts/WalletContext";
+import { AIChatProvider } from "@/contexts/AIChatContext";
+import AIChatSidebar from "@/components/AIChatSidebar";
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
@@ -24,23 +26,26 @@ const App = () => (
       <WalletProvider>
         <CartProvider>
           <WishlistProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/category/:categoryName" element={<Category />} />
-                  <Route path="/product/:productId" element={<ProductDetail />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
+            <AIChatProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/category/:categoryName" element={<Category />} />
+                    <Route path="/product/:productId" element={<ProductDetail />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+                <AIChatSidebar />
+              </TooltipProvider>
+            </AIChatProvider>
           </WishlistProvider>
         </CartProvider>
       </WalletProvider>
