@@ -65,12 +65,13 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
-          <img
-            src={slide.image}
-            alt="Gold and silver bars with trading candlesticks"
-            style={{ objectPosition: 'center center' }}
-            className="w-full h-full object-cover"
-          />
+          <div className="w-full h-full flex items-center justify-center bg-cream/10">
+            <img
+              src={slide.image}
+              alt="Gold and silver bars with trading candlesticks"
+              className="max-w-[80%] max-h-[90%] object-contain"
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
