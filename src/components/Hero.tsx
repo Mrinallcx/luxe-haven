@@ -55,26 +55,8 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[80vh] flex items-center pt-20 overflow-hidden">
-      {/* Background Image */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
-          className="absolute inset-0"
-        >
-          <div className="w-full h-full flex items-center justify-center bg-cream/10">
-            <img
-              src={slide.image}
-              alt="Gold and silver bars with trading candlesticks"
-              className="max-w-[80%] max-h-[90%] object-contain"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent" />
-        </motion.div>
-      </AnimatePresence>
+      {/* Background */}
+      <div className="absolute inset-0 bg-charcoal" />
 
       {/* Content */}
       <div className="relative w-full">
