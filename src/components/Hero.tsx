@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-image.jpg";
+import heroImage from "@/assets/hero-gold-silver.webp";
 import GoldSilverWidget from "./GoldSilverWidget";
 
 const slides = [
@@ -70,7 +70,7 @@ const Hero = () => {
             alt="Luxury fashion collection featuring designer accessories"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/80 via-charcoal/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
