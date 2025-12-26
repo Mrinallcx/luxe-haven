@@ -67,7 +67,8 @@ const Hero = () => {
         >
           <img
             src={slide.image}
-            alt="Luxury fashion collection featuring designer accessories"
+            alt="Gold and silver bars with trading candlesticks"
+            style={{ objectPosition: 'center center' }}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-transparent to-transparent" />
