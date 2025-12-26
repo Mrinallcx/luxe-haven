@@ -2,6 +2,7 @@ import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 import product4 from "@/assets/product-4.jpg";
+import diamondProduct from "@/assets/diamond-product.webp";
 
 export interface Product {
   id: number;
@@ -40,7 +41,7 @@ const generateProducts = (): Product[] => {
       name,
       price: 5000 + Math.floor(Math.random() * 20000),
       pricePerUnit: "per carat",
-      image: images[i % 4],
+      image: diamondProduct,
       category: "diamonds",
       purity: ["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1"][i % 6],
       weight: `${(0.5 + Math.random() * 3).toFixed(1)} ct`,
