@@ -140,8 +140,8 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <button
+      {/* Navigation Arrows - commented out for single slide */}
+      {/* <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-cream/10 backdrop-blur-sm rounded-full text-cream hover:bg-cream/20 transition-colors"
         aria-label="Previous slide"
@@ -154,10 +154,10 @@ const Hero = () => {
         aria-label="Next slide"
       >
         <ChevronRight size={24} />
-      </button>
+      </button> */}
 
-      {/* Dots Navigation */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
+      {/* Dots Navigation - commented out for single slide */}
+      {/* <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
@@ -170,7 +170,7 @@ const Hero = () => {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Scroll Indicator */}
       <motion.div
