@@ -190,6 +190,7 @@ const AIChatSidebar = () => {
       }
 
       const data = await response.json();
+      console.log("AI Response data:", data);
       
       const assistantMessage: Message = {
         role: "assistant",
@@ -197,6 +198,7 @@ const AIChatSidebar = () => {
         products: data.products,
       };
       
+      console.log("Assistant message:", assistantMessage);
       setMessages((prev) => [...prev, assistantMessage]);
 
     } catch (error) {
@@ -317,8 +319,10 @@ const AIChatSidebar = () => {
                                 </ReactMarkdown>
                               </div>
                             ) : message.products && message.products.length > 0 ? (
-                              <span className="text-muted-foreground">Here are some products for you:</span>
-                            ) : null
+                              <span>Here are some products for you:</span>
+                            ) : (
+                              <span className="text-muted-foreground italic">Processing your request...</span>
+                            )
                           ) : (
                             message.content
                           )}
