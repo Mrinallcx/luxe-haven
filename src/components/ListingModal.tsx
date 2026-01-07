@@ -11,7 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Circle, Coins, Wallet, DollarSign, CreditCard } from "lucide-react";
+
+const TOKEN_ICONS: Record<string, React.ReactNode> = {
+  LCX: <Coins className="w-4 h-4" />,
+  USDT: <DollarSign className="w-4 h-4" />,
+  USDC: <Circle className="w-4 h-4" />,
+  wETH: <Wallet className="w-4 h-4" />,
+  ADA: <CreditCard className="w-4 h-4" />,
+};
 
 interface ListingModalProps {
   open: boolean;
@@ -134,13 +142,23 @@ const ListingModal = ({
                     className="flex-1"
                   />
                   <Select value={sellToken} onValueChange={setSellToken}>
-                    <SelectTrigger className="w-28">
-                      <SelectValue placeholder="Token" />
+                    <SelectTrigger className="w-32 ml-auto">
+                      <SelectValue placeholder="Token">
+                        {sellToken && (
+                          <span className="flex items-center gap-2">
+                            {TOKEN_ICONS[sellToken]}
+                            {sellToken}
+                          </span>
+                        )}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border z-50">
                       {TOKENS.map((t) => (
                         <SelectItem key={t} value={t}>
-                          {t}
+                          <span className="flex items-center gap-2">
+                            {TOKEN_ICONS[t]}
+                            {t}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
