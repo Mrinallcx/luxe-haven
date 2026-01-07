@@ -40,6 +40,7 @@ const ListingModal = ({
   const [step, setStep] = useState<Step>("form");
   const [saleType, setSaleType] = useState<string>("fixed");
   const [price, setPrice] = useState<string>("");
+  const [sellToken, setSellToken] = useState<string>("");
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [duration, setDuration] = useState<string>("");
   const [discount, setDiscount] = useState<string>("None");
@@ -67,6 +68,7 @@ const ListingModal = ({
       setStep("form");
       setSaleType("fixed");
       setPrice("");
+      setSellToken("");
       setSelectedTokens([]);
       setDuration("");
       setDiscount("None");
@@ -81,7 +83,7 @@ const ListingModal = ({
     );
   };
 
-  const isFormValid = price && selectedTokens.length > 0 && duration;
+  const isFormValid = price && sellToken && selectedTokens.length > 0 && duration;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -118,18 +120,32 @@ const ListingModal = ({
                 </Select>
               </div>
 
-              {/* Price */}
+              {/* Price with Token Selector */}
               <div className="space-y-2">
                 <Label className="text-foreground font-sans">
                   {saleType === "auction" ? "Minimum Bid Price" : "Price"}
                 </Label>
-                <Input
-                  type="number"
-                  placeholder="Enter amount"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Select value={sellToken} onValueChange={setSellToken}>
+                    <SelectTrigger className="w-28">
+                      <SelectValue placeholder="Token" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border z-50">
+                      {TOKENS.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Token Selection - Multi-select */}
