@@ -126,13 +126,6 @@ const ListingModal = ({
                   {saleType === "auction" ? "Minimum Bid Price" : "Price"}
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Enter amount"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="flex-1"
-                  />
                   <Select value={sellToken} onValueChange={setSellToken}>
                     <SelectTrigger className="w-28">
                       <SelectValue placeholder="Token" />
@@ -145,6 +138,13 @@ const ListingModal = ({
                       ))}
                     </SelectContent>
                   </Select>
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="flex-1"
+                  />
                 </div>
               </div>
 
