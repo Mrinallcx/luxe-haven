@@ -12,6 +12,7 @@ import { allProducts, Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import PlaceBidModal from "@/components/PlaceBidModal";
+import ProductName from "@/components/ProductName";
 
 interface DemandUsModalProps {
   open: boolean;
@@ -523,7 +524,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                           )}
                         </div>
                         <div className="p-2">
-                          <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
+                          <p className="text-xs font-medium text-foreground truncate"><ProductName name={product.name} /></p>
                           <p className="text-xs text-gold font-semibold">${product.price.toLocaleString()}</p>
                           
                           {isAuction ? (

@@ -17,6 +17,7 @@ import PlaceBidModal from "@/components/PlaceBidModal";
 import AcceptOfferModal from "@/components/AcceptOfferModal";
 import CounterOfferModal from "@/components/CounterOfferModal";
 import ViewOfferModal from "@/components/ViewOfferModal";
+import ProductName from "@/components/ProductName";
 
 // Mock transaction data
 const generateTransactions = (count: number) => {
@@ -341,7 +342,7 @@ const ProductDetail = () => {
             {/* Title Row */}
             <div className="flex items-start justify-between mb-4">
               <h1 className="text-3xl lg:text-4xl font-serif text-foreground">
-                {product.name}
+                <ProductName name={product.name} />
               </h1>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground tracking-widest uppercase">Owned By</p>
@@ -511,7 +512,7 @@ const ProductDetail = () => {
                             </div>
                             <div className="p-5">
                               <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                                {relatedProduct.name}
+                                <ProductName name={relatedProduct.name} />
                               </h3>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-lg font-semibold text-foreground">
@@ -574,7 +575,7 @@ const ProductDetail = () => {
                             </div>
                             <div className="p-5">
                               <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                                {relatedProduct.name}
+                                <ProductName name={relatedProduct.name} />
                               </h3>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-lg font-semibold text-foreground">
@@ -663,7 +664,7 @@ const ProductDetail = () => {
                       </div>
                       <div className="p-5">
                         <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                          {relatedProduct.name}
+                          <ProductName name={relatedProduct.name} />
                         </h3>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-lg font-semibold text-foreground">
