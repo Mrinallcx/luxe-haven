@@ -12,6 +12,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import PlaceBidModal from "@/components/PlaceBidModal";
+import ProductName from "@/components/ProductName";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -306,7 +307,7 @@ const Category = () => {
                         {/* Product Info */}
                         <div className="p-5">
                           <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                            {product.name}
+                            <ProductName name={product.name} />
                           </h3>
                           
                           <div className="flex items-baseline gap-1.5">

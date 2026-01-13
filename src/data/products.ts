@@ -79,16 +79,9 @@ const generateProducts = (): Product[] => {
   });
 
   // Silver - 30 products
-  const silverNames = [
-    "999 Silver Bar 1kg", "999 Silver Bar 5kg", "Sterling Silver Coin", "Silver Bullion 100oz",
-    "American Silver Eagle", "Silver Maple Leaf", "Silver Britannia", "Silver Philharmonic",
-    "Silver Krugerrand", "Silver Kangaroo", "Silver Panda", "Silver Libertad",
-    "Silver Kookaburra", "Silver Koala", "PAMP Suisse Silver", "Credit Suisse Silver",
-    "Valcambi Silver Bar", "Heraeus Silver Bar", "Perth Mint Silver", "Royal Canadian Silver",
-    "Austrian Mint Silver", "Johnson Matthey Silver", "Engelhard Silver", "Sunshine Silver",
-    "Asahi Silver Bar", "OPM Silver Bar", "Scottsdale Silver", "Silvertowne Bar",
-    "Republic Metals Silver", "Golden State Silver"
-  ];
+  const silverNames = Array.from({ length: 30 }, (_, i) => 
+    `Toto Silver #${String(i + 1).padStart(3, '0')}`
+  );
   silverNames.forEach((name, i) => {
     products.push({
       id: id++,

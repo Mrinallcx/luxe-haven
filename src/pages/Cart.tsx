@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import ProductName from "@/components/ProductName";
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
@@ -91,7 +92,7 @@ const Cart = () => {
                       <div className="flex-1 min-w-0">
                         <Link to={`/product/${item.product.id}`}>
                           <h3 className="font-medium text-foreground hover:text-gold transition-colors line-clamp-1">
-                            {item.product.name}
+                            <ProductName name={item.product.name} />
                           </h3>
                         </Link>
                         <p className="text-sm text-muted-foreground mb-2">

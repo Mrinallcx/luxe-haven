@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShoppingBag, Trash2, Gavel, Tag } from "lucide-react";
 import { Product } from "@/data/products";
+import ProductName from "@/components/ProductName";
 
 interface AccountProductCardProps {
   product: Product;
@@ -51,7 +52,7 @@ const AccountProductCard = ({
             <div className="flex-1 min-w-0">
               <Link to={`/product/${product.id}`}>
                 <h3 className="font-medium text-foreground hover:text-gold transition-colors truncate">
-                  {product.name}
+                  <ProductName name={product.name} />
                 </h3>
               </Link>
               <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
@@ -176,7 +177,7 @@ const AccountProductCard = ({
         
         <div className="p-4">
           <h3 className="font-medium text-foreground mb-1 group-hover:text-gold transition-colors line-clamp-1">
-            {product.name}
+            <ProductName name={product.name} />
           </h3>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
