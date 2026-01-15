@@ -99,7 +99,7 @@ const Cart = () => {
                           {item.product.purity} | {item.product.weight}
                         </p>
                         <p className="text-lg font-semibold text-foreground">
-                          €{item.product.price.toLocaleString()}
+                          ${item.product.price.toLocaleString()}
                         </p>
                       </div>
 
@@ -146,7 +146,7 @@ const Cart = () => {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal ({items.length} items)</span>
-                    <span className="text-foreground">€{subtotal.toLocaleString()}</span>
+                    <span className="text-foreground">${subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
@@ -154,13 +154,13 @@ const Cart = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (10%)</span>
-                    <span className="text-foreground">€{tax.toLocaleString()}</span>
+                    <span className="text-foreground">${tax.toLocaleString()}</span>
                   </div>
                   <div className="border-t border-border pt-4">
                     <div className="flex justify-between">
                       <span className="text-foreground font-medium">Total</span>
                       <span className="text-xl font-semibold text-foreground">
-                        €{total.toLocaleString()}
+                        ${total.toLocaleString()}
                       </span>
                     </div>
                   </div>

@@ -213,7 +213,7 @@ const Checkout = () => {
                         <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                       </div>
                       <p className="text-sm font-medium text-foreground">
-                        €{(item.product.price * item.quantity).toLocaleString()}
+                        ${(item.product.price * item.quantity).toLocaleString()}
                       </p>
                     </div>
                   ))}
@@ -222,7 +222,7 @@ const Checkout = () => {
                 <div className="border-t border-border pt-4 space-y-4 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">€{subtotal.toLocaleString()}</span>
+                    <span className="text-foreground">${subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
@@ -230,13 +230,13 @@ const Checkout = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (10%)</span>
-                    <span className="text-foreground">€{tax.toLocaleString()}</span>
+                    <span className="text-foreground">${tax.toLocaleString()}</span>
                   </div>
                   <div className="border-t border-border pt-4">
                     <div className="flex justify-between">
                       <span className="text-foreground font-medium">Total</span>
                       <span className="text-xl font-semibold text-foreground">
-                        €{total.toLocaleString()}
+                        ${total.toLocaleString()}
                       </span>
                     </div>
                   </div>
