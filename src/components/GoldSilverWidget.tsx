@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const GoldSilverWidget = () => {
   const [activeTab, setActiveTab] = useState<"gold" | "silver">("gold");
-  const [mode, setMode] = useState<"euros" | "grams">("euros");
+  const [mode, setMode] = useState<"dollars" | "grams">("dollars");
   const [amount, setAmount] = useState("2100");
 
   const prices = {
@@ -13,8 +13,8 @@ const GoldSilverWidget = () => {
 
   const currentPrice = prices[activeTab];
   const numericAmount = parseFloat(amount.replace(/,/g, "")) || 0;
-  const calculatedGrams = mode === "euros" ? (numericAmount / currentPrice).toFixed(4) : numericAmount.toFixed(4);
-  const calculatedEuros = mode === "grams" ? (numericAmount * currentPrice).toFixed(2) : numericAmount.toFixed(2);
+  const calculatedGrams = mode === "dollars" ? (numericAmount / currentPrice).toFixed(4) : numericAmount.toFixed(4);
+  const calculatedDollars = mode === "grams" ? (numericAmount * currentPrice).toFixed(2) : numericAmount.toFixed(2);
 
   const quickAmounts = ["500", "2,000", "5,000", "10,000"];
 
@@ -57,7 +57,7 @@ const GoldSilverWidget = () => {
             {activeTab}
           </span>
           <span className="text-charcoal font-sans font-bold text-2xl">
-            € {currentPrice.toLocaleString()}/gm
+            $ {currentPrice.toLocaleString()}/gm
           </span>
           <span className="text-charcoal/50 font-sans text-xs ml-auto">including VAT</span>
         </div>
@@ -67,14 +67,14 @@ const GoldSilverWidget = () => {
       <div className="flex justify-center mb-4">
         <div className="bg-charcoal/5 rounded-full p-1 flex">
           <button
-            onClick={() => setMode("euros")}
+            onClick={() => setMode("dollars")}
             className={`px-6 py-2 rounded-full text-xs font-sans font-semibold tracking-wider transition-all ${
-              mode === "euros"
+              mode === "dollars"
                 ? "bg-charcoal text-cream"
                 : "text-charcoal/60"
             }`}
           >
-            EUROS
+            DOLLARS
           </button>
           <button
             onClick={() => setMode("grams")}
@@ -94,7 +94,7 @@ const GoldSilverWidget = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-baseline gap-1">
             <span className="text-charcoal/60 text-lg">
-              {mode === "euros" ? "€" : "gm"}
+              {mode === "dollars" ? "$" : "gm"}
             </span>
             <input
               type="text"
@@ -104,7 +104,7 @@ const GoldSilverWidget = () => {
             />
           </div>
           <span className="text-charcoal/60 font-sans">
-            = {mode === "euros" ? `${calculatedGrams} gm` : `€ ${calculatedEuros}`}
+            = {mode === "dollars" ? `${calculatedGrams} gm` : `$ ${calculatedDollars}`}
           </span>
         </div>
 
@@ -116,7 +116,7 @@ const GoldSilverWidget = () => {
               onClick={() => setAmount(quickAmount)}
               className="text-charcoal/70 font-sans text-sm hover:text-charcoal transition-colors"
             >
-              {mode === "euros" ? `€ ${quickAmount}` : `${quickAmount} gm`}
+              {mode === "dollars" ? `$ ${quickAmount}` : `${quickAmount} gm`}
             </button>
           ))}
         </div>

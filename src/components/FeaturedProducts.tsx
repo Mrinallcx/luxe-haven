@@ -389,7 +389,7 @@ const ProductCard = ({ product, index }: { product: typeof products[0]; index: n
           
           <div className="flex items-baseline gap-1.5">
             <span className="text-lg font-semibold text-foreground">
-              €{product.price.toLocaleString()}
+              ${product.price.toLocaleString()}
             </span>
             <span className="text-xs text-muted-foreground">
               {product.status === "auction" ? "current bid" : product.pricePerUnit}

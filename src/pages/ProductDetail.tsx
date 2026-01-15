@@ -287,7 +287,7 @@ const ProductDetail = () => {
                       <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:gap-4">
                         <div>
                           <p className="text-xs sm:text-sm text-muted-foreground">Bid Amount</p>
-                          <p className="text-foreground font-medium text-sm sm:text-base">€{Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
+                          <p className="text-foreground font-medium text-sm sm:text-base">${Math.floor(product.price * offer.priceMultiplier).toLocaleString()}</p>
                         </div>
                         <div className="hidden sm:block h-8 w-px bg-border" />
                         <div>
@@ -426,7 +426,7 @@ const ProductDetail = () => {
             <div className="bg-muted/20 border border-border rounded-lg p-6 mb-6">
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">Our Price</p>
               <p className="text-3xl font-semibold text-foreground mb-4">
-                €{product.price.toLocaleString()}
+                ${product.price.toLocaleString()}
               </p>
               <Button 
                 onClick={() => {
@@ -516,7 +516,7 @@ const ProductDetail = () => {
                               </h3>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-lg font-semibold text-foreground">
-                                  €{relatedProduct.price.toLocaleString()}
+                                  ${relatedProduct.price.toLocaleString()}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
@@ -579,7 +579,7 @@ const ProductDetail = () => {
                               </h3>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-lg font-semibold text-foreground">
-                                  €{relatedProduct.price.toLocaleString()}
+                                  ${relatedProduct.price.toLocaleString()}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
@@ -668,7 +668,7 @@ const ProductDetail = () => {
                         </h3>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-lg font-semibold text-foreground">
-                            €{relatedProduct.price.toLocaleString()}
+                            ${relatedProduct.price.toLocaleString()}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {relatedProduct.status === "auction" ? "current bid" : relatedProduct.pricePerUnit}
