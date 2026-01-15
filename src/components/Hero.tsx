@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-gold-silver.webp";
+import goldBackground from "@/assets/gold_background.webp";
 import GoldSilverWidget from "./GoldSilverWidget";
 
 const slides = [
   {
     id: 1,
-    image: heroImage,
+    image: goldBackground,
     subtitle: "Winter Collection 2024",
     title: ["Timeless", "Elegance"],
     description: "Discover our curated selection of luxury fashion pieces, crafted for those who appreciate refined aesthetics.",
@@ -56,7 +56,10 @@ const Hero = () => {
   return (
     <section className="relative min-h-[80vh] flex items-center pt-20 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-charcoal" />
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${goldBackground})` }}
+      />
 
       {/* Content */}
       <div className="relative w-full">
@@ -75,7 +78,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-champagne text-sm tracking-[0.3em] uppercase mb-4"
+                className="text-charcoal/80 text-sm tracking-[0.3em] uppercase mb-4"
               >
                 {slide.subtitle}
               </motion.p>
@@ -84,7 +87,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-serif text-4xl md:text-6xl lg:text-7xl text-cream leading-tight mb-6"
+                className="font-serif text-4xl md:text-6xl lg:text-7xl text-charcoal leading-tight mb-6"
               >
                 {slide.title[0]}
                 <br />
@@ -95,7 +98,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-cream/80 text-lg md:text-xl mb-8 max-w-md"
+                className="text-charcoal/70 text-lg md:text-xl mb-8 max-w-md"
               >
                 {slide.description}
               </motion.p>
@@ -109,7 +112,7 @@ const Hero = () => {
                 <Button variant="premium-light" size="xl">
                   {slide.primaryCta}
                 </Button>
-                <Button variant="premium-outline" size="xl" className="border-cream text-cream hover:bg-cream hover:text-charcoal">
+                <Button variant="premium-outline" size="xl" className="border-charcoal text-charcoal hover:bg-charcoal hover:text-cream">
                   {slide.secondaryCta}
                 </Button>
               </motion.div>
@@ -163,11 +166,11 @@ const Hero = () => {
         transition={{ duration: 0.6, delay: 0.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-cream/60 text-xs tracking-widest uppercase">Scroll</span>
+        <span className="text-charcoal/60 text-xs tracking-widest uppercase">Scroll</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-px h-12 bg-gradient-to-b from-cream/60 to-transparent"
+          className="w-px h-12 bg-gradient-to-b from-charcoal/60 to-transparent"
         />
       </motion.div>
     </section>
