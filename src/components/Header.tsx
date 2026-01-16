@@ -291,7 +291,11 @@ const Header = () => {
       </AnimatePresence>
 
       {/* Sign In Modal */}
-      <SignInModal open={isSignInOpen} onOpenChange={setIsSignInOpen} onSignIn={signIn} />
+      <SignInModal 
+        open={isSignInOpen} 
+        onOpenChange={setIsSignInOpen} 
+        onSignIn={(user) => signIn(user)} 
+      />
       
       {/* Demand Us Modal */}
       <DemandUsModal open={isDemandUsOpen} onOpenChange={setIsDemandUsOpen} />

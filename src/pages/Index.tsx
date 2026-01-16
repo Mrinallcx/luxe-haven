@@ -6,15 +6,17 @@ import Services from "@/components/Services";
 import Newsletter from "@/components/Newsletter";
 import PromotionalBoxes from "@/components/PromotionalBoxes";
 import Footer from "@/components/Footer";
+import { PageSEO } from "@/components/shared/SEO";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <PageSEO.Home />
       <Header />
       <main>
         <Hero />
-        <FeaturedProducts />
-        <FeaturedProducts title="New Arrivals" subtitle="Just In" />
+        <FeaturedProducts title="Featured Pieces" defaultSaleType="FIXEDPRICE" />
+        <FeaturedProducts title="Live Auctions" defaultSaleType="AUCTION" showStatusFilter={false} />
         <Categories />
         <Services />
         <Newsletter />

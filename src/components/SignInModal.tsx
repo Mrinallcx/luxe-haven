@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -14,12 +14,13 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, Mail, KeyRound } from "lucide-react";
+import { CheckCircle, Mail, KeyRound, Loader2, AlertCircle } from "lucide-react";
+import { requestOtp, verifyOtp } from "@/lib/auth-api";
 
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSignIn?: () => void;
+  onSignIn?: (user?: { emailId: string }) => void;
 }
 
 type Step = "email" | "otp" | "success";
@@ -29,36 +30,146 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [otpValidTill, setOtpValidTill] = useState<number | null>(null);
+  const [otpBlockedTill, setOtpBlockedTill] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number>(0);
+  const [resendCountdown, setResendCountdown] = useState<number>(0);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  // Countdown timer for OTP validity
+  useEffect(() => {
+    if (!otpValidTill) return;
+    
+    const updateCountdown = () => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.floor((otpValidTill - now) / 1000));
+      setCountdown(remaining);
+      
+      if (remaining === 0) {
+        setError("OTP has expired. Please request a new one.");
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [otpValidTill]);
+
+  // Countdown timer for resend availability
+  useEffect(() => {
+    if (!otpBlockedTill) return;
+    
+    const updateResendCountdown = () => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.floor((otpBlockedTill - now) / 1000));
+      setResendCountdown(remaining);
+    };
+
+    updateResendCountdown();
+    const interval = setInterval(updateResendCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [otpBlockedTill]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    const response = await requestOtp(email);
+
+    setIsLoading(false);
+
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
+
+    if (response.data) {
+      setOtpValidTill(response.data.otpValidTill);
+      setOtpBlockedTill(response.data.otpGenerationBlockedTill);
       setStep("otp");
     }
   };
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0) return;
+
+    setIsLoading(true);
+    setError(null);
+    setOtp("");
+
+    const response = await requestOtp(email);
+
+    setIsLoading(false);
+
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
+
+    if (response.data) {
+      setOtpValidTill(response.data.otpValidTill);
+      setOtpBlockedTill(response.data.otpGenerationBlockedTill);
+      setError(null);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.length === 6) {
+    if (otp.length !== 6) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    const response = await verifyOtp(email, otp);
+
+    setIsLoading(false);
+
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
+
+    if (response.data) {
+      // Store token if returned
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
+
       setStep("success");
       setTimeout(() => {
         onOpenChange(false);
-        onSignIn?.();
+        onSignIn?.({ emailId: email });
         navigate("/account");
         // Reset state for next time
-        setStep("email");
-        setEmail("");
-        setOtp("");
+        resetState();
       }, 2000);
     }
   };
 
+  const resetState = () => {
+    setStep("email");
+    setEmail("");
+    setOtp("");
+    setError(null);
+    setOtpValidTill(null);
+    setOtpBlockedTill(null);
+    setCountdown(0);
+    setResendCountdown(0);
+  };
+
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset state when closing
-      setStep("email");
-      setEmail("");
-      setOtp("");
+      resetState();
     }
     onOpenChange(isOpen);
   };
@@ -123,16 +234,41 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError(null);
+                    }}
                     className="bg-background border-champagne/50 focus:border-gold"
                     required
+                    disabled={isLoading}
                   />
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-lg"
+                  >
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
                 <Button
                   type="submit"
-                  className="w-full rounded-full bg-charcoal text-cream hover:bg-charcoal/90"
+                  disabled={isLoading || !email}
+                  className="w-full rounded-full bg-charcoal text-cream hover:bg-charcoal/90 disabled:opacity-50"
                 >
-                  Continue
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending OTP...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
                 </Button>
               </motion.form>
             )}
@@ -152,13 +288,27 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                     We've sent a 6-digit code to
                   </p>
                   <p className="font-medium text-charcoal font-sans">{email}</p>
+                  
+                  {/* OTP Validity Countdown */}
+                  {countdown > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Code expires in{" "}
+                      <span className="font-medium text-gold">
+                        {formatTime(countdown)}
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex justify-center">
                   <InputOTP
                     maxLength={6}
                     value={otp}
-                    onChange={(value) => setOtp(value)}
+                    onChange={(value) => {
+                      setOtp(value);
+                      setError(null);
+                    }}
+                    disabled={isLoading}
                   >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} className="border-champagne/50" />
@@ -171,21 +321,62 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                   </InputOTP>
                 </div>
 
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-lg"
+                  >
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
                 <Button
                   type="submit"
-                  disabled={otp.length !== 6}
+                  disabled={otp.length !== 6 || isLoading || countdown === 0}
                   className="w-full rounded-full bg-charcoal text-cream hover:bg-charcoal/90 disabled:opacity-50"
                 >
-                  Verify & Sign In
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Verify & Sign In"
+                  )}
                 </Button>
 
+                <div className="flex flex-col items-center gap-2">
+                  {/* Resend OTP */}
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendCountdown > 0 || isLoading}
+                    className="text-sm text-muted-foreground hover:text-charcoal transition-colors font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {resendCountdown > 0 ? (
+                      <>Resend OTP in {formatTime(resendCountdown)}</>
+                    ) : (
+                      "Resend OTP"
+                    )}
+                  </button>
+
+                  {/* Change Email */}
                 <button
                   type="button"
-                  onClick={() => setStep("email")}
-                  className="w-full text-sm text-muted-foreground hover:text-charcoal transition-colors font-sans"
+                    onClick={() => {
+                      setStep("email");
+                      setOtp("");
+                      setError(null);
+                    }}
+                    disabled={isLoading}
+                    className="text-sm text-muted-foreground hover:text-charcoal transition-colors font-sans"
                 >
                   Use a different email
                 </button>
+                </div>
               </motion.form>
             )}
 
