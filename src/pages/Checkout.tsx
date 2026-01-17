@@ -73,7 +73,7 @@ const Checkout = () => {
         <Header />
         <main className="container mx-auto px-4 lg:px-8 pt-32 pb-20 max-w-[1400px]">
           <div className="text-center py-20">
-            <h1 className="text-2xl font-serif text-foreground mb-4">No Items to Checkout</h1>
+            <h1 className="text-2xl font-serif font-light text-foreground mb-4">No Items to Checkout</h1>
             <p className="text-muted-foreground mb-8">
               Your cart is empty. Add some items before proceeding to checkout.
             </p>
@@ -128,12 +128,12 @@ const Checkout = () => {
           <span className="text-foreground">Checkout</span>
         </nav>
 
-        <h1 className="text-3xl lg:text-4xl font-serif text-foreground mb-8">Checkout</h1>
+        <h1 className="text-3xl lg:text-4xl font-serif font-light text-foreground mb-8">Checkout</h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Payment Methods */}
           <div className="lg:col-span-2">
-            <h2 className="text-lg font-serif text-foreground mb-6">Select Payment Method</h2>
+            <h2 className="text-lg font-serif font-light text-foreground mb-6">Select Payment Method</h2>
             
             <div className="grid sm:grid-cols-2 gap-4">
               {paymentMethods.map((method, index) => {
@@ -195,7 +195,7 @@ const Checkout = () => {
           <div className="lg:col-span-1">
             <Card className="bg-muted/20 border-border sticky top-28">
               <CardContent className="p-6">
-                <h2 className="text-lg font-serif text-foreground mb-6">Order Summary</h2>
+                <h2 className="text-lg font-serif font-light text-foreground mb-6">Order Summary</h2>
                 
                 {/* Items Preview */}
                 <div className="space-y-3 mb-6 max-h-48 overflow-y-auto">

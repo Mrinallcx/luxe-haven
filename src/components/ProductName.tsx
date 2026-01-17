@@ -12,14 +12,14 @@ const ProductName: React.FC<ProductNameProps> = ({ name, className }) => {
   
   if (totoSilverMatch) {
     return (
-      <span className={cn("font-serif", className)}>
+      <span className={cn("font-serif font-light", className)}>
         {totoSilverMatch[1]}
         <span className="font-sans">{totoSilverMatch[2]}</span>
       </span>
     );
   }
   
-  return <span className={cn("font-serif", className)}>{name}</span>;
+  return <span className={cn("font-serif font-light", className)}>{name}</span>;
 };
 
 export default ProductName;

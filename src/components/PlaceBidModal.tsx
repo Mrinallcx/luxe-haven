@@ -62,7 +62,7 @@ const PlaceBidModal = ({
             >
               {/* Header */}
               <div className="text-center mb-6">
-                <h2 className="font-serif text-xl text-charcoal mb-1">Place Your Bid</h2>
+                <h2 className="font-serif font-light text-xl text-charcoal mb-1">Place Your Bid</h2>
                 <p className="text-sm text-charcoal/60">{productName}</p>
               </div>
 
@@ -165,7 +165,7 @@ const PlaceBidModal = ({
               >
                 <Loader2 className="w-12 h-12 text-gold" />
               </motion.div>
-              <h3 className="font-serif text-xl text-charcoal mb-2">Processing</h3>
+              <h3 className="font-serif font-light text-xl text-charcoal mb-2">Processing</h3>
               <p className="text-sm text-charcoal/60 text-center">
                 Submitting your bid...
               </p>
@@ -189,7 +189,7 @@ const PlaceBidModal = ({
                   <div className="w-6 h-6 rounded-full bg-gold/30" />
                 </div>
               </motion.div>
-              <h3 className="font-serif text-xl text-charcoal mb-2">Confirming</h3>
+              <h3 className="font-serif font-light text-xl text-charcoal mb-2">Confirming</h3>
               <p className="text-sm text-charcoal/60 text-center">
                 Waiting for blockchain confirmation...
               </p>
@@ -212,7 +212,7 @@ const PlaceBidModal = ({
               >
                 <Check className="w-8 h-8 text-gold" />
               </motion.div>
-              <h3 className="font-serif text-xl text-charcoal mb-2">Bid Placed!</h3>
+              <h3 className="font-serif font-light text-xl text-charcoal mb-2">Bid Placed!</h3>
               <p className="text-sm text-charcoal/60 text-center mb-2">
                 Your bid of {bidAmount.toLocaleString()} {currency} has been placed
               </p>

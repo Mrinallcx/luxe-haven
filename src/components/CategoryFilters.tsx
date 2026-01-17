@@ -101,7 +101,7 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
     >
       {/* Header with Clear Button */}
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-border/50">
-        <h3 className="font-playfair text-lg font-semibold text-foreground">Filters</h3>
+        <h3 className="font-serif text-lg font-light text-foreground">Filters</h3>
         {hasActiveFilters && (
           <Button
             variant="ghost"

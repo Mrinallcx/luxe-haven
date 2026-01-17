@@ -31,13 +31,12 @@ const PromotionalBoxes = () => {
             </div>
             
             <div className="relative z-10">
-              <h3 className="font-playfair text-3xl md:text-4xl lg:text-5xl text-cream font-medium leading-tight mb-4">
-                OUTFIT<br />
-                INSPIRATION<br />
-                OF THE DAY
+              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl text-cream font-light leading-tight mb-4">
+                From Real Assets<br />
+                to Real Ownership
               </h3>
               <p className="text-cream/80 text-sm md:text-base max-w-xs">
-                80+ Curated looks handpicked for your style.
+                Confidence in every asset: verified, secure, and deliverable.
               </p>
             </div>
           </motion.div>
@@ -68,10 +67,10 @@ const PromotionalBoxes = () => {
             </div>
             
             <div className="relative z-10">
-              <h3 className="font-playfair text-3xl md:text-4xl lg:text-5xl text-charcoal font-medium leading-tight">
-                NEW<br />
-                CASUAL<br />
-                STYLE
+              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl text-charcoal font-light leading-tight">
+                Tokenized.<br />
+                Trusted.<br />
+                Tangible.
               </h3>
             </div>
 

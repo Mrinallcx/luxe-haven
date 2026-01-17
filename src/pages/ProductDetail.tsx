@@ -122,7 +122,7 @@ const ProductDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 lg:px-8 py-20 text-center">
-          <h1 className="text-2xl font-serif text-foreground mb-4">Product Not Found</h1>
+          <h1 className="text-2xl font-serif font-light text-foreground mb-4">Product Not Found</h1>
           <Link to="/">
             <Button variant="outline" className="rounded-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -191,7 +191,7 @@ const ProductDetail = () => {
               </TabsList>
 
               <TabsContent value="overview" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Product Overview</h3>
+                <h3 className="font-serif font-light text-foreground mb-3">Product Overview</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   This exquisite {categoryLabel.toLowerCase()} piece represents the pinnacle of quality and craftsmanship. 
                   Each asset is carefully selected and verified to meet our stringent standards.
@@ -217,7 +217,7 @@ const ProductDetail = () => {
               </TabsContent>
 
               <TabsContent value="documents" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Certificates & Documents</h3>
+                <h3 className="font-serif font-light text-foreground mb-3">Certificates & Documents</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   All documents are available for download after purchase and stored securely in your account.
                 </p>
@@ -247,7 +247,7 @@ const ProductDetail = () => {
               </TabsContent>
 
               <TabsContent value="insurance" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Insurance Coverage</h3>
+                <h3 className="font-serif font-light text-foreground mb-3">Insurance Coverage</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   Your asset is fully insured from the moment of purchase, at no additional cost.
                 </p>
@@ -277,7 +277,7 @@ const ProductDetail = () => {
               </TabsContent>
 
               <TabsContent value="offers" className="bg-muted/20 border border-border rounded-lg p-5 mt-4">
-                <h3 className="font-serif text-foreground mb-3">Current Offers</h3>
+                <h3 className="font-serif font-light text-foreground mb-3">Current Offers</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   Review and respond to bid offers from potential buyers.
                 </p>
@@ -341,12 +341,12 @@ const ProductDetail = () => {
           >
             {/* Title Row */}
             <div className="flex items-start justify-between mb-4">
-              <h1 className="text-3xl lg:text-4xl font-serif text-foreground">
+              <h1 className="text-3xl lg:text-4xl font-serif font-light text-foreground">
                 <ProductName name={product.name} />
               </h1>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground tracking-widest uppercase">Owned By</p>
-                <p className="text-gold font-serif text-lg">MAISON</p>
+                <p className="text-gold font-serif font-light text-lg">MAISON</p>
               </div>
             </div>
 
@@ -406,7 +406,7 @@ const ProductDetail = () => {
 
             {/* Info Box */}
             <div className="bg-muted/20 border border-border rounded-lg p-5 mb-6">
-              <h3 className="font-serif text-foreground mb-2">Certified Precious Asset</h3>
+              <h3 className="font-serif font-light text-foreground mb-2">Certified Precious Asset</h3>
               <p className="text-sm text-muted-foreground leading-relaxed uppercase tracking-wide">
                 Own certified {categoryLabel.toLowerCase()} stored securely with free insurance. Trade, gift, or redeem your asset anytime - with full transparency and traceability.
               </p>
@@ -462,7 +462,7 @@ const ProductDetail = () => {
         {relatedProducts.length > 0 && (
           <section className="mt-16">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif text-foreground">Related Products</h2>
+              <h2 className="text-2xl font-serif font-light text-foreground">Related Products</h2>
               <Link 
                 to={`/category/${product.category}`}
                 className="text-sm text-gold hover:text-gold/80 transition-colors"
@@ -685,7 +685,7 @@ const ProductDetail = () => {
 
         {/* Transaction History Table */}
         <section className="mt-16">
-          <h2 className="text-2xl font-serif text-foreground mb-8">Transaction History</h2>
+          <h2 className="text-2xl font-serif font-light text-foreground mb-8">Transaction History</h2>
           <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>

@@ -315,7 +315,7 @@ const FeaturedProducts = ({
           transition={{ duration: 0.6 }}
           className="text-left mb-12"
         >
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light">
             {title}
           </h2>
         </motion.div>

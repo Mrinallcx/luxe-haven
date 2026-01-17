@@ -58,7 +58,7 @@ const ClaimTotoModal = ({
               className="space-y-6"
             >
               <DialogHeader>
-                <DialogTitle className="text-xl font-serif text-foreground">
+                <DialogTitle className="text-xl font-serif font-light text-foreground">
                   Claim TOTO Rewards
                 </DialogTitle>
               </DialogHeader>
@@ -111,7 +111,7 @@ const ClaimTotoModal = ({
               >
                 <Loader2 className="w-12 h-12 text-gold" />
               </motion.div>
-              <p className="text-lg font-serif text-foreground">Processing...</p>
+              <p className="text-lg font-serif font-light text-foreground">Processing...</p>
               <p className="text-sm text-muted-foreground text-center">
                 Initiating reward claim transaction
               </p>
@@ -137,7 +137,7 @@ const ClaimTotoModal = ({
                   className="w-6 h-6 rounded-full bg-gold/50"
                 />
               </motion.div>
-              <p className="text-lg font-serif text-foreground">Waiting...</p>
+              <p className="text-lg font-serif font-light text-foreground">Waiting...</p>
               <p className="text-sm text-muted-foreground text-center">
                 Confirming transaction on blockchain
               </p>
@@ -161,7 +161,7 @@ const ClaimTotoModal = ({
                 <Check className="w-8 h-8 text-green-500" />
               </motion.div>
               <div className="text-center space-y-2">
-                <p className="text-lg font-serif text-foreground">
+                <p className="text-lg font-serif font-light text-foreground">
                   Rewards Credited to Your Wallet
                 </p>
                 <p className="text-2xl font-sans font-medium text-gold">

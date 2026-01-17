@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import categoryWomen from "@/assets/category-women.jpg";
-import categoryMen from "@/assets/category-men.jpg";
-import categoryAccessories from "@/assets/category-accessories.jpg";
-import categoryFootwear from "@/assets/category-footwear.jpg";
-import categoryJewelry from "@/assets/category-jewelry.jpg";
+import goldBanner from "@/assets/gold banner.webp";
+import silverBar from "@/assets/silver bar.webp";
+import sapphireBanner from "@/assets/sapphire banner.webp";
+import platinumBanner from "@/assets/platinum banner.webp";
 
 const categories = [
   {
@@ -13,7 +12,8 @@ const categories = [
     name: "Diamonds",
     slug: "diamonds",
     description: "Brilliant stones of eternal radiance",
-    image: categoryWomen,
+    color: "bg-gradient-to-br from-blue-50 to-blue-100",
+    image: null,
     count: 248,
   },
   {
@@ -21,7 +21,8 @@ const categories = [
     name: "Gold",
     slug: "gold",
     description: "Timeless treasures of pure elegance",
-    image: categoryMen,
+    color: "bg-gradient-to-br from-yellow-50 to-yellow-100",
+    image: goldBanner,
     count: 186,
   },
   {
@@ -29,7 +30,8 @@ const categories = [
     name: "Silver",
     slug: "silver",
     description: "Lustrous beauty for refined taste",
-    image: categoryAccessories,
+    color: "bg-gradient-to-br from-gray-50 to-gray-100",
+    image: silverBar,
     count: 324,
   },
   {
@@ -37,7 +39,8 @@ const categories = [
     name: "Platinum",
     slug: "platinum",
     description: "The pinnacle of precious luxury",
-    image: categoryFootwear,
+    color: "bg-gradient-to-br from-slate-50 to-slate-100",
+    image: platinumBanner,
     count: 156,
   },
   {
@@ -45,7 +48,8 @@ const categories = [
     name: "Sapphire",
     slug: "sapphire",
     description: "Royal gems of captivating allure",
-    image: categoryJewelry,
+    color: "bg-gradient-to-br from-indigo-50 to-indigo-100",
+    image: sapphireBanner,
     count: 92,
   },
 ];
@@ -60,19 +64,21 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0]; ind
         transition={{ duration: 0.6, delay: index * 0.15 }}
         className="group relative overflow-hidden cursor-pointer"
       >
-        <div className="aspect-[4/3] lg:aspect-[3/2]">
-          <img
-            src={category.image}
-            alt={`${category.name} collection`}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
+        <div className={`aspect-[4/3] lg:aspect-[3/2] ${!category.image ? category.color : ''} transition-all duration-300 group-hover:opacity-90 relative overflow-hidden`}>
+          {category.image ? (
+            <img
+              src={category.image}
+              alt={`${category.name} collection`}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+          ) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
         </div>
         
         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
           <div className="flex items-end justify-between">
             <div>
-              <h3 className="font-serif text-2xl lg:text-3xl text-cream mb-2">
+              <h3 className="font-serif text-2xl lg:text-3xl text-cream mb-2 font-light">
                 {category.name}
               </h3>
               <p className="text-cream/70 text-sm hidden md:block max-w-xs">
@@ -105,7 +111,7 @@ const Categories = () => {
           transition={{ duration: 0.6 }}
           className="text-left mb-16"
         >
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl">
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light">
             Explore Collections
           </h2>
         </motion.div>

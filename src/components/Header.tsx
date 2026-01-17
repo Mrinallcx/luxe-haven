@@ -53,7 +53,7 @@ const Header = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-wide">
+          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-wide font-light">
             MAISON
           </Link>
 

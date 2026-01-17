@@ -18,7 +18,7 @@ const Cart = () => {
         <main className="container mx-auto px-4 lg:px-8 pt-32 pb-20 max-w-[1400px]">
           <div className="text-center py-20">
             <ShoppingBag className="w-16 h-16 mx-auto text-muted-foreground mb-6" />
-            <h1 className="text-2xl font-serif text-foreground mb-4">Your Cart is Empty</h1>
+            <h1 className="text-2xl font-serif font-light text-foreground mb-4">Your Cart is Empty</h1>
             <p className="text-muted-foreground mb-8">
               Looks like you haven't added any items to your cart yet.
             </p>
@@ -53,7 +53,7 @@ const Cart = () => {
         </nav>
 
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl lg:text-4xl font-serif text-foreground">Shopping Cart</h1>
+          <h1 className="text-3xl lg:text-4xl font-serif font-light text-foreground">Shopping Cart</h1>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -141,7 +141,7 @@ const Cart = () => {
           <div className="lg:col-span-1">
             <Card className="bg-muted/20 border-border sticky top-28">
               <CardContent className="p-6">
-                <h2 className="text-lg font-serif text-foreground mb-6">Order Summary</h2>
+                <h2 className="text-lg font-serif font-light text-foreground mb-6">Order Summary</h2>
                 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-sm">

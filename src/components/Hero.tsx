@@ -2,7 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import goldBackground from "@/assets/gold_background.webp";
+import goldBackground from "@/assets/gold background.webp";
+import silverBackground from "@/assets/silver background.webp";
+import platinumBackground from "@/assets/platinum background.webp";
+import copperBackground from "@/assets/copper background.webp";
 import GoldSilverWidget from "./GoldSilverWidget";
 
 const slides = [
@@ -15,24 +18,33 @@ const slides = [
     primaryCta: "Shop Collection",
     secondaryCta: "Explore",
   },
-  // {
-  //   id: 2,
-  //   image: heroImage,
-  //   subtitle: "Exclusive Offers",
-  //   title: ["Golden", "Investments"],
-  //   description: "Invest in digital gold and silver with real-time pricing and secure transactions.",
-  //   primaryCta: "Start Investing",
-  //   secondaryCta: "Learn More",
-  // },
-  // {
-  //   id: 3,
-  //   image: heroImage,
-  //   subtitle: "New Arrivals",
-  //   title: ["Premium", "Collection"],
-  //   description: "Explore our latest collection of handcrafted jewelry and precious metals.",
-  //   primaryCta: "View Collection",
-  //   secondaryCta: "Discover",
-  // },
+  {
+    id: 2,
+    image: silverBackground,
+    subtitle: "Exclusive Offers",
+    title: ["Silver", "Refinement"],
+    description: "Invest in digital silver with real-time pricing and secure transactions. Experience the elegance of precious metals.",
+    primaryCta: "Start Investing",
+    secondaryCta: "Learn More",
+  },
+  {
+    id: 3,
+    image: platinumBackground,
+    subtitle: "Premium Collection",
+    title: ["Platinum", "Excellence"],
+    description: "Explore our latest collection of handcrafted platinum jewelry and precious metal investments.",
+    primaryCta: "View Collection",
+    secondaryCta: "Discover",
+  },
+  {
+    id: 4,
+    image: copperBackground,
+    subtitle: "New Arrivals",
+    title: ["Copper", "Heritage"],
+    description: "Discover the timeless beauty of copper in our exclusive collection of luxury items and investment opportunities.",
+    primaryCta: "Shop Now",
+    secondaryCta: "Explore",
+  },
 ];
 
 const Hero = () => {
@@ -55,11 +67,21 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center pt-20 overflow-hidden">
-      {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${goldBackground})` }}
-      />
+      {/* Background with smooth transitions */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentSlide}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${slide.image})` }}
+        />
+      </AnimatePresence>
+      
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="relative w-full">
@@ -87,7 +109,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-serif text-4xl md:text-6xl lg:text-7xl text-charcoal leading-tight mb-6"
+                className="font-serif text-4xl md:text-6xl lg:text-7xl text-charcoal font-light leading-tight mb-6"
               >
                 {slide.title[0]}
                 <br />
@@ -127,37 +149,37 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Navigation Arrows - commented out for single slide */}
-      {/* <button
+      {/* Navigation Arrows */}
+      <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-cream/10 backdrop-blur-sm rounded-full text-cream hover:bg-cream/20 transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/20 backdrop-blur-sm rounded-full text-charcoal hover:bg-white/30 transition-colors shadow-lg"
         aria-label="Previous slide"
       >
         <ChevronLeft size={24} />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-cream/10 backdrop-blur-sm rounded-full text-cream hover:bg-cream/20 transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/20 backdrop-blur-sm rounded-full text-charcoal hover:bg-white/30 transition-colors shadow-lg"
         aria-label="Next slide"
       >
         <ChevronRight size={24} />
-      </button> */}
+      </button>
 
-      {/* Dots Navigation - commented out for single slide */}
-      {/* <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
+      {/* Dots Navigation */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`h-2 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-cream w-6"
-                : "bg-cream/40 hover:bg-cream/60"
+                ? "bg-charcoal w-8"
+                : "bg-charcoal/40 hover:bg-charcoal/60 w-2"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div> */}
+      </div>
 
       {/* Scroll Indicator */}
       <motion.div

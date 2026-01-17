@@ -56,7 +56,7 @@ const WalletConnectModal = ({ open, onOpenChange }: WalletConnectModalProps) => 
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center font-serif text-xl tracking-wide">
+          <DialogTitle className="text-center font-serif font-light text-xl tracking-wide">
             Connect Wallet
           </DialogTitle>
         </DialogHeader>

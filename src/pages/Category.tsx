@@ -248,7 +248,7 @@ const Category = () => {
               <p className="text-gold text-sm tracking-widest uppercase mb-4">
                 Premium Collection
               </p>
-              <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl text-cream mb-4">
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-cream font-light mb-4">
                 {categoryTitle}
               </h1>
               <p className="text-cream/70 max-w-lg text-sm md:text-base">
@@ -287,7 +287,7 @@ const Category = () => {
                   </SheetTrigger>
                   <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
                     <SheetHeader>
-                      <SheetTitle className="font-playfair text-xl">Filters</SheetTitle>
+                      <SheetTitle className="font-serif text-xl font-light">Filters</SheetTitle>
                     </SheetHeader>
                     <div className="mt-6">
                       <CategoryFilters 

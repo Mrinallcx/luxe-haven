@@ -1,24 +1,24 @@
 import { motion } from "framer-motion";
-import { RefreshCw, ShieldCheck, Truck } from "lucide-react";
+import { ShieldCheck, Link2, ArrowRightLeft } from "lucide-react";
 
 const services = [
   {
-    icon: RefreshCw,
-    title: "Free Returns",
-    description:
-      "Our customers can return or exchange their purchases hassle-free, with our easy-to-use return policy.",
-  },
-  {
     icon: ShieldCheck,
-    title: "Secure Payment",
+    title: "Verified & Protected",
     description:
-      "We offer a secure checkout process that protects our customers' personal and financial information.",
+      "Own verified real-world assets digitally with transparency and control.",
   },
   {
-    icon: Truck,
-    title: "Customer Support",
+    icon: Link2,
+    title: "Tokenized Ownership",
     description:
-      "Our customer support team is available to help customers with any questions or concerns they may have, ensuring a seamless and stress-free shopping experience.",
+      "Each asset is digitally represented on-chain, creating a transparent and immutable ownership record.",
+  },
+  {
+    icon: ArrowRightLeft,
+    title: "Flexible Access",
+    description:
+      "Hold digitally, trade on the marketplace, or redeem the physical asset anytime with insured delivery.",
   },
 ];
 
@@ -35,10 +35,9 @@ const Services = () => {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <h2 className="font-serif text-3xl md:text-4xl mb-4">Our Services</h2>
+            <h2 className="font-serif text-3xl md:text-4xl mb-4 font-light">Our Services</h2>
             <p className="text-muted-foreground">
-              We understand the importance of a seamless and enjoyable shopping
-              experience.
+              Real-world assets, tokenized the right way. Verified. Secure. Redeemable.
             </p>
           </motion.div>
 
@@ -53,7 +52,7 @@ const Services = () => {
               className="p-6 lg:p-8 rounded-2xl border border-border bg-card"
             >
               <service.icon className="w-10 h-10 text-foreground mb-6 stroke-[1.5]" />
-              <h3 className="font-serif text-xl mb-3">{service.title}</h3>
+              <h3 className="font-serif text-xl mb-3 font-light">{service.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {service.description}
               </p>

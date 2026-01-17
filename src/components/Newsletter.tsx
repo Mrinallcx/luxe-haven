@@ -11,7 +11,7 @@ const Newsletter = () => {
     e.preventDefault();
     if (email) {
       toast({
-        title: "Welcome to Maison",
+        title: "Welcome to Toto Finance",
         description: "Thank you for subscribing to our newsletter.",
       });
       setEmail("");
@@ -31,11 +31,11 @@ const Newsletter = () => {
           <p className="text-champagne text-sm tracking-[0.3em] uppercase mb-4">
             Stay Connected
           </p>
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-cream mb-6">
-            Join the Maison
+          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-cream font-light mb-6">
+            The Future of Tokenization
           </h2>
           <p className="text-cream/70 mb-10">
-            Subscribe to receive exclusive access to new arrivals, private sales, and curated style inspiration.
+            Get early access to newly acquired assets, upcoming auctions, market insights, and important platform updates.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -53,7 +53,7 @@ const Newsletter = () => {
           </form>
 
           <p className="text-cream/40 text-xs mt-6">
-            By subscribing, you agree to our Privacy Policy and consent to receive updates.
+            By subscribing, you agree to receive updates from Toto Finance. You can unsubscribe at any time.
           </p>
         </motion.div>
       </div>

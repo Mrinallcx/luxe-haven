@@ -198,7 +198,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
         </VisuallyHidden>
         <div className="p-6 pb-0">
           <div className="mb-4">
-            <h2 className="font-serif text-xl text-foreground">Demand Us</h2>
+            <h2 className="font-serif font-light text-xl text-foreground">Demand Us</h2>
           </div>
 
           {/* Progress Indicator */}

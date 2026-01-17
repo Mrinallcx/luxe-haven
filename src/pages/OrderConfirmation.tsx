@@ -43,7 +43,7 @@ const OrderConfirmation = () => {
             <CheckCircle className="w-10 h-10 text-green-500" />
           </motion.div>
 
-          <h1 className="text-3xl lg:text-4xl font-serif text-foreground mb-4">
+          <h1 className="text-3xl lg:text-4xl font-serif font-light text-foreground mb-4">
             Thank You for Your Order!
           </h1>
           <p className="text-muted-foreground mb-8">
@@ -69,7 +69,7 @@ const OrderConfirmation = () => {
           {/* Order Progress */}
           <Card className="bg-muted/20 border-border mb-8">
             <CardContent className="p-6">
-              <h2 className="text-lg font-serif text-foreground mb-6 text-left">Order Progress</h2>
+              <h2 className="text-lg font-serif font-light text-foreground mb-6 text-left">Order Progress</h2>
               <div className="flex items-center justify-between relative">
                 {/* Progress Line */}
                 <div className="absolute top-5 left-0 right-0 h-0.5 bg-border" />

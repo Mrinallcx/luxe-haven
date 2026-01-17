@@ -36,7 +36,7 @@ const Footer = () => {
         >
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <a href="/" className="font-serif text-2xl tracking-wide">
+            <a href="/" className="font-serif text-2xl tracking-wide font-light">
               MAISON
             </a>
             <p className="text-sm text-muted-foreground mt-4 max-w-xs">

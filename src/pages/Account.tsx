@@ -137,7 +137,7 @@ const Account = () => {
                 <div className="relative group">
                   <Avatar className="w-24 h-24 border-4 border-background shadow-xl">
                     <AvatarImage src={userData.avatar} alt={userData.name} />
-                    <AvatarFallback className="bg-gold/20 text-gold text-xl font-serif">
+                    <AvatarFallback className="bg-gold/20 text-gold text-xl font-serif font-light">
                       {userData.name.split(" ").map(n => n[0]).join("")}
                     </AvatarFallback>
                   </Avatar>
@@ -146,7 +146,7 @@ const Account = () => {
 
               {/* Name + Action Buttons Row */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 px-4">
-                <h1 className="text-xl font-serif text-foreground">
+                <h1 className="text-xl font-serif font-light text-foreground">
                   {userData.name}
                 </h1>
                 <div className="flex flex-wrap gap-2">
@@ -360,13 +360,13 @@ const Account = () => {
               <Card className="bg-muted/20 border-border">
                 <CardContent className="p-6">
                   <p className="text-sm text-muted-foreground mb-2">Total Referrals</p>
-                  <p className="text-2xl font-serif text-foreground">{referralData.totalReferrals}</p>
+                  <p className="text-2xl font-serif font-light text-foreground">{referralData.totalReferrals}</p>
                 </CardContent>
               </Card>
               <Card className="bg-muted/20 border-border">
                 <CardContent className="p-6">
                   <p className="text-sm text-muted-foreground mb-2">Total Earned</p>
-                  <p className="text-2xl font-serif text-gold">{referralData.earnedRewards} TOTO</p>
+                  <p className="text-2xl font-serif font-light text-gold">{referralData.earnedRewards} TOTO</p>
                 </CardContent>
               </Card>
             </div>

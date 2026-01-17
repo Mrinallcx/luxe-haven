@@ -74,7 +74,7 @@ const ViewOfferModal = ({
       <DialogContent className="sm:max-w-md p-0 bg-cream border-champagne/30 overflow-hidden [&>button]:hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <h2 className="text-2xl font-serif text-charcoal">Offer Details</h2>
+          <h2 className="text-2xl font-serif font-light text-charcoal">Offer Details</h2>
           <button
             onClick={handleClose}
             className="w-8 h-8 rounded-full bg-charcoal/10 flex items-center justify-center hover:bg-charcoal/20 transition-colors"
@@ -131,7 +131,7 @@ const ViewOfferModal = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-serif text-charcoal">Offer Cancelled</h3>
+            <h3 className="text-xl font-serif font-light text-charcoal">Offer Cancelled</h3>
             <p className="text-sm text-muted-foreground text-center">
               Your offer has been successfully cancelled.
             </p>
