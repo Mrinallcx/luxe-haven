@@ -1,18 +1,25 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Settings2, ShoppingCart, Check, Plus, Minus, Gavel, Shuffle } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShoppingCart, Check, Plus, Minus, Gavel, Shuffle, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { allProducts, Product } from "@/data/products";
+import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import PlaceBidModal from "@/components/PlaceBidModal";
 import ProductName from "@/components/ProductName";
+import { getAuthMarkets, buildAuthMarketsPayload, normalizeProduct, ApiTrendingProduct } from "@/lib/market-api";
+
+// Import asset images
+import diamondProduct from "@/assets/diamond-product.webp";
+import goldProduct from "@/assets/gold-product.webp";
+import silverProduct from "@/assets/silver-product.webp";
+import platinumProduct from "@/assets/platinum-product.webp";
+import sapphireProduct from "@/assets/sapphire-product.webp";
 
 interface DemandUsModalProps {
   open: boolean;
@@ -22,11 +29,11 @@ interface DemandUsModalProps {
 type Step = "asset" | "budget" | "results";
 
 const assetOptions = [
-  { id: "diamonds", label: "Diamonds", icon: "💎" },
-  { id: "gold", label: "Gold", icon: "🥇" },
-  { id: "silver", label: "Silver", icon: "🥈" },
-  { id: "platinum", label: "Platinum", icon: "⚪" },
-  { id: "sapphire", label: "Sapphire", icon: "💙" },
+  { id: "diamonds", label: "Diamonds", image: diamondProduct },
+  { id: "gold", label: "Gold", image: goldProduct },
+  { id: "silver", label: "Silver", image: silverProduct },
+  { id: "platinum", label: "Platinum", image: platinumProduct },
+  { id: "sapphire", label: "Sapphire", image: sapphireProduct },
 ];
 
 const budgetOptions = [
@@ -37,33 +44,27 @@ const budgetOptions = [
   { value: 100000, label: "$100,000" },
 ];
 
-const cutOptions = ["Round", "Princess", "Cushion", "Oval", "Pear", "Emerald", "Heart", "Radiant"];
-const clarityOptions = ["SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "IF"];
-const colorOptions = ["Natural", "Coloured"];
-const purityOptions = ["999", "995", "990", "958", "916", "750"];
-const saleTypeOptions = ["Fixed", "Auction"];
 
 const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [step, setStep] = useState<Step>("asset");
   const [selectedAsset, setSelectedAsset] = useState<string>("");
   const [selectedBudget, setSelectedBudget] = useState<number | null>(null);
   const [customBudget, setCustomBudget] = useState<string>("");
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [cartItems, setCartItems] = useState<Map<number, number>>(new Map());
   
   // Place Bid Modal state
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [selectedBidProduct, setSelectedBidProduct] = useState<Product | null>(null);
   
-  // Advanced filters
+  // Filter state (simplified)
   const [selectedCuts, setSelectedCuts] = useState<string[]>([]);
   const [selectedClarity, setSelectedClarity] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedPurity, setSelectedPurity] = useState<string[]>([]);
-  const [selectedSaleType, setSelectedSaleType] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
   const [caratRange, setCaratRange] = useState<number[]>([0.1, 10]);
   const [shuffleSeed, setShuffleSeed] = useState(0);
+  
+  // API state
+  const [apiProducts, setApiProducts] = useState<(Product & { _id?: string })[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   const { addToCart } = useCart();
 
@@ -74,37 +75,79 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
 
   const effectiveBudget = customBudget ? parseInt(customBudget) : selectedBudget;
 
-  const filteredProducts = useMemo(() => {
-    let products = allProducts.filter(p => p.category === selectedAsset);
-    
-    if (effectiveBudget) {
-      products = products.filter(p => p.price <= effectiveBudget);
+  // Fetch products from API when on results step
+  const fetchProducts = useCallback(async () => {
+    if (!selectedAsset || !effectiveBudget || step !== "results") {
+      return;
     }
 
-    if (showAdvanced) {
-      if (priceRange[0] > 0 || priceRange[1] < 100000) {
-        products = products.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-      }
-      if (selectedCuts.length > 0) {
-        products = products.filter(p => selectedCuts.some(cut => p.name.toLowerCase().includes(cut.toLowerCase())));
-      }
-      if (selectedSaleType.length > 0) {
-        products = products.filter(p => p.status && selectedSaleType.map(s => s.toLowerCase() === "fixed" ? "sale" : "auction").includes(p.status));
-      }
-    }
+    setIsLoadingProducts(true);
+
+    try {
+      // Build payload - only fetch on-sale items (FIXEDPRICE) within budget
+      const payload = buildAuthMarketsPayload(selectedAsset, 1, {
+        saleType: "FIXEDPRICE", // Only unsold/on-sale items
+        priceRangeMin: 1,
+        priceRangeMax: effectiveBudget,
+        ...(selectedAsset === "diamonds" && {
+          minCarat: caratRange[0],
+          maxCarat: caratRange[1],
+          cut: selectedCuts,
+          clarity: selectedClarity,
+        }),
+        ...(selectedAsset === "sapphire" && {
+          minCarat: caratRange[0],
+          maxCarat: caratRange[1],
+          cut: selectedCuts,
+        }),
+      });
+
+      const response = await getAuthMarkets(payload);
+
+      if (response.data?.result && response.data.result.length > 0) {
+        // Filter out already sold items (those with firstSoldAt)
+        const unsoldItems = response.data.result.filter((p: ApiTrendingProduct) => !p.firstSoldAt);
+
+        let products = unsoldItems.map((p: ApiTrendingProduct) => {
+          const normalized = normalizeProduct(p);
+          return {
+            ...normalized,
+            id: normalized.id,
+            _id: normalized._id,
+          };
+        });
 
     // Shuffle products based on seed
-    const shuffled = [...products].sort(() => {
-      const rand = Math.sin(shuffleSeed + products.indexOf(products[0])) * 10000;
+        products = [...products].sort(() => {
+          const rand = Math.sin(shuffleSeed + Math.random()) * 10000;
       return rand - Math.floor(rand) - 0.5;
     });
 
-    return shuffled.slice(0, 12);
-  }, [selectedAsset, effectiveBudget, showAdvanced, priceRange, selectedCuts, selectedSaleType, shuffleSeed]);
+        setApiProducts(products.slice(0, 12));
+      } else {
+        setApiProducts([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      setApiProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, [selectedAsset, effectiveBudget, step, caratRange, selectedCuts, selectedClarity, shuffleSeed]);
+
+  // Fetch products when step changes to results or filters change
+  useEffect(() => {
+    if (step === "results") {
+      fetchProducts();
+    }
+  }, [step, fetchProducts]);
 
   const handleReshuffle = () => {
     setShuffleSeed(prev => prev + 1);
   };
+
+  // Use API products instead of mock data
+  const filteredProducts = apiProducts;
 
   const handleAssetSelect = (assetId: string) => {
     setSelectedAsset(assetId);
@@ -151,7 +194,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
 
   const handleAddAllToCart = () => {
     cartItems.forEach((qty, productId) => {
-      const product = allProducts.find(p => p.id === productId);
+      const product = apiProducts.find(p => p.id === productId);
       if (product) {
         for (let i = 0; i < qty; i++) {
           addToCart(product);
@@ -167,24 +210,12 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
     setSelectedAsset("");
     setSelectedBudget(null);
     setCustomBudget("");
-    setShowAdvanced(false);
     setCartItems(new Map());
     setSelectedCuts([]);
     setSelectedClarity([]);
-    setSelectedColors([]);
-    setSelectedPurity([]);
-    setSelectedSaleType([]);
-    setPriceRange([0, 100000]);
     setCaratRange([0.1, 10]);
+    setApiProducts([]);
     onOpenChange(false);
-  };
-
-  const toggleFilter = (value: string, selected: string[], setSelected: (val: string[]) => void) => {
-    if (selected.includes(value)) {
-      setSelected(selected.filter(v => v !== value));
-    } else {
-      setSelected([...selected, value]);
-    }
   };
 
   const totalCartItems = Array.from(cartItems.values()).reduce((sum, qty) => sum + qty, 0);
@@ -235,12 +266,20 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                     <button
                       key={asset.id}
                       onClick={() => handleAssetSelect(asset.id)}
-                      className={`p-4 rounded-xl border transition-all hover:border-gold hover:bg-gold/5 ${
-                        selectedAsset === asset.id ? "border-gold bg-gold/10" : "border-border"
+                      className={`rounded-xl border overflow-hidden transition-all hover:border-gold ${
+                        selectedAsset === asset.id ? "border-gold ring-2 ring-gold/30" : "border-border"
                       }`}
                     >
-                      <span className="text-2xl block mb-2">{asset.icon}</span>
+                      <div className="aspect-square w-full overflow-hidden">
+                        <img 
+                          src={asset.image} 
+                          alt={asset.label}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-2 bg-background">
                       <span className="text-sm font-medium text-foreground">{asset.label}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -323,178 +362,46 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                     <ChevronLeft className="w-4 h-4" />
                     Back
                   </Button>
-                  <div className="flex items-center gap-2">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={handleReshuffle}
+                    disabled={isLoadingProducts}
                       className="gap-2"
                     >
-                      <Shuffle className="w-4 h-4" />
+                    <Shuffle className={`w-4 h-4 ${isLoadingProducts ? "animate-spin" : ""}`} />
                       Reshuffle
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setShowAdvanced(!showAdvanced)}
-                      className="gap-2"
-                    >
-                      <Settings2 className="w-4 h-4" />
-                      {showAdvanced ? "Hide Filters" : "Filters"}
-                    </Button>
-                  </div>
                 </div>
 
-                {/* Advanced Filters */}
-                <AnimatePresence>
-                  {showAdvanced && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="border border-border rounded-xl p-4 space-y-4 overflow-hidden"
-                    >
-                      {/* Price Range */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Price Range</label>
-                        <Slider
-                          value={priceRange}
-                          onValueChange={setPriceRange}
-                          min={0}
-                          max={100000}
-                          step={500}
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>${priceRange[0].toLocaleString()}</span>
-                          <span>${priceRange[1].toLocaleString()}</span>
-                        </div>
+                {/* Loading State */}
+                {isLoadingProducts && (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-gold" />
                       </div>
-
-                      {/* Cut Filter */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Cut</label>
-                        <div className="flex flex-wrap gap-2">
-                          {cutOptions.map((cut) => (
-                            <button
-                              key={cut}
-                              onClick={() => toggleFilter(cut, selectedCuts, setSelectedCuts)}
-                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                                selectedCuts.includes(cut) 
-                                  ? "bg-gold/20 border-gold text-foreground" 
-                                  : "border-border text-muted-foreground hover:border-gold/50"
-                              }`}
-                            >
-                              {cut}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Clarity Filter */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Clarity</label>
-                        <div className="flex flex-wrap gap-2">
-                          {clarityOptions.map((clarity) => (
-                            <button
-                              key={clarity}
-                              onClick={() => toggleFilter(clarity, selectedClarity, setSelectedClarity)}
-                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                                selectedClarity.includes(clarity) 
-                                  ? "bg-gold/20 border-gold text-foreground" 
-                                  : "border-border text-muted-foreground hover:border-gold/50"
-                              }`}
-                            >
-                              {clarity}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Color Filter */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Color</label>
-                        <div className="flex flex-wrap gap-2">
-                          {colorOptions.map((color) => (
-                            <button
-                              key={color}
-                              onClick={() => toggleFilter(color, selectedColors, setSelectedColors)}
-                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                                selectedColors.includes(color) 
-                                  ? "bg-gold/20 border-gold text-foreground" 
-                                  : "border-border text-muted-foreground hover:border-gold/50"
-                              }`}
-                            >
-                              {color}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Carat Range */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Carat</label>
-                        <Slider
-                          value={caratRange}
-                          onValueChange={setCaratRange}
-                          min={0.1}
-                          max={10}
-                          step={0.1}
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>{caratRange[0].toFixed(1)} ct</span>
-                          <span>{caratRange[1].toFixed(1)} ct</span>
-                        </div>
-                      </div>
-
-                      {/* Purity Filter */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Purity</label>
-                        <div className="flex flex-wrap gap-2">
-                          {purityOptions.map((purity) => (
-                            <button
-                              key={purity}
-                              onClick={() => toggleFilter(purity, selectedPurity, setSelectedPurity)}
-                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                                selectedPurity.includes(purity) 
-                                  ? "bg-gold/20 border-gold text-foreground" 
-                                  : "border-border text-muted-foreground hover:border-gold/50"
-                              }`}
-                            >
-                              {purity}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Sale Type Filter */}
-                      <div>
-                        <label className="text-sm font-medium text-foreground mb-2 block">Sale Type</label>
-                        <div className="flex gap-2">
-                          {saleTypeOptions.map((type) => (
-                            <button
-                              key={type}
-                              onClick={() => toggleFilter(type, selectedSaleType, setSelectedSaleType)}
-                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                                selectedSaleType.includes(type) 
-                                  ? "bg-gold/20 border-gold text-foreground" 
-                                  : "border-border text-muted-foreground hover:border-gold/50"
-                              }`}
-                            >
-                              {type}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
                   )}
-                </AnimatePresence>
 
+                {/* Results */}
+                {!isLoadingProducts && (
+                  <>
                 <p className="text-sm text-muted-foreground">
                   Found {filteredProducts.length} {assetOptions.find(a => a.id === selectedAsset)?.label} under ${effectiveBudget?.toLocaleString()}
                 </p>
 
-                {/* Product Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {/* Empty State */}
+                    {filteredProducts.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground text-sm">
+                          No {assetOptions.find(a => a.id === selectedAsset)?.label} available within your budget.
+                        </p>
+                        <p className="text-muted-foreground text-xs mt-2">
+                          Try increasing your budget or changing filters.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Product Grid - Fixed min-height to prevent layout shift during reshuffle */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 min-h-[400px]">
                   {filteredProducts.map((product) => {
                     const isInCart = cartItems.has(product.id);
                     const qty = cartItems.get(product.id) || 0;
@@ -504,14 +411,21 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                       <div
                         key={product.id}
                         className={`border rounded-xl overflow-hidden transition-all ${
-                          isInCart ? "border-gold" : "border-border"
-                        }`}
-                      >
-                        <div className="aspect-square relative">
+                              isInCart ? "border-gold" : "border-border hover:border-gold/50"
+                            }`}
+                          >
+                            {/* Clickable Image - Links to product page */}
+                            <Link 
+                              to={`/product/${product.id}`} 
+                              state={{ product }}
+                              onClick={() => onOpenChange(false)}
+                              className="block"
+                            >
+                              <div className="aspect-square relative cursor-pointer group">
                           <img
                             src={product.image}
                             alt={product.name}
-                            className="w-full h-full object-cover"
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                           {product.status && (
                             <span className={`absolute top-2 left-2 px-2 py-0.5 text-[10px] font-medium rounded-full ${
@@ -523,8 +437,16 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                             </span>
                           )}
                         </div>
+                            </Link>
                         <div className="p-2">
-                          <p className="text-xs font-medium text-foreground truncate"><ProductName name={product.name} /></p>
+                              <Link 
+                                to={`/product/${product.id}`} 
+                                state={{ product }}
+                                onClick={() => onOpenChange(false)}
+                                className="block hover:text-gold transition-colors"
+                              >
+                                <p className="text-xs font-medium text-foreground truncate hover:text-gold"><ProductName name={product.name} /></p>
+                              </Link>
                           <p className="text-xs text-gold font-semibold">${product.price.toLocaleString()}</p>
                           
                           {isAuction ? (
@@ -566,12 +488,7 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                     );
                   })}
                 </div>
-
-                {filteredProducts.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No products found within your budget.</p>
-                    <p className="text-sm">Try increasing your budget or adjusting filters.</p>
-                  </div>
+                  </>
                 )}
               </motion.div>
             )}

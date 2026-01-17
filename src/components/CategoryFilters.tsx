@@ -8,8 +8,7 @@ import { useState } from "react";
 export const cutOptions = ["Round", "Princess", "Cushion", "Oval", "Pear", "Emerald", "Heart", "Radiant"];
 export const colorOptions = ["Natural", "Coloured"];
 export const clarityOptions = ["SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "SL", "IF"];
-export const statusOptions = ["Redeemed"];
-export const saleTypeOptions = ["Fixed", "Auction"];
+// Status and Sale Type filters removed - now handled by top toggle buttons
 
 export interface FilterState {
   selectedCuts: string[];
@@ -85,8 +84,6 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
     filters.selectedCuts.length > 0 ||
     filters.selectedColors.length > 0 ||
     filters.selectedClarity.length > 0 ||
-    filters.selectedStatus.length > 0 ||
-    filters.selectedSaleType.length > 0 ||
     filters.caratRange[0] !== 0.1 ||
     filters.caratRange[1] !== 20 ||
     filters.priceRange[0] !== 0 ||
@@ -204,41 +201,6 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
         </div>
       </FilterSection>
 
-      {/* Status Filter */}
-      <FilterSection title="Status">
-        <div className="flex flex-col gap-2">
-          {statusOptions.map((status) => (
-            <label
-              key={status}
-              className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Checkbox
-                checked={filters.selectedStatus.includes(status)}
-                onCheckedChange={() => toggleOption(status, 'selectedStatus')}
-              />
-              {status}
-            </label>
-          ))}
-        </div>
-      </FilterSection>
-
-      {/* Sale Type Filter */}
-      <FilterSection title="Sale Type">
-        <div className="flex flex-col gap-2">
-          {saleTypeOptions.map((type) => (
-            <label
-              key={type}
-              className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Checkbox
-                checked={filters.selectedSaleType.includes(type)}
-                onCheckedChange={() => toggleOption(type, 'selectedSaleType')}
-              />
-              {type}
-            </label>
-          ))}
-        </div>
-      </FilterSection>
     </div>
   );
 };

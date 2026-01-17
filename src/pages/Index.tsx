@@ -16,7 +16,7 @@ const Index = () => {
       <main>
         <Hero />
         <FeaturedProducts title="Featured Pieces" defaultSaleType="FIXEDPRICE" />
-        <FeaturedProducts title="Live Auctions" defaultSaleType="AUCTION" showStatusFilter={false} />
+        <FeaturedProducts title="New Arrivals" defaultSaleType="FIXEDPRICE" showStatusFilter={false} shuffleProducts={true} reducedTopPadding={true} />
         <Categories />
         <Services />
         <Newsletter />

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingBag, Gavel, Tag, ChevronDown, Loader2 } from "lucide-react";
+import { Heart, ShoppingBag, Gavel, Tag, ChevronDown, Loader2, Check } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
@@ -115,8 +115,8 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
   return (
     <>
     <Link 
-      to={product.isSoldOut ? "#" : `/product/${product.id}`} 
-      onClick={(e) => product.isSoldOut && e.preventDefault()}
+      to={`/product/${product.id}`}
+      state={{ product }}
     >
       <motion.article
         layout
@@ -124,79 +124,80 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
-        className={`group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-300 ${
-          product.isSoldOut 
-            ? "opacity-75 cursor-not-allowed" 
-            : "hover:border-gold/30 hover:shadow-lg"
-        }`}
+        className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-300 hover:border-gold/30 hover:shadow-lg"
       >
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden bg-secondary">
           <img
             src={product.image}
             alt={product.name}
-            className={`w-full h-full object-cover transition-transform duration-500 ${
-              product.isSoldOut ? "grayscale" : "group-hover:scale-105"
-            }`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {/* Status Badge */}
           <div className="absolute top-4 left-4">
             {product.isSoldOut ? (
-              <span className="px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 bg-gray-500/90 text-white">
-                Sold Out
+              <span className="px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 bg-charcoal/90 text-cream border border-cream/20">
+                <Check className="w-3 h-3" />
+                Sold
               </span>
             ) : (
-              <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
-                product.status === "auction" 
-                  ? "bg-gold/90 text-charcoal" 
-                  : "bg-charcoal/90 text-cream"
-              }`}>
-                {product.status === "auction" ? (
-                  <>
-                    <Gavel className="w-3 h-3" />
-                    Auction
-                  </>
-                ) : (
-                  <>
-                    <Tag className="w-3 h-3" />
-                    On Sale
-                  </>
-                )}
-              </span>
+            <span className={`px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 ${
+              product.status === "auction" 
+                ? "bg-gold/90 text-charcoal" 
+                : "bg-charcoal/90 text-cream"
+            }`}>
+              {product.status === "auction" ? (
+                <>
+                  <Gavel className="w-3 h-3" />
+                  Auction
+                </>
+              ) : (
+                <>
+                  <Tag className="w-3 h-3" />
+                  On Sale
+                </>
+              )}
+            </span>
             )}
           </div>
-          {/* Wishlist Button - hidden for sold out */}
-          {!product.isSoldOut && (
-            <button 
-              onClick={handleWishlist}
-              className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
-                inWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              }`}
-            >
-              <Heart className={`w-5 h-5 ${inWishlist ? "fill-gold text-gold" : "text-foreground"}`} />
-            </button>
-          )}
-          {/* Quick Add Button - hidden for sold out */}
-          {!product.isSoldOut && (
-            <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {/* Wishlist Button */}
+          <button 
+            onClick={handleWishlist}
+            className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
+              inWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${inWishlist ? "fill-gold text-gold" : "text-foreground"}`} />
+          </button>
+          {/* Quick Action Button */}
+          <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {product.isSoldOut ? (
               <Button 
-                onClick={handleAddToCart}
-                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+                className="w-full bg-charcoal/80 text-cream rounded-lg gap-2 cursor-default"
+                disabled
               >
-                {product.status === "auction" ? (
-                  <>
-                    <Gavel className="w-4 h-4" />
-                    Place Bid
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
-                  </>
-                )}
+                <Check className="w-4 h-4" />
+                Sold
               </Button>
-            </div>
-          )}
+            ) : (
+            <Button 
+              onClick={handleAddToCart}
+              className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+            >
+              {product.status === "auction" ? (
+                <>
+                  <Gavel className="w-4 h-4" />
+                  Place Bid
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4" />
+                  Add to Cart
+                </>
+              )}
+            </Button>
+            )}
+          </div>
         </div>
         
         {/* Product Info */}
@@ -233,12 +234,16 @@ interface FeaturedProductsProps {
   subtitle?: string;
   defaultSaleType?: "FIXEDPRICE" | "AUCTION";
   showStatusFilter?: boolean;
+  shuffleProducts?: boolean;
+  reducedTopPadding?: boolean;
 }
 
 const FeaturedProducts = ({ 
-  title = "Featured Pieces",
+  title = "Featured Pieces", 
   defaultSaleType = "FIXEDPRICE",
   showStatusFilter = true,
+  shuffleProducts = false,
+  reducedTopPadding = false,
 }: FeaturedProductsProps) => {
   const [activeCategory, setActiveCategory] = useState("Diamonds");
   const [activeStatus, setActiveStatus] = useState("all");
@@ -286,7 +291,20 @@ const FeaturedProducts = ({
 
       if (response.data?.result && response.data.result.length > 0) {
         // Map API response to local product format
-        const apiProducts = response.data.result.slice(0, 4).map((p) => {
+        let resultProducts = response.data.result;
+        
+        // Filter out already sold items (those with firstSoldAt) unless we're showing sold items fallback
+        if (!showingSoldItems) {
+          resultProducts = resultProducts.filter((p: { firstSoldAt?: string }) => !p.firstSoldAt);
+        }
+        
+        // Shuffle products if needed (for New Arrivals section to show different items)
+        if (shuffleProducts && resultProducts.length > 4) {
+          // Use a simple shuffle algorithm
+          resultProducts = [...resultProducts].sort(() => Math.random() - 0.5);
+        }
+        
+        const apiProducts = resultProducts.slice(0, 4).map((p) => {
           const normalized = normalizeProduct(p);
           return {
             ...normalized,
@@ -301,11 +319,11 @@ const FeaturedProducts = ({
     };
 
     fetchProducts();
-  }, [activeCategory, activeStatus, defaultSaleType]);
+  }, [activeCategory, activeStatus, defaultSaleType, shuffleProducts]);
 
 
   return (
-    <section className="py-20 lg:py-32 bg-background">
+    <section className={`${reducedTopPadding ? 'pt-8 pb-20 lg:pt-12 lg:pb-32' : 'py-20 lg:py-32'} bg-background`}>
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div
@@ -348,31 +366,31 @@ const FeaturedProducts = ({
 
           {/* Status Filter Dropdown - conditionally shown */}
           {showStatusFilter && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="rounded-lg border-border gap-2 text-sm"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="rounded-lg border-border gap-2 text-sm"
                   disabled={isLoading}
                 >
-                  {statusFilters.find(f => f.value === activeStatus)?.label}
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background border-border z-50">
-                {statusFilters.map((filter) => (
-                  <DropdownMenuItem 
-                    key={filter.value}
-                    onClick={() => setActiveStatus(filter.value)}
-                    className={`flex items-center gap-2 cursor-pointer ${
-                      activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
-                    }`}
-                  >
-                    {filter.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                {statusFilters.find(f => f.value === activeStatus)?.label}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background border-border z-50">
+              {statusFilters.map((filter) => (
+                <DropdownMenuItem 
+                  key={filter.value}
+                  onClick={() => setActiveStatus(filter.value)}
+                  className={`flex items-center gap-2 cursor-pointer ${
+                    activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
+                  }`}
+                >
+                  {filter.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           )}
         </motion.div>
 
@@ -385,13 +403,13 @@ const FeaturedProducts = ({
 
         {/* Products Grid */}
         {!isLoading && (
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            <AnimatePresence mode="popLayout">
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <AnimatePresence mode="popLayout">
               {products.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </AnimatePresence>
+        </motion.div>
         )}
 
         {/* Empty State */}
@@ -412,9 +430,9 @@ const FeaturedProducts = ({
           className="text-center mt-16"
         >
           <Link to={`/category/${activeCategory.toLowerCase()}`}>
-            <Button variant="premium-outline" size="lg" className="rounded-lg">
-              View All Products
-            </Button>
+          <Button variant="premium-outline" size="lg" className="rounded-lg">
+            View All Products
+          </Button>
           </Link>
         </motion.div>
       </div>

@@ -1,20 +1,17 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ShoppingBag, Heart, X, Gavel, Tag, Loader2 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoryFilters, { FilterState, defaultFilterState } from "@/components/CategoryFilters";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { categoryDescriptions, Product } from "@/data/products";
-import { useCart } from "@/contexts/CartContext";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { useToast } from "@/hooks/use-toast";
 import PlaceBidModal from "@/components/PlaceBidModal";
-import ProductName from "@/components/ProductName";
 import { getAuthMarkets, buildAuthMarketsPayload, normalizeProduct, ApiTrendingProduct, AuthMarketsPayload, getConversionRate } from "@/lib/market-api";
 import { PageSEO } from "@/components/shared/SEO";
+import { CategoryHero, SaleTypeToggle, CategoryProductCard, Pagination } from "@/components/category";
+import type { SaleTypeToggleType } from "@/components/category";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -32,10 +29,8 @@ const Category = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeSaleType, setActiveSaleType] = useState<SaleTypeToggleType>("FIXEDPRICE");
   const [conversionRates, setConversionRates] = useState<Record<string, number>>({});
-  const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { toast } = useToast();
 
   // Fetch products from API
   useEffect(() => {
@@ -48,16 +43,16 @@ const Category = () => {
       // Build payload with current filters based on category
       const slug = categoryName.toLowerCase();
       
-      // Determine saleType - default to FIXEDPRICE for all categories (only on sale items)
-      let saleType: "ALL" | "FIXEDPRICE" | "AUCTION" = "FIXEDPRICE";
-      if (filters.selectedSaleType.length === 1) {
-        saleType = filters.selectedSaleType[0] === "On Sale" ? "FIXEDPRICE" : "AUCTION";
-      }
+      // Use the active sale type toggle
+      // For "REDEEMED", we use saleType "ALL" but add status filter
+      const saleType: "ALL" | "FIXEDPRICE" | "AUCTION" = activeSaleType === "REDEEMED" ? "ALL" : activeSaleType;
 
       const baseFilters: Partial<AuthMarketsPayload> = {
         priceRangeMin: filters.priceRange[0] || 1,
         priceRangeMax: filters.priceRange[1],
         saleType,
+        // Add Redeemed status filter when REDEEMED is selected
+        ...(activeSaleType === "REDEEMED" && { status: ["Redeemed"] }),
       };
 
       // Add category-specific filters
@@ -74,18 +69,7 @@ const Category = () => {
 
       const payload = buildAuthMarketsPayload(categoryName, currentPage, baseFilters);
 
-      let response = await getAuthMarkets(payload);
-
-      // If no results with FIXEDPRICE, try fetching ALL items (including sold) as fallback
-      let showingSoldItems = false;
-      if ((!response.data?.result || response.data.result.length === 0) && saleType === "FIXEDPRICE") {
-        const fallbackPayload = buildAuthMarketsPayload(categoryName, currentPage, {
-          ...baseFilters,
-          saleType: "ALL",
-        });
-        response = await getAuthMarkets(fallbackPayload);
-        showingSoldItems = true;
-      }
+      const response = await getAuthMarkets(payload);
 
       setIsLoading(false);
 
@@ -98,13 +82,20 @@ const Category = () => {
       }
 
       if (response.data?.result && response.data.result.length > 0) {
-        const apiProducts = response.data.result.map((p: ApiTrendingProduct) => {
+        // Filter out already sold items (those with firstSoldAt) for FIXEDPRICE/AUCTION views
+        const filteredResults = activeSaleType === "FIXEDPRICE" || activeSaleType === "AUCTION"
+          ? response.data.result.filter((p: ApiTrendingProduct) => !p.firstSoldAt)
+          : response.data.result;
+
+        const apiProducts = filteredResults.map((p: ApiTrendingProduct) => {
           const normalized = normalizeProduct(p);
+          // Mark as sold out if saleType is NOSALE
+          const isSoldOut = p.saleType === "NOSALE";
           return {
             ...normalized,
             id: normalized.id,
             _id: normalized._id,
-            isSoldOut: showingSoldItems, // Mark as sold out if using fallback
+            isSoldOut,
           } as CategoryProduct;
         });
         setProducts(apiProducts);
@@ -116,7 +107,7 @@ const Category = () => {
     };
 
     fetchProducts();
-  }, [categoryName, currentPage, filters]);
+  }, [categoryName, currentPage, filters, activeSaleType]);
 
   // Scroll to top when category changes
   useEffect(() => {
@@ -136,69 +127,25 @@ const Category = () => {
             rates[coin] = response.data.result.USD;
           }
         }
+        
         setConversionRates(rates);
-      } else {
-        setConversionRates({});
       }
     };
     fetchRates();
   }, [categoryName]);
 
-  // Reset page when category or filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [categoryName, filters]);
-
-  const handleAddToCart = (e: React.MouseEvent, product: CategoryProduct) => {
-    e.preventDefault();
-    if (product.status === "auction") {
-      setBidModalProduct(product);
-      return;
-    }
-    addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
-  };
-
-  const handleWishlist = (e: React.MouseEvent, product: CategoryProduct) => {
-    e.preventDefault();
-    if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id);
-      toast({
-        title: "Removed from wishlist",
-        description: `${product.name} has been removed from your wishlist.`,
-      });
-    } else {
-      addToWishlist(product);
-      toast({
-        title: "Added to wishlist",
-        description: `${product.name} has been added to your wishlist.`,
-      });
-    }
-  };
-
-  const categoryTitle = categoryName
-    ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
-    : "All Products";
+  const categoryTitle = categoryName 
+    ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase()
+    : "Collection";
 
   const categoryDescription = categoryName 
-    ? categoryDescriptions[categoryName.toLowerCase()] || `Explore our premium ${categoryTitle.toLowerCase()} collection.`
-    : "Browse all our premium assets and investments.";
+    ? categoryDescriptions[categoryName.toLowerCase() as keyof typeof categoryDescriptions] || 
+      "Explore our exquisite collection of premium pieces."
+    : "Explore our exquisite collection of premium pieces.";
 
-  // Pagination
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  // Get all active filter tags
+  // Filter tags for display
   const getActiveFilterTags = () => {
     const tags: { label: string; type: keyof FilterState; value?: string }[] = [];
     
@@ -237,113 +184,99 @@ const Category = () => {
       <Header />
       <main className="pt-16 lg:pt-20">
         {/* Hero Banner */}
-        <section className="relative h-[280px] md:h-[360px] bg-charcoal overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/70" />
-          <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex flex-col justify-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <p className="text-gold text-sm tracking-widest uppercase mb-4">
-                Premium Collection
-              </p>
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-cream font-light mb-4">
-                {categoryTitle}
-              </h1>
-              <p className="text-cream/70 max-w-lg text-sm md:text-base">
-                {categoryDescription}
-              </p>
-            </motion.div>
-          </div>
-        </section>
+        <CategoryHero title={categoryTitle} description={categoryDescription} />
 
         {/* Products Section */}
         <section className="py-12 lg:py-20">
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
             <div className="flex flex-col gap-4 mb-10">
-              <div className="flex items-center justify-between">
-                {/* Desktop Filter Toggle */}
-                <Button 
-                  variant="outline" 
-                  className="gap-2 rounded-full hidden lg:flex"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  {isFilterOpen ? "Hide Filters" : "Show Filters"}
-                </Button>
+              <div className="grid grid-cols-3 items-center gap-4">
+                {/* Left - Filter Toggle */}
+                <div className="flex items-center">
+                  {/* Desktop Filter Toggle */}
+                  <Button 
+                    variant="outline" 
+                    className="gap-2 rounded-full hidden lg:flex"
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    {isFilterOpen ? "Hide Filters" : "Show Filters"}
+                  </Button>
 
-                {/* Mobile/Tablet Filter Sheet */}
-                <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
-                  <SheetTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      className="gap-2 rounded-full lg:hidden"
-                    >
-                      <SlidersHorizontal className="w-4 h-4" />
-                      Filters
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle className="font-serif text-xl font-light">Filters</SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6">
-                      <CategoryFilters 
-                        isOpen={true} 
-                        onClose={() => setIsMobileFilterOpen(false)}
-                        filters={filters}
-                        onFiltersChange={setFilters}
-                      />
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                  {/* Mobile/Tablet Filter Sheet */}
+                  <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                    <SheetTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="gap-2 rounded-full lg:hidden"
+                      >
+                        <SlidersHorizontal className="w-4 h-4" />
+                        Filters
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
+                      <SheetHeader>
+                        <SheetTitle className="font-serif text-xl font-light">Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-6">
+                        <CategoryFilters 
+                          isOpen={true} 
+                          onClose={() => setIsMobileFilterOpen(false)}
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                        />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
 
-                <p className="text-muted-foreground text-sm">
-                  {isLoading ? (
-                    "Loading..."
-                  ) : totalCount > 0 ? (
-                    `Showing ${startIndex + 1}-${Math.min(startIndex + ITEMS_PER_PAGE, totalCount)} of ${totalCount} products`
-                  ) : (
-                    "No products found"
-                  )}
-                </p>
+                {/* Center - Sale Type Toggle */}
+                <div className="flex justify-center">
+                  <SaleTypeToggle 
+                    activeSaleType={activeSaleType}
+                    onSaleTypeChange={setActiveSaleType}
+                  />
+                </div>
+
+                {/* Right - Product Count */}
+                <div className="text-right">
+                  <p className="text-muted-foreground text-sm">
+                    <span className="text-foreground font-medium">{totalCount}</span> products
+                  </p>
+                </div>
               </div>
 
               {/* Active Filter Tags */}
               {activeFilterTags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-muted-foreground">Active filters:</span>
                   {activeFilterTags.map((tag, index) => (
-                    <span
-                      key={`${tag.type}-${tag.value || index}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-foreground text-sm rounded-full border border-border/50"
+                    <button
+                      key={index}
+                      onClick={() => removeFilterTag(tag.type, tag.value)}
+                      className="flex items-center gap-1 px-3 py-1 bg-gold/10 text-gold text-xs rounded-full hover:bg-gold/20 transition-colors"
                     >
                       {tag.label}
-                      <button
-                        onClick={() => removeFilterTag(tag.type, tag.value)}
-                        className="hover:bg-muted rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
+                      <X className="w-3 h-3" />
+                    </button>
                   ))}
                   <button
                     onClick={() => setFilters(defaultFilterState)}
-                    className="text-sm text-gold hover:text-gold/80 transition-colors"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Clear All
+                    Clear all
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Main Content with Filters and Products */}
-            <div className="flex gap-8">
-              {/* Filter Sidebar - Left Side */}
+            {/* Main Content */}
+            <div className={`flex gap-8 ${isFilterOpen ? '' : ''}`}>
+              {/* Desktop Filters Sidebar */}
               {isFilterOpen && (
-                <div className="hidden lg:block w-72 flex-shrink-0">
-                  <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
+                <div className="hidden lg:block w-[280px] flex-shrink-0">
+                  <div className="sticky top-28">
                     <CategoryFilters 
                       isOpen={isFilterOpen} 
                       onClose={() => setIsFilterOpen(false)}
@@ -386,164 +319,23 @@ const Category = () => {
                   <>
                     <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 mb-12 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
                       {products.map((product, index) => (
-                        <Link key={product._id || product.id} to={product.isSoldOut ? "#" : `/product/${product.id}`} onClick={(e) => product.isSoldOut && e.preventDefault()}>
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: index * 0.02 }}
-                            className={`group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 transition-all duration-300 ${
-                              product.isSoldOut 
-                                ? "opacity-75 cursor-not-allowed" 
-                                : "hover:border-gold/30 hover:shadow-lg"
-                            }`}
-                          >
-                            {/* Image Container */}
-                            <div className="relative aspect-square overflow-hidden bg-secondary">
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                className={`w-full h-full object-cover transition-transform duration-500 ${
-                                  product.isSoldOut 
-                                    ? "grayscale" 
-                                    : "group-hover:scale-105"
-                                }`}
-                              />
-                              {/* Status Badge */}
-                              {product.isSoldOut ? (
-                                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 bg-gray-500/90 text-white">
-                                  Sold Out
-                                </div>
-                              ) : product.status && (
-                                <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${
-                                  product.status === "auction" 
-                                    ? "bg-gold/90 text-charcoal" 
-                                    : "bg-charcoal/90 text-cream"
-                                }`}>
-                                  {product.status === "auction" ? (
-                                    <>
-                                      <Gavel className="w-3.5 h-3.5" />
-                                      Auction
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Tag className="w-3.5 h-3.5" />
-                                      On Sale
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                              {/* Wishlist Button - hidden for sold out */}
-                              {!product.isSoldOut && (
-                                <button 
-                                  onClick={(e) => handleWishlist(e, product)}
-                                  className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
-                                    isInWishlist(product.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                                  }`}
-                                >
-                                  <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : "text-foreground"}`} />
-                                </button>
-                              )}
-                              {/* Quick Add Button - hidden for sold out */}
-                              {!product.isSoldOut && (
-                                <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <Button 
-                                    onClick={(e) => handleAddToCart(e, product)}
-                                    className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
-                                  >
-                                    {product.status === "auction" ? (
-                                    <>
-                                      <Gavel className="w-4 h-4" />
-                                      Place Bid
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ShoppingBag className="w-4 h-4" />
-                                      Add to Cart
-                                    </>
-                                  )}
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* Product Info */}
-                            <div className="p-5">
-                              <h3 className="font-medium text-foreground mb-2 group-hover:text-gold transition-colors line-clamp-1">
-                                <ProductName name={product.name} />
-                              </h3>
-                              
-                              <div className="flex items-baseline gap-1.5">
-                                {(() => {
-                                  const coin = product.pricePerUnit?.toUpperCase();
-                                  const rate = conversionRates[coin];
-                                  const isDiamonds = categoryName?.toLowerCase() === "diamonds";
-                                  const canConvert = isDiamonds && rate && coin && coin !== "USD";
-                                  
-                                  return (
-                                    <span className="text-lg font-semibold text-foreground">
-                                      {canConvert ? (
-                                        `$${(product.price * rate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                      ) : (
-                                        `$${product.price.toLocaleString()}`
-                                      )}
-                                    </span>
-                                  );
-                                })()}
-                              </div>
-                            </div>
-                          </motion.div>
-                        </Link>
+                        <CategoryProductCard
+                          key={product._id || product.id}
+                          product={product}
+                          index={index}
+                          categoryName={categoryName}
+                          conversionRates={conversionRates}
+                          onPlaceBid={setBidModalProduct}
+                        />
                       ))}
                     </div>
 
                     {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="rounded-lg"
-                          onClick={() => goToPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </Button>
-
-                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                          let page: number;
-                          if (totalPages <= 5) {
-                            page = i + 1;
-                          } else if (currentPage <= 3) {
-                            page = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            page = totalPages - 4 + i;
-                          } else {
-                            page = currentPage - 2 + i;
-                          }
-                          return (
-                            <Button
-                              key={page}
-                              variant={currentPage === page ? "default" : "outline"}
-                              size="icon"
-                              className="rounded-lg"
-                              onClick={() => goToPage(page)}
-                            >
-                              {page}
-                            </Button>
-                          );
-                        })}
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="rounded-lg"
-                          onClick={() => goToPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
+                    <Pagination 
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
+                    />
                   </>
                 )}
               </div>
@@ -551,6 +343,7 @@ const Category = () => {
           </div>
         </section>
       </main>
+
       <Footer />
 
       {/* Bid Modal */}
@@ -558,7 +351,7 @@ const Category = () => {
         open={!!bidModalProduct}
         onOpenChange={(open) => !open && setBidModalProduct(null)}
         productName={bidModalProduct?.name}
-        minimumBid={bidModalProduct ? Math.floor(bidModalProduct.price / 10) : 100}
+        minimumBid={bidModalProduct ? Math.floor(bidModalProduct.price / 10) : 0}
         increment={1000}
         currency="LCX"
       />
