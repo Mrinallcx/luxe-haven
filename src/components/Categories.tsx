@@ -5,6 +5,7 @@ import goldBanner from "@/assets/gold banner.webp";
 import silverBar from "@/assets/silver bar.webp";
 import sapphireBanner from "@/assets/sapphire banner.webp";
 import platinumBanner from "@/assets/platinum banner.webp";
+import diamondBanner from "@/assets/diamond banner.webp";
 
 const categories = [
   {
@@ -13,7 +14,7 @@ const categories = [
     slug: "diamonds",
     description: "Brilliant stones of eternal radiance",
     color: "bg-gradient-to-br from-blue-50 to-blue-100",
-    image: null,
+    image: diamondBanner,
     count: 248,
   },
   {

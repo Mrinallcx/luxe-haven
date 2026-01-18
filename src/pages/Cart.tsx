@@ -1,15 +1,20 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductName from "@/components/ProductName";
+import SignInModal from "@/components/SignInModal";
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
+  const { isSignedIn, signIn } = useAuth();
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -36,9 +41,7 @@ const Cart = () => {
   }
 
   const subtotal = getCartTotal();
-  const shipping = 0; // Free shipping
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + shipping + tax;
+  const total = subtotal;
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,33 +147,40 @@ const Cart = () => {
                 <h2 className="text-lg font-serif font-light text-foreground mb-6">Order Summary</h2>
                 
                 <div className="space-y-4 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal ({items.length} items)</span>
-                    <span className="text-foreground">${subtotal.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-green-500">Free</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax (10%)</span>
-                    <span className="text-foreground">${tax.toLocaleString()}</span>
-                  </div>
-                  <div className="border-t border-border pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-foreground font-medium">Total</span>
-                      <span className="text-xl font-semibold text-foreground">
-                        ${total.toLocaleString()}
-                      </span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-foreground font-medium">Total</span>
+                    <span className="text-xl font-semibold text-foreground">
+                      ${total.toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
-                <Link to="/checkout">
-                  <Button className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6">
-                    Proceed to Checkout
+                <div className="pt-4 border-t border-border mb-6">
+                  <p className="text-xs text-muted-foreground mb-2">We accept crypto payment in</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ETH</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">wETH</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">LCX</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDC</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDT</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ADA</span>
+                  </div>
+                </div>
+
+                {isSignedIn ? (
+                  <Link to="/checkout">
+                    <Button className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6">
+                      Proceed to Checkout
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
+                    onClick={() => setIsSignInModalOpen(true)}
+                  >
+                    Sign In
                   </Button>
-                </Link>
+                )}
 
                 <Link to="/" className="block mt-4">
                   <Button variant="outline" className="w-full rounded-full">
@@ -185,6 +195,13 @@ const Cart = () => {
       </main>
 
       <Footer />
+
+      <SignInModal 
+        open={isSignInModalOpen}
+        onOpenChange={setIsSignInModalOpen}
+        onSignIn={(user) => signIn(user)}
+        stayOnPage={true}
+      />
     </div>
   );
 };

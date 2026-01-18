@@ -10,6 +10,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import SignInModal from "@/components/SignInModal";
 import DemandUsModal from "@/components/DemandUsModal";
 import WalletConnectModal from "@/components/WalletConnectModal";
+import totoFinanceLogo from "@/assets/toto finance logo.svg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +43,7 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-14 lg:h-16">
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2 -ml-2"
@@ -53,8 +54,12 @@ const Header = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-wide font-light">
-            MAISON
+          <Link to="/" className="flex items-center h-full">
+            <img 
+              src={totoFinanceLogo} 
+              alt="Toto Finance" 
+              className="h-8 lg:h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -112,6 +117,27 @@ const Header = () => {
               </Button>
             ) : (
               <>
+                {!isConnected ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hidden lg:flex rounded-full gap-2"
+                    onClick={() => setIsWalletModalOpen(true)}
+                  >
+                    <Wallet className="w-4 h-4" />
+                    Connect Wallet
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hidden lg:flex rounded-full gap-2 font-mono text-xs"
+                    onClick={disconnect}
+                  >
+                    <Wallet className="w-4 h-4" />
+                    {formatAddress(walletAddress!)}
+                  </Button>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="hidden lg:flex">
@@ -137,27 +163,6 @@ const Header = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {!isConnected ? (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="hidden lg:flex rounded-full gap-2"
-                    onClick={() => setIsWalletModalOpen(true)}
-                  >
-                    <Wallet className="w-4 h-4" />
-                    Connect Wallet
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="hidden lg:flex rounded-full gap-2 font-mono text-xs"
-                    onClick={disconnect}
-                  >
-                    <Wallet className="w-4 h-4" />
-                    {formatAddress(walletAddress!)}
-                  </Button>
-                )}
               </>
             )}
             <Link to="/cart">

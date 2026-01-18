@@ -7,6 +7,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WalletProvider } from "@/contexts/WalletContext";
+import SmoothScroll from "@/components/SmoothScroll";
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
@@ -15,6 +16,8 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import CheckoutProtectedRoute from "./components/CheckoutProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -28,17 +31,33 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/category/:categoryName" element={<Category />} />
-                  <Route path="/product/:productId" element={<ProductDetail />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <SmoothScroll>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/category/:categoryName" element={<Category />} />
+                    <Route path="/product/:productId" element={<ProductDetail />} />
+                    <Route 
+                      path="/account" 
+                      element={
+                        <ProtectedRoute>
+                          <Account />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route 
+                      path="/checkout" 
+                      element={
+                        <CheckoutProtectedRoute>
+                          <Checkout />
+                        </CheckoutProtectedRoute>
+                      } 
+                    />
+                    <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </SmoothScroll>
               </BrowserRouter>
             </TooltipProvider>
           </WishlistProvider>

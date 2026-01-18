@@ -9,9 +9,9 @@ interface SEOProps {
   type?: "website" | "product" | "article";
 }
 
-const DEFAULT_TITLE = "MAISON | Luxury Precious Metals & Gems";
-const DEFAULT_DESCRIPTION = "Discover exquisite diamonds, gold, silver, platinum, and sapphires. Premium quality precious metals and gems for discerning collectors and investors.";
-const DEFAULT_KEYWORDS = "diamonds, gold, silver, platinum, sapphire, precious metals, gems, luxury, investment, jewelry";
+const DEFAULT_TITLE = "Toto Finance | Building the Future of Global Trade";
+const DEFAULT_DESCRIPTION = "Toto Finance is an asset-backed tokenization platform that provides digital infrastructure for tokenized commodities, enabling instant settlement and compliant global trade across metals, energy, and real-world assets.";
+const DEFAULT_KEYWORDS = "diamonds, gold, silver, platinum, sapphire, precious metals, gems, luxury, investment, jewelry, tokenization, asset-backed tokens, commodities";
 
 /**
  * SEO component for managing page meta tags
@@ -25,7 +25,7 @@ const SEO = ({
   url,
   type = "website",
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | MAISON` : DEFAULT_TITLE;
+  const fullTitle = title ? `${title} | Toto Finance` : DEFAULT_TITLE;
 
   useEffect(() => {
     // Update document title
@@ -76,8 +76,8 @@ export default SEO;
 export const PageSEO = {
   Home: () => (
     <SEO 
-      description="Discover exquisite diamonds, gold, silver, platinum, and sapphires at MAISON. Premium quality precious metals and gems for discerning collectors and investors."
-      keywords="diamonds, gold, silver, platinum, sapphire, precious metals, gems, luxury, investment"
+      description="Toto Finance is an asset-backed tokenization platform that provides digital infrastructure for tokenized commodities, enabling instant settlement and compliant global trade across metals, energy, and real-world assets."
+      keywords="diamonds, gold, silver, platinum, sapphire, precious metals, gems, luxury, investment, tokenization, asset-backed tokens, commodities"
     />
   ),
   
@@ -92,8 +92,8 @@ export const PageSEO = {
   Product: ({ name, price, category }: { name: string; price: number; category: string }) => (
     <SEO 
       title={name}
-      description={`${name} - Premium ${category} available at MAISON. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
-      keywords={`${name}, ${category}, luxury gems, precious metals`}
+      description={`${name} - Premium ${category} available at Toto Finance. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
+      keywords={`${name}, ${category}, luxury gems, precious metals, tokenized assets`}
       type="product"
     />
   ),
@@ -101,14 +101,14 @@ export const PageSEO = {
   Account: () => (
     <SEO 
       title="My Account"
-      description="Manage your MAISON account, view orders, and track your precious metals portfolio."
+      description="Manage your Toto Finance account, view orders, and track your tokenized assets portfolio."
     />
   ),
   
   Cart: () => (
     <SEO 
       title="Shopping Cart"
-      description="Review your selected items and proceed to checkout at MAISON."
+      description="Review your selected items and proceed to checkout at Toto Finance."
     />
   ),
 };

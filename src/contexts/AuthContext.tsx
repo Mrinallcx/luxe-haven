@@ -17,8 +17,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  // Check for existing auth on mount
-  useEffect(() => {
+  // Check for existing auth on mount and on window focus
+  const checkAuth = () => {
     const token = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("user");
     
@@ -31,8 +31,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Clear invalid data
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
+        setIsSignedIn(false);
+        setUser(null);
       }
+    } else {
+      setIsSignedIn(false);
+      setUser(null);
     }
+  };
+
+  useEffect(() => {
+    // Check auth on mount
+    checkAuth();
+
+    // Check auth when window gains focus (user returns to tab)
+    const handleFocus = () => {
+      checkAuth();
+    };
+
+    // Check auth periodically (every 5 minutes)
+    const interval = setInterval(() => {
+      checkAuth();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const signIn = (userData?: User) => {

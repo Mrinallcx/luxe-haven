@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
+import { useWallet } from "@/contexts/WalletContext";
+import WalletConnectModal from "@/components/WalletConnectModal";
 import { ArrowLeft, CreditCard, Wallet, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -65,7 +67,9 @@ const paymentMethods = [
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, clearCart } = useCart();
+  const { isConnected } = useWallet();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -91,9 +95,7 @@ const Checkout = () => {
   }
 
   const subtotal = getCartTotal();
-  const shipping = 0;
-  const tax = subtotal * 0.1;
-  const total = subtotal + shipping + tax;
+  const total = subtotal;
 
   const handleSelectMethod = (methodId: PaymentMethod) => {
     const method = paymentMethods.find(m => m.id === methodId);
@@ -102,6 +104,11 @@ const Checkout = () => {
       return;
     }
     setSelectedMethod(methodId);
+    
+    // If Web3 wallet is selected and wallet is not connected, show wallet modal
+    if (methodId === "web3" && !isConnected) {
+      setShowWalletModal(true);
+    }
   };
 
   const handleProceed = () => {
@@ -109,6 +116,14 @@ const Checkout = () => {
       toast.error("Please select a payment method");
       return;
     }
+    
+    // If Web3 wallet is selected, ensure wallet is connected
+    if (selectedMethod === "web3" && !isConnected) {
+      setShowWalletModal(true);
+      toast.error("Please connect your wallet to proceed with Web3 payment");
+      return;
+    }
+    
     toast.success("Order placed successfully!");
     clearCart();
     navigate("/order-confirmation");
@@ -220,25 +235,23 @@ const Checkout = () => {
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-4 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">${subtotal.toLocaleString()}</span>
+                  <div className="flex justify-between">
+                    <span className="text-foreground font-medium">Total</span>
+                    <span className="text-xl font-semibold text-foreground">
+                      ${total.toLocaleString()}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="text-green-500">Free</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax (10%)</span>
-                    <span className="text-foreground">${tax.toLocaleString()}</span>
-                  </div>
-                  <div className="border-t border-border pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-foreground font-medium">Total</span>
-                      <span className="text-xl font-semibold text-foreground">
-                        ${total.toLocaleString()}
-                      </span>
-                    </div>
+                </div>
+
+                <div className="pt-4 border-t border-border mb-6">
+                  <p className="text-xs text-muted-foreground mb-2">We accept crypto payment in</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ETH</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">wETH</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">LCX</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDC</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDT</span>
+                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ADA</span>
                   </div>
                 </div>
 
@@ -263,6 +276,11 @@ const Checkout = () => {
       </main>
 
       <Footer />
+
+      <WalletConnectModal 
+        open={showWalletModal}
+        onOpenChange={setShowWalletModal}
+      />
     </div>
   );
 };

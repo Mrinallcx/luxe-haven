@@ -32,11 +32,24 @@ export async function apiRequest<T>(
       },
     });
 
-    const data = await response.json();
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get("content-type");
+    let data;
+    
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      // If response is not JSON (e.g., HTML error page), return a generic error
+      const text = await response.text();
+      return {
+        error: response.status === 400 ? "Please enter a valid email" : "Something went wrong. Please try again.",
+        status: response.status,
+      };
+    }
 
     if (!response.ok) {
       return {
-        error: data.message || "Something went wrong",
+        error: data.message || (response.status === 400 ? "Please enter a valid email" : "Something went wrong"),
         status: response.status,
       };
     }
@@ -46,6 +59,13 @@ export async function apiRequest<T>(
       status: response.status,
     };
   } catch (error) {
+    // Handle JSON parse errors and other network errors
+    if (error instanceof SyntaxError && error.message.includes("JSON")) {
+      return {
+        error: "Please enter a valid email",
+        status: 400,
+      };
+    }
     return {
       error: error instanceof Error ? error.message : "Network error",
       status: 0,

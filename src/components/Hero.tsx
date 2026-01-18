@@ -12,11 +12,11 @@ const slides = [
   {
     id: 1,
     image: goldBackground,
-    subtitle: "Winter Collection 2024",
-    title: ["Timeless", "Elegance"],
-    description: "Discover our curated selection of luxury fashion pieces, crafted for those who appreciate refined aesthetics.",
-    primaryCta: "Shop Collection",
-    secondaryCta: "Explore",
+    subtitle: "Building the Future of Global Trade",
+    title: ["Toto", "Finance"],
+    description: "Toto Finance is an asset-backed tokenization platform that provides digital infrastructure for tokenized commodities, enabling instant settlement and compliant global trade across metals, energy, and real-world assets.",
+    primaryCta: "Explore Assets",
+    secondaryCta: "Learn More",
   },
   {
     id: 2,
@@ -134,9 +134,6 @@ const Hero = () => {
                 <Button variant="premium-light" size="xl">
                   {slide.primaryCta}
                 </Button>
-                <Button variant="premium-outline" size="xl" className="border-charcoal text-charcoal hover:bg-charcoal hover:text-cream">
-                  {slide.secondaryCta}
-                </Button>
               </motion.div>
             </motion.div>
           </AnimatePresence>
@@ -166,7 +163,7 @@ const Hero = () => {
       </button>
 
       {/* Dots Navigation */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+      <div className="absolute bottom-32 md:bottom-36 left-1/2 -translate-x-1/2 z-10 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
@@ -186,7 +183,7 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       >
         <span className="text-charcoal/60 text-xs tracking-widest uppercase">Scroll</span>
         <motion.div

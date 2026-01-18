@@ -2,21 +2,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const GoldSilverWidget = () => {
-  const [activeTab, setActiveTab] = useState<"gold" | "silver">("gold");
-  const [mode, setMode] = useState<"dollars" | "grams">("dollars");
-  const [amount, setAmount] = useState("2100");
+  const [activeTab, setActiveTab] = useState<"gold" | "silver" | "platinum">("gold");
 
   const prices = {
     gold: 13276.23,
     silver: 103.50,
+    platinum: 12450.00,
   };
 
   const currentPrice = prices[activeTab];
-  const numericAmount = parseFloat(amount.replace(/,/g, "")) || 0;
-  const calculatedGrams = mode === "dollars" ? (numericAmount / currentPrice).toFixed(4) : numericAmount.toFixed(4);
-  const calculatedDollars = mode === "grams" ? (numericAmount * currentPrice).toFixed(2) : numericAmount.toFixed(2);
-
-  const quickAmounts = ["500", "2,000", "5,000", "10,000"];
 
   return (
     <motion.div
@@ -35,7 +29,7 @@ const GoldSilverWidget = () => {
               : "text-charcoal/40"
           }`}
         >
-          Digital Gold
+          Gold
         </button>
         <button
           onClick={() => setActiveTab("silver")}
@@ -45,12 +39,22 @@ const GoldSilverWidget = () => {
               : "text-charcoal/40"
           }`}
         >
-          Digital Silver
+          Silver
+        </button>
+        <button
+          onClick={() => setActiveTab("platinum")}
+          className={`flex-1 pb-3 text-base font-sans font-medium tracking-wide transition-colors ${
+            activeTab === "platinum"
+              ? "text-charcoal border-b-2 border-charcoal"
+              : "text-charcoal/40"
+          }`}
+        >
+          Platinum
         </button>
       </div>
 
       {/* Live Price */}
-      <div className="mb-6">
+      <div>
         <p className="text-gold font-sans text-sm mb-1">Live Buy Price</p>
         <div className="flex items-baseline gap-2 flex-wrap">
           <span className="text-charcoal font-sans font-bold text-2xl uppercase">
@@ -59,73 +63,8 @@ const GoldSilverWidget = () => {
           <span className="text-charcoal font-sans font-bold text-2xl">
             $ {currentPrice.toLocaleString()}/gm
           </span>
-          <span className="text-charcoal/50 font-sans text-xs ml-auto">including VAT</span>
         </div>
       </div>
-
-      {/* Mode Toggle */}
-      <div className="flex justify-center mb-4">
-        <div className="bg-charcoal/5 rounded-full p-1 flex">
-          <button
-            onClick={() => setMode("dollars")}
-            className={`px-6 py-2 rounded-full text-xs font-sans font-semibold tracking-wider transition-all ${
-              mode === "dollars"
-                ? "bg-charcoal text-cream"
-                : "text-charcoal/60"
-            }`}
-          >
-            DOLLARS
-          </button>
-          <button
-            onClick={() => setMode("grams")}
-            className={`px-6 py-2 rounded-full text-xs font-sans font-semibold tracking-wider transition-all ${
-              mode === "grams"
-                ? "bg-charcoal text-cream"
-                : "text-charcoal/60"
-            }`}
-          >
-            GRAMS
-          </button>
-        </div>
-      </div>
-
-      {/* Amount Input */}
-      <div className="border-2 border-gold/60 rounded-xl p-4 mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-baseline gap-1">
-            <span className="text-charcoal/60 text-lg">
-              {mode === "dollars" ? "$" : "gm"}
-            </span>
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value.replace(/[^0-9,]/g, ""))}
-              className="text-3xl font-sans font-bold text-charcoal bg-transparent border-none outline-none w-24"
-            />
-          </div>
-          <span className="text-charcoal/60 font-sans">
-            = {mode === "dollars" ? `${calculatedGrams} gm` : `$ ${calculatedDollars}`}
-          </span>
-        </div>
-
-        {/* Quick Amounts */}
-        <div className="flex gap-2 justify-between">
-          {quickAmounts.map((quickAmount) => (
-            <button
-              key={quickAmount}
-              onClick={() => setAmount(quickAmount)}
-              className="text-charcoal/70 font-sans text-sm hover:text-charcoal transition-colors"
-            >
-              {mode === "dollars" ? `$ ${quickAmount}` : `${quickAmount} gm`}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Proceed Button */}
-      <button className="w-full bg-gold text-charcoal font-sans font-semibold tracking-wider py-3 rounded-full hover:bg-champagne transition-colors">
-        PROCEED
-      </button>
     </motion.div>
   );
 };

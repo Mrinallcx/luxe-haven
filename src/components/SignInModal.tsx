@@ -16,16 +16,19 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Mail, KeyRound, Loader2, AlertCircle } from "lucide-react";
 import { requestOtp, verifyOtp } from "@/lib/auth-api";
+import totoIcon from "@/assets/Toto_Icon.svg";
 
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSignIn?: (user?: { emailId: string }) => void;
+  stayOnPage?: boolean; // If true, don't redirect to account page after sign in. Defaults to true.
+  redirectTo?: string; // Optional redirect path after sign in (only if stayOnPage is false)
 }
 
 type Step = "email" | "otp" | "success";
 
-const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
+const SignInModal = ({ open, onOpenChange, onSignIn, stayOnPage = true, redirectTo }: SignInModalProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -36,6 +39,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
   const [otpBlockedTill, setOtpBlockedTill] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number>(0);
   const [resendCountdown, setResendCountdown] = useState<number>(0);
+  const [lastVerifiedOtp, setLastVerifiedOtp] = useState<string>("");
 
   // Countdown timer for OTP validity
   useEffect(() => {
@@ -71,15 +75,38 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
     return () => clearInterval(interval);
   }, [otpBlockedTill]);
 
+  // Auto-verify when 6 digits are entered (only if it's a new OTP)
+  useEffect(() => {
+    if (otp.length === 6 && step === "otp" && !isLoading && countdown > 0 && otp !== lastVerifiedOtp) {
+      // Small delay to ensure the last digit is fully entered
+      const timer = setTimeout(() => {
+        verifyOtpCode();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otp, step, isLoading, countdown, lastVerifiedOtp]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
+    // Validate email format before making API call
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email");
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -89,6 +116,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
     setIsLoading(false);
 
     if (response.error) {
+      // Show user-friendly error message
       setError(response.error);
       return;
     }
@@ -106,6 +134,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
     setIsLoading(true);
     setError(null);
     setOtp("");
+    setLastVerifiedOtp(""); // Reset verification state when resending
 
     const response = await requestOtp(email);
 
@@ -123,19 +152,24 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
     }
   };
 
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) return;
+  const verifyOtpCode = async () => {
+    if (otp.length !== 6 || isLoading || countdown === 0 || otp === lastVerifiedOtp) return;
 
+    const currentOtp = otp; // Store current OTP before verification
     setIsLoading(true);
     setError(null);
+    setLastVerifiedOtp(currentOtp); // Mark this OTP as verified
 
-    const response = await verifyOtp(email, otp);
+    const response = await verifyOtp(email, currentOtp);
 
     setIsLoading(false);
 
     if (response.error) {
-      setError(response.error);
+      // Show user-friendly error message
+      setError("OTP incorrect, please enter valid OTP");
+      // Clear the OTP so user can enter a new one
+      setOtp("");
+      setLastVerifiedOtp(""); // Reset so new OTP can be verified
       return;
     }
 
@@ -149,11 +183,19 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
       setTimeout(() => {
         onOpenChange(false);
         onSignIn?.({ emailId: email });
-        navigate("/account");
+        // Only redirect if stayOnPage is false
+        if (!stayOnPage) {
+          navigate(redirectTo || "/account");
+        }
         // Reset state for next time
         resetState();
       }, 2000);
     }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await verifyOtpCode();
   };
 
   const resetState = () => {
@@ -165,6 +207,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
     setOtpBlockedTill(null);
     setCountdown(0);
     setResendCountdown(0);
+    setLastVerifiedOtp("");
   };
 
   const handleClose = (isOpen: boolean) => {
@@ -197,20 +240,14 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
         <DialogHeader className="space-y-4">
           {/* Brand Logo & Tagline */}
           <div className="text-center space-y-2">
-            <h1 className="font-display text-3xl tracking-wider text-charcoal">
-              MAISON
-            </h1>
+            <img 
+              src={totoIcon} 
+              alt="Toto Finance" 
+              className="h-20 w-auto mx-auto"
+            />
             <p className="text-sm text-muted-foreground font-sans">
-              Luxury Precious Metals & Gems
+              Building the Future of Global Trade
             </p>
-          </div>
-
-          {/* Step Indicator */}
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <currentStep.icon className="h-5 w-5 text-gold" />
-            <DialogTitle className="font-display text-lg text-charcoal">
-              {currentStep.title}
-            </DialogTitle>
           </div>
         </DialogHeader>
 
@@ -306,7 +343,9 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                     value={otp}
                     onChange={(value) => {
                       setOtp(value);
+                      // Always clear error and reset verification state when user types
                       setError(null);
+                      setLastVerifiedOtp("");
                     }}
                     disabled={isLoading}
                   >
@@ -321,6 +360,18 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                   </InputOTP>
                 </div>
 
+                {/* Loading indicator when auto-verifying */}
+                {isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Verifying...</span>
+                  </motion.div>
+                )}
+
                 {/* Error Message */}
                 {error && (
                   <motion.div
@@ -332,21 +383,6 @@ const SignInModal = ({ open, onOpenChange, onSignIn }: SignInModalProps) => {
                     <span>{error}</span>
                   </motion.div>
                 )}
-
-                <Button
-                  type="submit"
-                  disabled={otp.length !== 6 || isLoading || countdown === 0}
-                  className="w-full rounded-full bg-charcoal text-cream hover:bg-charcoal/90 disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    "Verify & Sign In"
-                  )}
-                </Button>
 
                 <div className="flex flex-col items-center gap-2">
                   {/* Resend OTP */}

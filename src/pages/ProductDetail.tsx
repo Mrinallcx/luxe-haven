@@ -116,7 +116,7 @@ const ProductDetail = () => {
   }, [productId, location.state]);
 
   const currentUrl = window.location.href;
-  const shareText = product ? `Check out ${product.name} on MAISON` : "Check out this product on MAISON";
+  const shareText = product ? `Check out ${product.name} on Toto Finance` : "Check out this product on Toto Finance";
 
   const handleShareTwitter = () => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`;

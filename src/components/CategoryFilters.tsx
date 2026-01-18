@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export const cutOptions = ["Round", "Princess", "Cushion", "Oval", "Pear", "Emerald", "Heart", "Radiant"];
 export const colorOptions = ["Natural", "Coloured"];
@@ -43,11 +43,11 @@ interface FilterSectionProps {
   defaultOpen?: boolean;
 }
 
-const FilterSection = ({ title, children, defaultOpen = true }: FilterSectionProps) => {
+const FilterSection = ({ title, children, defaultOpen = true, isLast = false }: FilterSectionProps & { isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-border/50 py-4">
+    <div className={isLast ? "py-4" : "border-b border-border/50 py-4"}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full text-left"
@@ -65,6 +65,8 @@ const FilterSection = ({ title, children, defaultOpen = true }: FilterSectionPro
 };
 
 const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: CategoryFiltersProps) => {
+  const filterBoxRef = useRef<HTMLDivElement>(null);
+
   const toggleOption = (
     option: string,
     key: keyof Pick<FilterState, 'selectedCuts' | 'selectedColors' | 'selectedClarity' | 'selectedStatus' | 'selectedSaleType'>
@@ -89,12 +91,45 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
     filters.priceRange[0] !== 0 ||
     filters.priceRange[1] !== 100000;
 
+  // Handle wheel events to prevent Lenis from intercepting
+  useEffect(() => {
+    const filterBox = filterBoxRef.current;
+    if (!filterBox) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = filterBox;
+      const isAtTop = scrollTop <= 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+      const isScrollingUp = e.deltaY < 0;
+      const isScrollingDown = e.deltaY > 0;
+
+      // If we can scroll in the direction of the wheel, stop propagation to prevent Lenis
+      if ((isScrollingUp && !isAtTop) || (isScrollingDown && !isAtBottom)) {
+        e.stopPropagation();
+        e.preventDefault();
+        // Manually scroll the element
+        filterBox.scrollTop += e.deltaY;
+      }
+    };
+
+    filterBox.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      filterBox.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
   return (
     <div
+      ref={filterBoxRef}
       className={cn(
-        "bg-card border border-border/50 rounded-2xl p-6 transition-all duration-300",
+        "bg-card border border-border/50 rounded-2xl p-6 transition-all duration-300 overflow-y-auto max-h-[calc(100vh-8rem)] filter-scroll",
         isOpen ? "opacity-100" : "opacity-0 pointer-events-none hidden"
       )}
+      style={{
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent',
+      }}
     >
       {/* Header with Clear Button */}
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-border/50">
@@ -131,7 +166,7 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
 
       {/* Color Filter */}
       <FilterSection title="Color">
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {colorOptions.map((color) => (
             <label
               key={color}
@@ -184,7 +219,7 @@ const CategoryFilters = ({ isOpen, onClose, filters, onFiltersChange }: Category
       </FilterSection>
 
       {/* Price Range */}
-      <FilterSection title="Price">
+      <FilterSection title="Price" isLast={true}>
         <div className="space-y-4">
           <Slider
             value={filters.priceRange}

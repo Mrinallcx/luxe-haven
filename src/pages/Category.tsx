@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
@@ -24,6 +24,8 @@ const Category = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterState>(defaultFilterState);
+  // Debounced filters for API calls (only updates after user stops dragging)
+  const [debouncedFilters, setDebouncedFilters] = useState<FilterState>(defaultFilterState);
   const [bidModalProduct, setBidModalProduct] = useState<CategoryProduct | null>(null);
   const [products, setProducts] = useState<CategoryProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -31,8 +33,50 @@ const Category = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeSaleType, setActiveSaleType] = useState<SaleTypeToggleType>("FIXEDPRICE");
   const [conversionRates, setConversionRates] = useState<Record<string, number>>({});
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch products from API
+  // Debounce range filters (caratRange and priceRange) - only update after user stops dragging
+  useEffect(() => {
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Check if range filters changed
+    const rangeFiltersChanged = 
+      filters.caratRange[0] !== debouncedFilters.caratRange[0] ||
+      filters.caratRange[1] !== debouncedFilters.caratRange[1] ||
+      filters.priceRange[0] !== debouncedFilters.priceRange[0] ||
+      filters.priceRange[1] !== debouncedFilters.priceRange[1];
+
+    // Check if non-range filters changed
+    const nonRangeFiltersChanged = 
+      JSON.stringify(filters.selectedCuts) !== JSON.stringify(debouncedFilters.selectedCuts) ||
+      JSON.stringify(filters.selectedColors) !== JSON.stringify(debouncedFilters.selectedColors) ||
+      JSON.stringify(filters.selectedClarity) !== JSON.stringify(debouncedFilters.selectedClarity) ||
+      JSON.stringify(filters.selectedStatus) !== JSON.stringify(debouncedFilters.selectedStatus) ||
+      JSON.stringify(filters.selectedSaleType) !== JSON.stringify(debouncedFilters.selectedSaleType);
+
+    if (rangeFiltersChanged) {
+      // Debounce range filters - wait 500ms after user stops dragging
+      debounceTimerRef.current = setTimeout(() => {
+        setDebouncedFilters(filters);
+      }, 500);
+    } else if (nonRangeFiltersChanged) {
+      // Non-range filters update immediately (checkboxes, etc.)
+      setDebouncedFilters(filters);
+    }
+
+    // Cleanup
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
+  // Fetch products from API (uses debounced filters)
   useEffect(() => {
     const fetchProducts = async () => {
       if (!categoryName) return;
@@ -48,8 +92,8 @@ const Category = () => {
       const saleType: "ALL" | "FIXEDPRICE" | "AUCTION" = activeSaleType === "REDEEMED" ? "ALL" : activeSaleType;
 
       const baseFilters: Partial<AuthMarketsPayload> = {
-        priceRangeMin: filters.priceRange[0] || 1,
-        priceRangeMax: filters.priceRange[1],
+        priceRangeMin: debouncedFilters.priceRange[0] || 1,
+        priceRangeMax: debouncedFilters.priceRange[1],
         saleType,
         // Add Redeemed status filter when REDEEMED is selected
         ...(activeSaleType === "REDEEMED" && { status: ["Redeemed"] }),
@@ -57,14 +101,14 @@ const Category = () => {
 
       // Add category-specific filters
       if (slug === "diamonds") {
-        baseFilters.minCarat = filters.caratRange[0];
-        baseFilters.maxCarat = filters.caratRange[1];
-        baseFilters.cut = filters.selectedCuts;
-        baseFilters.clarity = filters.selectedClarity;
+        baseFilters.minCarat = debouncedFilters.caratRange[0];
+        baseFilters.maxCarat = debouncedFilters.caratRange[1];
+        baseFilters.cut = debouncedFilters.selectedCuts;
+        baseFilters.clarity = debouncedFilters.selectedClarity;
       } else if (slug === "sapphire") {
-        baseFilters.minCarat = filters.caratRange[0];
-        baseFilters.maxCarat = filters.caratRange[1];
-        baseFilters.cut = filters.selectedCuts;
+        baseFilters.minCarat = debouncedFilters.caratRange[0];
+        baseFilters.maxCarat = debouncedFilters.caratRange[1];
+        baseFilters.cut = debouncedFilters.selectedCuts;
       }
 
       const payload = buildAuthMarketsPayload(categoryName, currentPage, baseFilters);
@@ -107,7 +151,7 @@ const Category = () => {
     };
 
     fetchProducts();
-  }, [categoryName, currentPage, filters, activeSaleType]);
+  }, [categoryName, currentPage, debouncedFilters, activeSaleType]);
 
   // Scroll to top when category changes
   useEffect(() => {
@@ -191,9 +235,9 @@ const Category = () => {
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
             <div className="flex flex-col gap-4 mb-10">
-              <div className="grid grid-cols-3 items-center gap-4">
-                {/* Left - Filter Toggle */}
-                <div className="flex items-center">
+              <div className="flex items-center justify-between gap-4">
+                {/* Left - Filter Toggle and Product Count */}
+                <div className="flex items-center gap-4">
                   {/* Desktop Filter Toggle */}
                   <Button 
                     variant="outline" 
@@ -229,21 +273,18 @@ const Category = () => {
                       </div>
                     </SheetContent>
                   </Sheet>
+                  
+                  <p className="text-muted-foreground text-sm">
+                    <span className="text-foreground font-medium">{totalCount}</span> products
+                  </p>
                 </div>
 
-                {/* Center - Sale Type Toggle */}
-                <div className="flex justify-center">
+                {/* Right - Sale Type Toggle */}
+                <div className="flex items-center">
                   <SaleTypeToggle 
                     activeSaleType={activeSaleType}
                     onSaleTypeChange={setActiveSaleType}
                   />
-                </div>
-
-                {/* Right - Product Count */}
-                <div className="text-right">
-                  <p className="text-muted-foreground text-sm">
-                    <span className="text-foreground font-medium">{totalCount}</span> products
-                  </p>
                 </div>
               </div>
 
