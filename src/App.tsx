@@ -3,6 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
+import { wagmiConfig } from "@/lib/wagmi-config";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -22,49 +26,61 @@ import CheckoutProtectedRoute from "./components/CheckoutProtectedRoute";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <WalletProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <SmoothScroll>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/category/:categoryName" element={<Category />} />
-                    <Route path="/product/:productId" element={<ProductDetail />} />
-                    <Route 
-                      path="/account" 
-                      element={
-                        <ProtectedRoute>
-                          <Account />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route 
-                      path="/checkout" 
-                      element={
-                        <CheckoutProtectedRoute>
-                          <Checkout />
-                        </CheckoutProtectedRoute>
-                      } 
-                    />
-                    <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </SmoothScroll>
-              </BrowserRouter>
-            </TooltipProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </WalletProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <WagmiProvider config={wagmiConfig}>
+    <QueryClientProvider client={queryClient}>
+      <RainbowKitProvider
+        theme={darkTheme({
+          accentColor: "#C9A962",
+          accentColorForeground: "#1A1A1A",
+          borderRadius: "medium",
+          fontStack: "system",
+        })}
+        modalSize="compact"
+      >
+        <AuthProvider>
+          <WalletProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <SmoothScroll>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/category/:categoryName" element={<Category />} />
+                        <Route path="/product/:productId" element={<ProductDetail />} />
+                        <Route 
+                          path="/account" 
+                          element={
+                            <ProtectedRoute>
+                              <Account />
+                            </ProtectedRoute>
+                          } 
+                        />
+                        <Route path="/cart" element={<Cart />} />
+                        <Route 
+                          path="/checkout" 
+                          element={
+                            <CheckoutProtectedRoute>
+                              <Checkout />
+                            </CheckoutProtectedRoute>
+                          } 
+                        />
+                        <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </SmoothScroll>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </WalletProvider>
+        </AuthProvider>
+      </RainbowKitProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
 );
 
 export default App;

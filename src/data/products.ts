@@ -10,6 +10,7 @@ import platinumProduct from "@/assets/platinum-product.webp";
 
 export interface Product {
   id: number;
+  assetId?: number; // Backend asset ID for purchases
   name: string;
   price: number;
   pricePerUnit: string;

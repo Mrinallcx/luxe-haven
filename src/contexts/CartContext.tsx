@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Product } from "@/data/products";
+import { toast } from "sonner";
 
 export interface CartItem {
   product: Product;
@@ -8,12 +9,14 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product) => boolean;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
+  isInCart: (productId: number) => boolean;
+  hasItemInCart: () => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -21,32 +24,46 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = (product: Product) => {
-    setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { product, quantity: 1 }];
-    });
+  // Check if product is already in cart
+  const isInCart = (productId: number): boolean => {
+    return items.some((item) => item.product.id === productId);
+  };
+
+  // Check if cart has any item
+  const hasItemInCart = (): boolean => {
+    return items.length > 0;
+  };
+
+  // Add to cart - returns false if cart already has an item, true if added
+  const addToCart = (product: Product): boolean => {
+    // STRICT RULE: Only ONE asset allowed in cart at any time
+    if (hasItemInCart()) {
+      toast.error("Cart limit reached", {
+        description: "You can only have one asset in your cart at a time. Please remove the current item first.",
+      });
+      return false;
+    }
+
+    // Add new item
+    setItems([{ product, quantity: 1 }]);
+    return true;
   };
 
   const removeFromCart = (productId: number) => {
     setItems((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
+  // Update quantity - but for NFT assets, quantity should always be 1
   const updateQuantity = (productId: number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
     }
+    // For NFT assets, we don't allow quantity > 1
+    // Just keep it at 1
     setItems((prev) =>
       prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product.id === productId ? { ...item, quantity: 1 } : item
       )
     );
   };
@@ -56,8 +73,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getCartTotal = () =>
     items.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
-  const getCartCount = () =>
-    items.reduce((count, item) => count + item.quantity, 0);
+  const getCartCount = () => items.length; // Each item is unique, so count = number of items
 
   return (
     <CartContext.Provider
@@ -69,6 +85,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         getCartTotal,
         getCartCount,
+        isInCart,
+        hasItemInCart,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Gavel, Tag } from "lucide-react";
+import { Heart, ShoppingBag, Gavel, Tag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -41,12 +41,14 @@ const ProductCard = ({
   conversionRate,
   showConvertedPrice = false,
 }: ProductCardProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   
   const inWishlist = isInWishlist(product.id);
+  const alreadyInCart = isInCart(product.id);
+  const cartIsFull = hasItemInCart() && !alreadyInCart;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -54,7 +56,7 @@ const ProductCard = ({
       setIsBidModalOpen(true);
       return;
     }
-    addToCart({
+    const success = addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
@@ -65,10 +67,12 @@ const ProductCard = ({
       weight: product.weight,
       status: product.status,
     });
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    if (success) {
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -182,22 +186,40 @@ const ProductCard = ({
         {/* Quick Add Button */}
         {!product.isSoldOut && (
           <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button 
-              onClick={handleAddToCart}
-              className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
-            >
-              {product.status === "auction" ? (
-                <>
-                  <Gavel className="w-4 h-4" />
-                  Place Bid
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4" />
-                  Add to Cart
-                </>
-              )}
-            </Button>
+            {alreadyInCart ? (
+              <Button 
+                className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                disabled
+              >
+                <Check className="w-4 h-4" />
+                In Cart
+              </Button>
+            ) : cartIsFull ? (
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-muted text-muted-foreground rounded-lg gap-2"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Cart Full
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+              >
+                {product.status === "auction" ? (
+                  <>
+                    <Gavel className="w-4 h-4" />
+                    Place Bid
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    Add to Cart
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

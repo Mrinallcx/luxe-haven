@@ -1,5 +1,66 @@
 import { apiRequest, API_BASE_URL } from "./api";
 
+// Search marketplace types
+export interface SearchEdition {
+  name: string;
+  smallName: string;
+  fullName: string;
+  uri: string;
+  imageLink: string;
+  smallImageLink: string;
+  editionCategory: string;
+  externalUrl?: string;
+  assetUrl: string;
+}
+
+export interface SearchTiamond {
+  tokenId: number;
+  assetId: number;
+  name: string;
+  edition: string;
+  mintStatus: string;
+  price: number;
+  coin: string;
+  usdPrice: number;
+  image: string;
+  video?: string;
+  mediaType: string;
+  smallImageLink?: string;
+  assetUrl: string;
+  assetType: string;
+}
+
+export interface SearchMarketplaceResponse {
+  msg: string;
+  result: {
+    editionsList: SearchEdition[];
+    tiamondsList: SearchTiamond[];
+  };
+}
+
+/**
+ * Search the marketplace for tiamonds and editions
+ * @param search - Search query (minimum 2 characters)
+ */
+export async function searchMarketplace(
+  search: string
+): Promise<{ data?: SearchMarketplaceResponse; error?: string }> {
+  // Validate minimum length
+  if (!search || search.trim().length < 2) {
+    return {
+      data: {
+        msg: "Search too short",
+        result: { editionsList: [], tiamondsList: [] },
+      },
+    };
+  }
+
+  return apiRequest<SearchMarketplaceResponse>("/market/search-marketplace", {
+    method: "POST",
+    body: JSON.stringify({ search: search.trim() }),
+  });
+}
+
 // Trending products API types
 export interface TrendingProductsPayload {
   saleType: "All" | "FIXEDPRICE" | "AUCTION";
@@ -44,6 +105,7 @@ export interface TrendingProductsResponse {
 // Normalized product structure for frontend use
 export interface NormalizedProduct {
   id: number;
+  assetId: number;
   _id: string;
   name: string;
   price: number;
@@ -88,6 +150,7 @@ function editionToCategory(edition: string): string {
 export function normalizeProduct(apiProduct: ApiTrendingProduct): NormalizedProduct {
   return {
     id: apiProduct.tokenId || apiProduct.assetId,
+    assetId: apiProduct.assetId,
     _id: apiProduct._id,
     name: apiProduct.name,
     price: apiProduct.listingPrice || apiProduct.price || apiProduct.usdPrice,
@@ -284,6 +347,7 @@ export function normalizeMarketDetails(details: MarketDetailsResponse["result"])
 } {
   return {
     id: details.tokenId || details.assetId,
+    assetId: details.assetId,
     _id: details._id,
     name: details.name,
     price: details.listingPrice || details.price || details.usdPrice,
@@ -498,4 +562,47 @@ export function buildAuthMarketsPayload(
     };
     return { ...defaultPayload, ...filters } as AuthMarketsPayload;
   }
+}
+
+// ============================================================
+// Buy Unminted Fixed Price API
+// ============================================================
+
+export interface BuyUserOrder {
+  assetId: number;
+  primaryAmount: number;
+  primaryCoin: string;
+  secondaryAmount: number;
+  secondaryCoin: string;
+  buyer: string;
+}
+
+export interface BuyUnmintedPayload {
+  userOrder: BuyUserOrder;
+}
+
+export interface BuyUnmintedTxData {
+  from: string;
+  to: string;
+  data: string;
+  gas?: number;
+  value?: number | string;
+}
+
+export interface BuyUnmintedResponse {
+  txData: BuyUnmintedTxData;
+  validity: number;
+  chain: "ETHEREUM" | "CARDANO";
+}
+
+/**
+ * Request transaction data for buying an unminted asset at fixed price
+ */
+export async function buyUnmintedFixedPrice(
+  payload: BuyUnmintedPayload
+): Promise<{ data?: BuyUnmintedResponse; error?: string }> {
+  return apiRequest<BuyUnmintedResponse>("/tiamond/buy-unminted-fixed-price", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }

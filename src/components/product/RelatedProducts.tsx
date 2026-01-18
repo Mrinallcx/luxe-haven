@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Gavel, Tag, ShoppingBag } from "lucide-react";
+import { Gavel, Tag, ShoppingBag, Check } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import ProductName from "@/components/ProductName";
@@ -15,16 +15,20 @@ interface RelatedProductsProps {
 }
 
 const RelatedProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
   const { toast } = useToast();
+  const alreadyInCart = isInCart(product.id);
+  const cartIsFull = hasItemInCart() && !alreadyInCart;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    const success = addToCart(product);
+    if (success) {
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
   };
 
   return (
@@ -61,22 +65,40 @@ const RelatedProductCard = ({ product, index }: { product: Product; index: numbe
               </span>
             </div>
             <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <Button 
-                onClick={handleAddToCart}
-                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
-              >
-                {product.status === "auction" ? (
-                  <>
-                    <Gavel className="w-4 h-4" />
-                    Place Bid
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
-                  </>
-                )}
-              </Button>
+              {alreadyInCart ? (
+                <Button 
+                  className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                  disabled
+                >
+                  <Check className="w-4 h-4" />
+                  In Cart
+                </Button>
+              ) : cartIsFull ? (
+                <Button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-muted text-muted-foreground rounded-lg gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  Cart Full
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+                >
+                  {product.status === "auction" ? (
+                    <>
+                      <Gavel className="w-4 h-4" />
+                      Place Bid
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" />
+                      Add to Cart
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
           <div className="p-5">

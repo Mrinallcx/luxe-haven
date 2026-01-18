@@ -21,7 +21,7 @@ import totoIcon from "@/assets/Toto_Icon.svg";
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSignIn?: (user?: { emailId: string }) => void;
+  onSignIn?: (user?: { emailId: string; blockchainId?: string }) => void;
   stayOnPage?: boolean; // If true, don't redirect to account page after sign in. Defaults to true.
   redirectTo?: string; // Optional redirect path after sign in (only if stayOnPage is false)
 }
@@ -179,10 +179,16 @@ const SignInModal = ({ open, onOpenChange, onSignIn, stayOnPage = true, redirect
         localStorage.setItem("authToken", response.data.token);
       }
 
+      // Get user data from response (including blockchainId)
+      const userData = {
+        emailId: response.data.user?.emailId || email,
+        blockchainId: response.data.user?.blockchainId,
+      };
+
       setStep("success");
       setTimeout(() => {
         onOpenChange(false);
-        onSignIn?.({ emailId: email });
+        onSignIn?.(userData);
         // Only redirect if stayOnPage is false
         if (!stayOnPage) {
           navigate(redirectTo || "/account");
@@ -391,7 +397,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn, stayOnPage = true, redirect
                     onClick={handleResendOtp}
                     disabled={resendCountdown > 0 || isLoading}
                     className="text-sm text-muted-foreground hover:text-charcoal transition-colors font-sans disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                >
                     {resendCountdown > 0 ? (
                       <>Resend OTP in {formatTime(resendCountdown)}</>
                     ) : (
@@ -436,7 +442,7 @@ const SignInModal = ({ open, onOpenChange, onSignIn, stayOnPage = true, redirect
                     Successfully Signed In
                   </h3>
                   <p className="text-sm text-muted-foreground font-sans">
-                    Redirecting you to your account...
+                    {stayOnPage ? "You are now signed in." : "Redirecting you to your account..."}
                   </p>
                 </div>
               </motion.div>

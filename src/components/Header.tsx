@@ -10,6 +10,7 @@ import { useWallet } from "@/contexts/WalletContext";
 import SignInModal from "@/components/SignInModal";
 import DemandUsModal from "@/components/DemandUsModal";
 import WalletConnectModal from "@/components/WalletConnectModal";
+import WalletDropdown from "@/components/WalletDropdown";
 import totoFinanceLogo from "@/assets/toto finance logo.svg";
 import {
   DropdownMenu,
@@ -103,68 +104,29 @@ const Header = () => {
             </button>
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 lg:gap-4">
+          {/* Actions - Order: Search, Wallet, Cart, Account */}
+          <div className="flex items-center gap-2 lg:gap-3">
+            {/* Search */}
             <UniversalSearchBar className="hidden lg:block w-64" />
-            {!isSignedIn ? (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="hidden lg:flex rounded-full"
-                onClick={() => setIsSignInOpen(true)}
-              >
-                Sign In
-              </Button>
-            ) : (
-              <>
-                {!isConnected ? (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="hidden lg:flex rounded-full gap-2"
-                    onClick={() => setIsWalletModalOpen(true)}
-                  >
-                    <Wallet className="w-4 h-4" />
-                    Connect Wallet
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="hidden lg:flex rounded-full gap-2 font-mono text-xs"
-                    onClick={disconnect}
-                  >
-                    <Wallet className="w-4 h-4" />
-                    {formatAddress(walletAddress!)}
-                  </Button>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="hidden lg:flex">
-                      <User className="w-5 h-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg" align="end">
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/account"
-                        className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
-                      >
-                        <User className="w-4 h-4" />
-                        Account
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={signOut}
-                      className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+            
+            {/* Wallet */}
+            {isSignedIn && (
+              !isConnected ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="hidden lg:flex rounded-full gap-2"
+                  onClick={() => setIsWalletModalOpen(true)}
+                >
+                  <Wallet className="w-4 h-4" />
+                  Connect Wallet
+                </Button>
+              ) : (
+                <WalletDropdown className="hidden lg:flex" />
+              )
             )}
+
+            {/* Cart */}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="w-5 h-5" />
@@ -175,6 +137,44 @@ const Header = () => {
                 )}
               </Button>
             </Link>
+
+            {/* Account (far right) */}
+            {!isSignedIn ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden lg:flex rounded-full"
+                onClick={() => setIsSignInOpen(true)}
+              >
+                Sign In
+              </Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden lg:flex">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background border border-border rounded-xl p-2 min-w-[160px] shadow-lg" align="end">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/account"
+                      className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Account
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={signOut}
+                    className="w-full px-4 py-2.5 text-sm tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg cursor-pointer transition-colors duration-200 flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
@@ -262,18 +262,26 @@ const Header = () => {
                         Connect Wallet
                       </Button>
                     ) : (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="gap-2 w-full justify-start rounded-full font-mono text-xs"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          disconnect();
-                        }}
-                      >
-                        <Wallet className="w-4 h-4" />
-                        {formatAddress(walletAddress!)}
-                      </Button>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
+                          <Wallet className="w-4 h-4 text-gold" />
+                          <span className="text-xs font-mono text-foreground">
+                            {formatAddress(walletAddress!)}
+                          </span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="gap-2 w-full justify-start text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            disconnect();
+                          }}
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Disconnect Wallet
+                        </Button>
+                      </div>
                     )}
                     <Button 
                       variant="ghost" 

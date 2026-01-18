@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
 import { useWallet } from "@/contexts/WalletContext";
 import WalletConnectModal from "@/components/WalletConnectModal";
-import { ArrowLeft, CreditCard, Wallet, Check } from "lucide-react";
+import { ArrowLeft, CreditCard, Wallet, Check, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { usePurchase } from "@/hooks/use-purchase";
 
 // Payment method icons as SVG components
 const PayPalIcon = () => (
@@ -67,9 +68,10 @@ const paymentMethods = [
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, clearCart } = useCart();
-  const { isConnected } = useWallet();
+  const { isConnected, walletAddress } = useWallet();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const { purchase, status: purchaseStatus, txHash } = usePurchase();
 
   if (items.length === 0) {
     return (
@@ -111,7 +113,7 @@ const Checkout = () => {
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     if (!selectedMethod) {
       toast.error("Please select a payment method");
       return;
@@ -121,6 +123,65 @@ const Checkout = () => {
     if (selectedMethod === "web3" && !isConnected) {
       setShowWalletModal(true);
       toast.error("Please connect your wallet to proceed with Web3 payment");
+      return;
+    }
+
+    // Handle Web3 payment
+    if (selectedMethod === "web3") {
+      if (!walletAddress) {
+        toast.error("Wallet not connected");
+        return;
+      }
+
+      if (items.length === 0) {
+        toast.error("Cart is empty");
+        return;
+      }
+
+      // Get the single cart item (only 1 item allowed in cart)
+      const cartItem = items[0];
+      const product = cartItem.product;
+
+      // Get the assetId from the product (using id as tokenId which maps to assetId on backend)
+      // We need to fetch the assetId from the product details if it's not directly available
+      // For now, we'll use the product.id as tokenId - the backend endpoint actually uses assetId
+      // Note: This might need adjustment based on your product data structure
+      const assetId = (product as unknown as { assetId?: number }).assetId || product.id;
+      
+      // Use the price and coin from the product
+      const primaryAmount = product.price;
+      const primaryCoin = product.pricePerUnit?.toUpperCase() || "USD";
+
+      try {
+        const result = await purchase(
+          assetId,
+          primaryAmount,
+          primaryCoin,
+          walletAddress
+        );
+
+        if (result.success) {
+          clearCart();
+          navigate("/order-confirmation", { 
+            state: { 
+              txHash: result.txHash,
+              productName: product.name,
+              price: primaryAmount,
+              coin: primaryCoin
+            } 
+          });
+        }
+        // Error handling is done inside the purchase hook
+      } catch (err) {
+        console.error("Purchase error:", err);
+        // Error is already handled in the hook
+      }
+      return;
+    }
+
+    // Handle other payment methods (Credit Card - to be implemented)
+    if (selectedMethod === "card") {
+      toast.info("Credit card payment coming soon!");
       return;
     }
     
@@ -258,9 +319,27 @@ const Checkout = () => {
                 <Button 
                   className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
                   onClick={handleProceed}
-                  disabled={!selectedMethod}
+                  disabled={!selectedMethod || purchaseStatus === "preparing" || purchaseStatus === "awaiting_signature" || purchaseStatus === "confirming"}
                 >
-                  Complete Order
+                  {purchaseStatus === "preparing" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Preparing Transaction...
+                    </>
+                  )}
+                  {purchaseStatus === "awaiting_signature" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Confirm in Wallet...
+                    </>
+                  )}
+                  {purchaseStatus === "confirming" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Confirming on Blockchain...
+                    </>
+                  )}
+                  {(purchaseStatus === "idle" || purchaseStatus === "success" || purchaseStatus === "error") && "Complete Order"}
                 </Button>
 
                 <Link to="/cart" className="block mt-4">

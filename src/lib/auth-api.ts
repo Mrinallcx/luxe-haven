@@ -22,6 +22,7 @@ export interface VerifyOtpResponse {
   token: string;
   user: {
     emailId: string;
+    blockchainId: string;
     // Add more user fields as needed
   };
 }

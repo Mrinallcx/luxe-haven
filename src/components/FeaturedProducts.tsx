@@ -55,11 +55,13 @@ type ProductType = {
 };
 
 const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: boolean }; index: number }) => {
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
   const inWishlist = isInWishlist(product.id);
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const alreadyInCart = isInCart(product.id);
+  const cartIsFull = hasItemInCart() && !alreadyInCart;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,7 +69,7 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
       setIsBidModalOpen(true);
       return;
     }
-    addToCart({
+    const success = addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
@@ -78,10 +80,12 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
       weight: product.weight,
       status: product.status,
     });
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    if (success) {
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -179,23 +183,39 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
                 <Check className="w-4 h-4" />
                 Sold
               </Button>
+            ) : alreadyInCart ? (
+              <Button 
+                className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                disabled
+              >
+                <Check className="w-4 h-4" />
+                In Cart
+              </Button>
+            ) : cartIsFull ? (
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-muted text-muted-foreground rounded-lg gap-2"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Cart Full
+              </Button>
             ) : (
-            <Button 
-              onClick={handleAddToCart}
-              className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
-            >
-              {product.status === "auction" ? (
-                <>
-                  <Gavel className="w-4 h-4" />
-                  Place Bid
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4" />
-                  Add to Cart
-                </>
-              )}
-            </Button>
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2"
+              >
+                {product.status === "auction" ? (
+                  <>
+                    <Gavel className="w-4 h-4" />
+                    Place Bid
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    Add to Cart
+                  </>
+                )}
+              </Button>
             )}
           </div>
         </div>

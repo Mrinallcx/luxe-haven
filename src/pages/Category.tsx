@@ -144,7 +144,7 @@ const Category = () => {
         });
         setProducts(apiProducts);
         setTotalCount(response.data.totalCount || apiProducts.length);
-      } else {
+    } else {
         setProducts([]);
         setTotalCount(0);
       }
@@ -178,7 +178,7 @@ const Category = () => {
     fetchRates();
   }, [categoryName]);
 
-  const categoryTitle = categoryName 
+  const categoryTitle = categoryName
     ? categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase()
     : "Collection";
 
@@ -235,56 +235,60 @@ const Category = () => {
           <div className="container mx-auto px-4 lg:px-8">
             {/* Filter Bar */}
             <div className="flex flex-col gap-4 mb-10">
-              <div className="flex items-center justify-between gap-4">
-                {/* Left - Filter Toggle and Product Count */}
-                <div className="flex items-center gap-4">
-                  {/* Desktop Filter Toggle */}
-                  <Button 
-                    variant="outline" 
-                    className="gap-2 rounded-full hidden lg:flex"
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  >
-                    <SlidersHorizontal className="w-4 h-4" />
-                    {isFilterOpen ? "Hide Filters" : "Show Filters"}
-                  </Button>
+              {/* 3-column layout: Left (filters) | Center (sale type) | Right (product count) */}
+              <div className="grid grid-cols-3 items-center gap-4">
+                {/* Left - Filter Toggle */}
+                <div className="flex items-center gap-4 flex-shrink-0">
+                {/* Desktop Filter Toggle */}
+                <Button 
+                  variant="outline" 
+                  className="gap-2 rounded-full hidden lg:flex"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  {isFilterOpen ? "Hide Filters" : "Show Filters"}
+                </Button>
 
-                  {/* Mobile/Tablet Filter Sheet */}
-                  <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
-                    <SheetTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        className="gap-2 rounded-full lg:hidden"
-                      >
-                        <SlidersHorizontal className="w-4 h-4" />
-                        Filters
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
-                      <SheetHeader>
+                {/* Mobile/Tablet Filter Sheet */}
+                <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                  <SheetTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="gap-2 rounded-full lg:hidden"
+                    >
+                      <SlidersHorizontal className="w-4 h-4" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-full sm:w-[350px] overflow-y-auto">
+                    <SheetHeader>
                         <SheetTitle className="font-serif text-xl font-light">Filters</SheetTitle>
-                      </SheetHeader>
-                      <div className="mt-6">
-                        <CategoryFilters 
-                          isOpen={true} 
-                          onClose={() => setIsMobileFilterOpen(false)}
-                          filters={filters}
-                          onFiltersChange={setFilters}
-                        />
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                  
-                  <p className="text-muted-foreground text-sm">
-                    <span className="text-foreground font-medium">{totalCount}</span> products
-                  </p>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <CategoryFilters 
+                        isOpen={true} 
+                        onClose={() => setIsMobileFilterOpen(false)}
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
                 </div>
 
-                {/* Right - Sale Type Toggle */}
-                <div className="flex items-center">
+                {/* Center - Sale Type Toggle */}
+                <div className="flex justify-center">
                   <SaleTypeToggle 
                     activeSaleType={activeSaleType}
                     onSaleTypeChange={setActiveSaleType}
                   />
+                </div>
+
+                {/* Right - Product Count */}
+                <div className="flex justify-end">
+                <p className="text-muted-foreground text-sm">
+                    <span className="text-foreground font-medium">{totalCount}</span> products
+                </p>
                 </div>
               </div>
 
@@ -300,7 +304,7 @@ const Category = () => {
                     >
                       {tag.label}
                       <X className="w-3 h-3" />
-                    </button>
+                      </button>
                   ))}
                   <button
                     onClick={() => setFilters(defaultFilterState)}
@@ -343,8 +347,8 @@ const Category = () => {
                     <p className="text-muted-foreground text-lg">
                       Unable to load products. Please try again later.
                     </p>
-                  </div>
-                )}
+                            </div>
+                          )}
 
                 {/* Empty State */}
                 {!isLoading && !error && products.length === 0 && (
@@ -368,8 +372,8 @@ const Category = () => {
                           conversionRates={conversionRates}
                           onPlaceBid={setBidModalProduct}
                         />
-                      ))}
-                    </div>
+                  ))}
+                </div>
 
                     {/* Pagination */}
                     <Pagination 

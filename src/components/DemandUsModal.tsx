@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, ShoppingCart, Check, Plus, Minus, Gavel, Shuffle, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShoppingBag, Check, Gavel, Shuffle, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
@@ -50,7 +49,6 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [selectedAsset, setSelectedAsset] = useState<string>("");
   const [selectedBudget, setSelectedBudget] = useState<number | null>(null);
   const [customBudget, setCustomBudget] = useState<string>("");
-  const [cartItems, setCartItems] = useState<Map<number, number>>(new Map());
   
   // Place Bid Modal state
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
@@ -61,12 +59,12 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
   const [selectedClarity, setSelectedClarity] = useState<string[]>([]);
   const [caratRange, setCaratRange] = useState<number[]>([0.1, 10]);
   const [shuffleSeed, setShuffleSeed] = useState(0);
-  
+
   // API state
   const [apiProducts, setApiProducts] = useState<(Product & { _id?: string })[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
 
   const handlePlaceBid = (product: Product) => {
     setSelectedBidProduct(product);
@@ -170,39 +168,12 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
     else if (step === "results") setStep("budget");
   };
 
-  const toggleCartItem = (product: Product) => {
-    const newCartItems = new Map(cartItems);
-    if (newCartItems.has(product.id)) {
-      newCartItems.delete(product.id);
-    } else {
-      newCartItems.set(product.id, 1);
+  const handleAddToCart = (product: Product) => {
+    const success = addToCart(product);
+    if (success) {
+      toast.success(`${product.name} added to cart`);
     }
-    setCartItems(newCartItems);
-  };
-
-  const updateQuantity = (productId: number, delta: number) => {
-    const newCartItems = new Map(cartItems);
-    const current = newCartItems.get(productId) || 1;
-    const newQty = current + delta;
-    if (newQty <= 0) {
-      newCartItems.delete(productId);
-    } else {
-      newCartItems.set(productId, newQty);
-    }
-    setCartItems(newCartItems);
-  };
-
-  const handleAddAllToCart = () => {
-    cartItems.forEach((qty, productId) => {
-      const product = apiProducts.find(p => p.id === productId);
-      if (product) {
-        for (let i = 0; i < qty; i++) {
-          addToCart(product);
-        }
-      }
-    });
-    toast.success(`${cartItems.size} item(s) added to cart`);
-    resetAndClose();
+    // Cart context will show error toast if already in cart
   };
 
   const resetAndClose = () => {
@@ -210,7 +181,6 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
     setSelectedAsset("");
     setSelectedBudget(null);
     setCustomBudget("");
-    setCartItems(new Map());
     setSelectedCuts([]);
     setSelectedClarity([]);
     setCaratRange([0.1, 10]);
@@ -218,11 +188,9 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
     onOpenChange(false);
   };
 
-  const totalCartItems = Array.from(cartItems.values()).reduce((sum, qty) => sum + qty, 0);
-
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden bg-background border-border">
+      <DialogContent className="max-w-2xl max-h-[85vh] p-0 bg-background border-border flex flex-col">
         <VisuallyHidden>
           <DialogTitle>Demand Us</DialogTitle>
           <DialogDescription>Find assets based on your preferences and budget</DialogDescription>
@@ -249,7 +217,10 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
           </div>
         </div>
 
-        <ScrollArea className="px-6 pb-6 max-h-[60vh]">
+        <div 
+          className="px-6 pb-6 flex-1 overflow-y-auto min-h-0"
+          onWheel={(e) => e.stopPropagation()}
+        >
           <AnimatePresence mode="wait">
             {/* Step 1: Asset Selection */}
             {step === "asset" && (
@@ -403,15 +374,15 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                     {/* Product Grid - Fixed min-height to prevent layout shift during reshuffle */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 min-h-[400px]">
                   {filteredProducts.map((product) => {
-                    const isInCart = cartItems.has(product.id);
-                    const qty = cartItems.get(product.id) || 0;
+                        const alreadyInCart = isInCart(product.id);
+                        const cartIsFull = hasItemInCart() && !alreadyInCart;
                     const isAuction = product.status === "auction";
                     
                     return (
                       <div
                         key={product.id}
                         className={`border rounded-xl overflow-hidden transition-all ${
-                              isInCart ? "border-gold" : "border-border hover:border-gold/50"
+                              alreadyInCart ? "border-green-500/50" : "border-border hover:border-gold/50"
                             }`}
                           >
                             {/* Clickable Image - Links to product page */}
@@ -436,6 +407,11 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                               {product.status === "sale" ? "On Sale" : "Auction"}
                             </span>
                           )}
+                                {alreadyInCart && (
+                                  <span className="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-medium rounded-full bg-green-500/90 text-white">
+                                    In Cart
+                                  </span>
+                                )}
                         </div>
                             </Link>
                         <div className="p-2">
@@ -458,29 +434,28 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                               <Gavel className="w-3 h-3" />
                               Place Bid
                             </Button>
-                          ) : isInCart ? (
-                            <div className="flex items-center justify-between mt-2">
-                              <button
-                                onClick={() => updateQuantity(product.id, -1)}
-                                className="w-6 h-6 rounded-full border border-border flex items-center justify-center hover:bg-muted"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="text-sm font-medium">{qty}</span>
-                              <button
-                                onClick={() => updateQuantity(product.id, 1)}
-                                className="w-6 h-6 rounded-full border border-border flex items-center justify-center hover:bg-muted"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                            </div>
+                              ) : alreadyInCart ? (
+                                <Button
+                                  size="sm"
+                                  disabled
+                                  className="w-full mt-2 h-7 text-xs bg-green-500/20 text-green-600 rounded-lg cursor-not-allowed"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  In Cart
+                                </Button>
                           ) : (
                             <Button
                               size="sm"
-                              onClick={() => toggleCartItem(product)}
-                              className="w-full mt-2 h-7 text-xs bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg"
-                            >
-                              Add to Cart
+                                  onClick={() => handleAddToCart(product)}
+                                  disabled={cartIsFull}
+                                  className={`w-full mt-2 h-7 text-xs rounded-lg gap-1 ${
+                                    cartIsFull 
+                                      ? "bg-muted text-muted-foreground cursor-not-allowed" 
+                                      : "bg-charcoal hover:bg-charcoal/90 text-cream"
+                                  }`}
+                                >
+                                  <ShoppingBag className="w-3 h-3" />
+                                  {cartIsFull ? "Cart Full" : "Add to Cart"}
                             </Button>
                           )}
                         </div>
@@ -493,26 +468,8 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
               </motion.div>
             )}
           </AnimatePresence>
-        </ScrollArea>
-
-        {/* Footer with Cart Summary - Fixed positioning */}
-        {step === "results" && cartItems.size > 0 && (
-          <div className="sticky bottom-0 left-0 right-0 border-t border-border p-4 bg-background z-10">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 min-w-0">
-                <ShoppingCart className="w-5 h-5 text-gold flex-shrink-0" />
-                <span className="text-sm text-foreground truncate">{totalCartItems} item(s) selected</span>
               </div>
-              <Button
-                onClick={handleAddAllToCart}
-                className="bg-gold hover:bg-gold/90 text-charcoal rounded-full gap-2 flex-shrink-0"
-              >
-                <Check className="w-4 h-4" />
-                Add to Cart
-              </Button>
-            </div>
-          </div>
-        )}
+
       </DialogContent>
       
       {/* Place Bid Modal */}

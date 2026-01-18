@@ -25,9 +25,12 @@ const CategoryProductCard = ({
   conversionRates,
   onPlaceBid 
 }: CategoryProductCardProps) => {
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
+
+  const alreadyInCart = isInCart(product.id);
+  const cartIsFull = hasItemInCart() && !alreadyInCart; // Cart has item but not this one
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,11 +39,14 @@ const CategoryProductCard = ({
       onPlaceBid(product);
       return;
     }
-    addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    // addToCart now returns false and shows error toast if already in cart
+    const success = addToCart(product);
+    if (success) {
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -116,15 +122,23 @@ const CategoryProductCard = ({
               )}
             </div>
           )}
+          {/* In Cart Badge */}
+          {alreadyInCart && !product.isSoldOut && (
+            <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-medium bg-green-500/90 text-white">
+              In Cart
+            </div>
+          )}
           {/* Wishlist Button */}
-          <button 
-            onClick={handleWishlist}
-            className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
-              isInWishlist(product.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-            }`}
-          >
-            <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : "text-foreground"}`} />
-          </button>
+          {!alreadyInCart && (
+            <button 
+              onClick={handleWishlist}
+              className={`absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-background ${
+                isInWishlist(product.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : "text-foreground"}`} />
+            </button>
+          )}
           {/* Quick Action Button */}
           <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {product.isSoldOut ? (
@@ -134,6 +148,22 @@ const CategoryProductCard = ({
               >
                 <Check className="w-4 h-4" />
                 Sold
+              </Button>
+            ) : alreadyInCart ? (
+              <Button 
+                className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                disabled
+              >
+                <Check className="w-4 h-4" />
+                In Cart
+              </Button>
+            ) : cartIsFull ? (
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-muted text-muted-foreground rounded-lg gap-2"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Add to Cart
               </Button>
             ) : (
               <Button 

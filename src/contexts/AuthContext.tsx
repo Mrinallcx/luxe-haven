@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 
 interface User {
   emailId: string;
+  blockchainId?: string;
 }
 
 interface AuthContextType {

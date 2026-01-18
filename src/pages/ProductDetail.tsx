@@ -38,7 +38,7 @@ const ProductDetail = () => {
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [offers] = useState(getInitialOffers);
   const [linkCopied, setLinkCopied] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, isInCart, hasItemInCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
 
@@ -137,7 +137,7 @@ const ProductDetail = () => {
     });
     setTimeout(() => setLinkCopied(false), 2000);
   };
-
+  
   // Get related products from same category (excluding current product)
   const relatedProducts = allProducts
     .filter((p) => p.category === product?.category && p.id !== product?.id)
@@ -233,7 +233,7 @@ const ProductDetail = () => {
               </h1>
               {tiamondDetails?.market?.owner && (
                 <div className="text-right flex-shrink-0">
-                  <p className="text-xs text-muted-foreground tracking-widest uppercase">Owned By</p>
+                <p className="text-xs text-muted-foreground tracking-widest uppercase">Owned By</p>
                   <a 
                     href={getEtherscanAddressUrl(tiamondDetails.market.owner)}
                     target="_blank"
@@ -243,7 +243,7 @@ const ProductDetail = () => {
                     {truncateAddress(tiamondDetails.market.owner)}
                     <ExternalLink className="w-3 h-3" />
                   </a>
-                </div>
+              </div>
               )}
             </div>
 
@@ -335,6 +335,30 @@ const ProductDetail = () => {
                   <Check className="w-5 h-5" />
                   SOLD
                 </Button>
+              ) : isInCart(product.id) ? (
+                <Button 
+                  disabled
+                  className="w-full rounded-lg bg-green-600 text-white font-medium py-6 text-base gap-2 cursor-not-allowed"
+                >
+                  <Check className="w-5 h-5" />
+                  IN CART
+                </Button>
+              ) : hasItemInCart() ? (
+                <Button 
+                  onClick={() => {
+                    const success = addToCart(product);
+                    if (success) {
+                      toast({
+                        title: "Added to cart",
+                        description: `${product.name} has been added to your cart.`,
+                      });
+                    }
+                  }}
+                  className="w-full rounded-lg bg-muted text-muted-foreground font-medium py-6 text-base gap-2"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  CART FULL
+                </Button>
               ) : (
                 <Button 
                   onClick={() => {
@@ -342,11 +366,13 @@ const ProductDetail = () => {
                       setIsBidModalOpen(true);
                       return;
                     }
-                    addToCart(product);
-                    toast({
-                      title: "Added to cart",
-                      description: `${product.name} has been added to your cart.`,
-                    });
+                    const success = addToCart(product);
+                    if (success) {
+                      toast({
+                        title: "Added to cart",
+                        description: `${product.name} has been added to your cart.`,
+                      });
+                    }
                   }}
                   className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base gap-2"
                 >
