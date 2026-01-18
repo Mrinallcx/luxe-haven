@@ -20,7 +20,7 @@ const GoldSilverWidget = () => {
       className="bg-cream rounded-2xl p-6 shadow-xl max-w-sm w-full"
     >
       {/* Tabs */}
-      <div className="flex border-b border-charcoal/10 mb-6">
+      <div className="flex border-b border-charcoal/10 mb-6 gap-8">
         <button
           onClick={() => setActiveTab("gold")}
           className={`flex-1 pb-3 text-base font-sans font-medium tracking-wide transition-colors ${
@@ -57,9 +57,6 @@ const GoldSilverWidget = () => {
       <div>
         <p className="text-gold font-sans text-sm mb-1">Live Buy Price</p>
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="text-charcoal font-sans font-bold text-2xl uppercase">
-            {activeTab}
-          </span>
           <span className="text-charcoal font-sans font-bold text-2xl">
             $ {currentPrice.toLocaleString()}/gm
           </span>

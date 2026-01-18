@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import goldBackground from "@/assets/gold background.webp";
 import silverBackground from "@/assets/silver background.webp";
 import platinumBackground from "@/assets/platinum background.webp";
-import copperBackground from "@/assets/copper background.webp";
+import diamondBackground from "@/assets/diamond background.webp";
 import GoldSilverWidget from "./GoldSilverWidget";
 
 const slides = [
@@ -38,12 +38,12 @@ const slides = [
   },
   {
     id: 4,
-    image: copperBackground,
-    subtitle: "New Arrivals",
-    title: ["Copper", "Heritage"],
-    description: "Discover the timeless beauty of copper in our exclusive collection of luxury items and investment opportunities.",
-    primaryCta: "Shop Now",
-    secondaryCta: "Explore",
+    image: diamondBackground,
+    subtitle: "Timeless Brilliance",
+    title: ["Diamonds", "Forever"],
+    description: "Discover the eternal beauty of diamonds. Each stone is certified, tokenized, and secured in our vaults for your peace of mind.",
+    primaryCta: "Explore Diamonds",
+    secondaryCta: "Learn More",
   },
 ];
 

@@ -338,7 +338,7 @@ const ProductDetail = () => {
               ) : isInCart(product.id) ? (
                 <Button 
                   disabled
-                  className="w-full rounded-lg bg-green-600 text-white font-medium py-6 text-base gap-2 cursor-not-allowed"
+                  className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base gap-2 cursor-not-allowed opacity-100"
                 >
                   <Check className="w-5 h-5" />
                   IN CART

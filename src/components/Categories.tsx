@@ -15,7 +15,7 @@ const categories = [
     description: "Brilliant stones of eternal radiance",
     color: "bg-gradient-to-br from-blue-50 to-blue-100",
     image: diamondBanner,
-    count: 248,
+    count: 32491,
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ const categories = [
     description: "Timeless treasures of pure elegance",
     color: "bg-gradient-to-br from-yellow-50 to-yellow-100",
     image: goldBanner,
-    count: 186,
+    count: 174,
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const categories = [
     description: "Lustrous beauty for refined taste",
     color: "bg-gradient-to-br from-gray-50 to-gray-100",
     image: silverBar,
-    count: 324,
+    count: 173,
   },
   {
     id: 4,
@@ -42,7 +42,7 @@ const categories = [
     description: "The pinnacle of precious luxury",
     color: "bg-gradient-to-br from-slate-50 to-slate-100",
     image: platinumBanner,
-    count: 156,
+    count: 134,
   },
   {
     id: 5,
@@ -51,7 +51,7 @@ const categories = [
     description: "Royal gems of captivating allure",
     color: "bg-gradient-to-br from-indigo-50 to-indigo-100",
     image: sapphireBanner,
-    count: 92,
+    count: 635,
   },
 ];
 
@@ -86,7 +86,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0]; ind
                 {category.description}
               </p>
               <p className="text-cream/50 text-xs tracking-wider uppercase mt-2">
-                {category.count} Products
+                {category.count.toLocaleString()} Products
               </p>
             </div>
             

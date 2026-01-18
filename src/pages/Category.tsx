@@ -276,8 +276,8 @@ const Category = () => {
                 </Sheet>
                 </div>
 
-                {/* Center - Sale Type Toggle */}
-                <div className="flex justify-center">
+                {/* Center - Sale Type Toggle (Desktop) */}
+                <div className="flex justify-center hidden lg:flex">
                   <SaleTypeToggle 
                     activeSaleType={activeSaleType}
                     onSaleTypeChange={setActiveSaleType}
@@ -286,9 +286,66 @@ const Category = () => {
 
                 {/* Right - Product Count */}
                 <div className="flex justify-end">
-                <p className="text-muted-foreground text-sm">
-                    <span className="text-foreground font-medium">{totalCount}</span> products
+                <p className="text-muted-foreground text-sm whitespace-nowrap">
+                    <span className="text-foreground font-medium">{totalCount.toLocaleString()}</span> products
                 </p>
+                </div>
+              </div>
+
+              {/* Mobile Filter Row */}
+              <div className="lg:hidden">
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                  {/* All Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSaleType("ALL")}
+                    className={`whitespace-nowrap font-medium h-10 px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                      activeSaleType === "ALL"
+                        ? "bg-foreground text-background"
+                        : "bg-transparent border border-border text-foreground hover:bg-foreground/5"
+                    }`}
+                  >
+                    All
+                  </button>
+
+                  {/* On Sale Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSaleType("FIXEDPRICE")}
+                    className={`whitespace-nowrap font-medium h-10 px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                      activeSaleType === "FIXEDPRICE"
+                        ? "bg-foreground text-background"
+                        : "bg-transparent border border-border text-foreground hover:bg-foreground/5"
+                    }`}
+                  >
+                    On Sale
+                  </button>
+
+                  {/* Auction Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSaleType("AUCTION")}
+                    className={`whitespace-nowrap font-medium h-10 px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                      activeSaleType === "AUCTION"
+                        ? "bg-foreground text-background"
+                        : "bg-transparent border border-border text-foreground hover:bg-foreground/5"
+                    }`}
+                  >
+                    Auction
+                  </button>
+
+                  {/* Redeemed Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSaleType("REDEEMED")}
+                    className={`whitespace-nowrap font-medium h-10 px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                      activeSaleType === "REDEEMED"
+                        ? "bg-foreground text-background"
+                        : "bg-transparent border border-border text-foreground hover:bg-foreground/5"
+                    }`}
+                  >
+                    Redeemed
+                  </button>
                 </div>
               </div>
 

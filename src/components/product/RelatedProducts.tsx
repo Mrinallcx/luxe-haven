@@ -67,7 +67,7 @@ const RelatedProductCard = ({ product, index }: { product: Product; index: numbe
             <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {alreadyInCart ? (
                 <Button 
-                  className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                  className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 cursor-default opacity-100"
                   disabled
                 >
                   <Check className="w-4 h-4" />

@@ -71,12 +71,14 @@ const Header = () => {
             >
               Home
             </Link>
-            <Link
-              to="/blog"
+            <a
+              href="https://blog.totofinance.co/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               Blog
-            </Link>
+            </a>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 outline-none">
                 Asset
@@ -196,13 +198,15 @@ const Header = () => {
               >
                 Home
               </Link>
-              <Link
-                to="/blog"
+              <a
+                href="https://blog.totofinance.co/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm tracking-wider uppercase text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Blog
-              </Link>
+              </a>
               <button
                 onClick={() => {
                   setIsMenuOpen(false);

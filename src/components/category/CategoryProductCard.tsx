@@ -124,7 +124,7 @@ const CategoryProductCard = ({
           )}
           {/* In Cart Badge */}
           {alreadyInCart && !product.isSoldOut && (
-            <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-medium bg-green-500/90 text-white">
+            <div className="absolute top-4 right-4 px-2 py-1 rounded-full text-[10px] font-medium bg-green-500 text-white opacity-100">
               In Cart
             </div>
           )}
@@ -151,7 +151,7 @@ const CategoryProductCard = ({
               </Button>
             ) : alreadyInCart ? (
               <Button 
-                className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 cursor-default opacity-100"
                 disabled
               >
                 <Check className="w-4 h-4" />

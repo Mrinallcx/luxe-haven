@@ -185,7 +185,7 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
               </Button>
             ) : alreadyInCart ? (
               <Button 
-                className="w-full bg-green-600 text-white rounded-lg gap-2 cursor-default"
+                className="w-full bg-charcoal hover:bg-charcoal/90 text-cream rounded-lg gap-2 cursor-default opacity-100"
                 disabled
               >
                 <Check className="w-4 h-4" />
@@ -364,35 +364,44 @@ const FeaturedProducts = ({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-12"
+          className="flex items-center gap-4 mb-12"
         >
-          {/* Category Tabs */}
-          <div className="flex gap-2 md:gap-4 flex-wrap">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
+          {/* Category Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="rounded-full border-border gap-2 text-sm"
                 disabled={isLoading}
-                className={`px-4 py-2 text-sm tracking-wider rounded-lg transition-all duration-300 disabled:opacity-50 ${
-                  activeCategory === category
-                    ? "bg-charcoal text-cream"
-                    : "bg-transparent text-muted-foreground hover:text-foreground border border-border hover:border-charcoal"
-                }`}
               >
-                {category}
-              </button>
-            ))}
-          </div>
+                {activeCategory}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="bg-background border-border z-50">
+              {categories.map((category) => (
+                <DropdownMenuItem 
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`flex items-center gap-2 cursor-pointer ${
+                    activeCategory === category ? "bg-gold/10 text-gold" : ""
+                  }`}
+                >
+                  {category}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* Status Filter Dropdown - conditionally shown */}
+          {/* Status Filter Dropdown - conditionally shown, positioned on the right */}
           {showStatusFilter && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
-                className="rounded-lg border-border gap-2 text-sm"
-                  disabled={isLoading}
-                >
+                className="rounded-full border-border gap-2 text-sm"
+                disabled={isLoading}
+              >
                 {statusFilters.find(f => f.value === activeStatus)?.label}
                 <ChevronDown className="w-4 h-4" />
               </Button>
@@ -450,7 +459,7 @@ const FeaturedProducts = ({
           className="text-center mt-16"
         >
           <Link to={`/category/${activeCategory.toLowerCase()}`}>
-          <Button variant="premium-outline" size="lg" className="rounded-lg">
+          <Button variant="premium-outline" size="lg" className="rounded-full">
             View All Products
           </Button>
           </Link>
