@@ -4,25 +4,45 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  hasNextPage?: boolean; // If provided, use this instead of totalPages for Next button
   onPageChange: (page: number) => void;
 }
 
-const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
-  if (totalPages <= 1) return null;
+const Pagination = ({ currentPage, totalPages, hasNextPage, onPageChange }: PaginationProps) => {
+  // Don't show pagination if we're on page 1 and there's no next page
+  const showNext = hasNextPage !== undefined ? hasNextPage : currentPage < totalPages;
+  if (currentPage === 1 && !showNext) return null;
 
+  // Only show page numbers we can trust (within a reasonable range around current page)
   const getVisiblePages = () => {
     const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
     
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+    // Always start from 1
+    pages.push(1);
+    
+    // If current page is far from 1, add ellipsis
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+    
+    // Add pages around current page
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(currentPage + 1, currentPage + maxVisiblePages);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      if (i > 1 && !pages.includes(i)) {
+        pages.push(i);
       }
+    }
+    
+    // If there might be more pages, show ellipsis and "more" indicator
+    if (showNext && currentPage < endPage + 2) {
+      // Show a couple more pages if we have next
+      const nextPages = [currentPage + 2, currentPage + 3].filter(p => p > endPage);
+      nextPages.forEach(p => {
+        if (!pages.includes(p)) pages.push(p);
+      });
     }
     
     return pages;
@@ -30,6 +50,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
 
   return (
     <div className="flex items-center justify-center gap-2">
+      {/* Previous Button */}
       <Button
         variant="outline"
         size="icon"
@@ -40,6 +61,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         <ChevronLeft className="w-4 h-4" />
       </Button>
       
+      {/* Page Numbers */}
       {getVisiblePages().map((page, index) => (
         page === "..." ? (
           <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">...</span>
@@ -55,12 +77,18 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         )
       ))}
       
+      {/* More indicator if there are more pages */}
+      {showNext && (
+        <span className="px-2 text-muted-foreground">...</span>
+      )}
+      
+      {/* Next Button */}
       <Button
         variant="outline"
         size="icon"
         className="rounded-full"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={!showNext}
       >
         <ChevronRight className="w-4 h-4" />
       </Button>
@@ -69,4 +97,3 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
 };
 
 export default Pagination;
-

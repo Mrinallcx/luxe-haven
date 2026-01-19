@@ -19,6 +19,13 @@ export interface Product {
   purity: string;
   weight: string;
   status?: "auction" | "sale";
+  // Multi-coin purchase fields (from API)
+  allowedListingCoins?: string[];
+  listingCoinRequests?: Record<string, { listingPrice: number }>;
+  listingDiscount?: number;
+  listingCoin?: string;
+  listingPrice?: number;
+  isSoldOut?: boolean;
 }
 
 const images = [product1, product2, product3, product4];

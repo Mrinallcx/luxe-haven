@@ -1,16 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
 import { useWallet } from "@/contexts/WalletContext";
 import WalletConnectModal from "@/components/WalletConnectModal";
-import { ArrowLeft, CreditCard, Wallet, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Wallet, Check, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { usePurchase } from "@/hooks/use-purchase";
+import { getAllCoinPrices, calculatePriceForCoin, getMarketDetails, normalizeMarketDetails } from "@/lib/market-api";
+import type { Product } from "@/data/products";
+
+// Extended product type with all multi-coin fields
+interface ExtendedProduct extends Product {
+  allowedListingCoins?: string[];
+  listingCoinRequests?: Record<string, { listingPrice: number }>;
+  listingDiscount?: number;
+  listingCoin?: string;
+  listingPrice?: number;
+}
 
 // Payment method icons as SVG components
 const PayPalIcon = () => (
@@ -65,13 +77,157 @@ const paymentMethods = [
   }
 ];
 
+// Coin display names and icons
+const COIN_INFO: Record<string, { name: string; icon: string }> = {
+  USD: { name: "USD", icon: "$" },
+  USDT: { name: "Tether (USDT)", icon: "₮" },
+  USDC: { name: "USD Coin (USDC)", icon: "$" },
+  LCX: { name: "LCX Token", icon: "◊" },
+  WETH: { name: "Wrapped ETH", icon: "Ξ" },
+  ETH: { name: "Ethereum", icon: "Ξ" },
+  ADA: { name: "Cardano (ADA)", icon: "₳" },
+  TIA: { name: "TIA Token", icon: "◆" },
+  TOTO: { name: "TOTO Token", icon: "●" },
+  PAXG: { name: "PAX Gold", icon: "Au" },
+  XAUT: { name: "Tether Gold", icon: "Au" },
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, clearCart } = useCart();
   const { isConnected, walletAddress } = useWallet();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
-  const { purchase, status: purchaseStatus, txHash } = usePurchase();
+  const { purchase, status: purchaseStatus } = usePurchase();
+  
+  // Multi-coin state
+  const [selectedCoin, setSelectedCoin] = useState<string>("");
+  const [conversionRates, setConversionRates] = useState<Record<string, number>>({});
+  const [loadingRates, setLoadingRates] = useState(false);
+  const [rateError, setRateError] = useState<string | null>(null);
+  
+  // Enhanced product with full details for multi-coin purchase
+  const [enhancedProduct, setEnhancedProduct] = useState<ExtendedProduct | null>(null);
+  const [loadingProductDetails, setLoadingProductDetails] = useState(false);
+  
+  // Get product from cart (only one item allowed)
+  const cartProduct = items[0]?.product as Product | undefined;
+  
+  // Use enhanced product if available, otherwise fall back to cart product
+  const activeProduct = enhancedProduct || cartProduct;
+  
+  // Fetch full product details when Web3 is selected (for allowedListingCoins)
+  useEffect(() => {
+    async function fetchProductDetails() {
+      if (!cartProduct || selectedMethod !== "web3") return;
+      
+      // If cart product already has allowedListingCoins, no need to fetch
+      if (cartProduct.allowedListingCoins && cartProduct.allowedListingCoins.length > 0) {
+        setEnhancedProduct(cartProduct as ExtendedProduct);
+        return;
+      }
+      
+      // Fetch full details using tokenId (product.id)
+      const tokenId = cartProduct.id;
+      if (!tokenId) return;
+      
+      setLoadingProductDetails(true);
+      try {
+        const response = await getMarketDetails(tokenId);
+        if (response.data?.result) {
+          const normalized = normalizeMarketDetails(response.data.result);
+          // Merge with cart product to keep image and other fields
+          setEnhancedProduct({
+            ...cartProduct,
+            ...normalized,
+            allowedListingCoins: normalized.allowedListingCoins,
+            listingCoinRequests: normalized.listingCoinRequests,
+            listingDiscount: normalized.listingDiscount,
+            listingCoin: normalized.listingCoin,
+            listingPrice: normalized.listingPrice,
+          } as ExtendedProduct);
+        }
+      } catch (err) {
+        console.error("Failed to fetch product details:", err);
+        // Continue with cart product as fallback
+      } finally {
+        setLoadingProductDetails(false);
+      }
+    }
+    
+    fetchProductDetails();
+  }, [cartProduct, selectedMethod]);
+  
+  // Get allowed coins from product (fallback to listing coin)
+  const allowedCoins = useMemo(() => {
+    if (!activeProduct) return [];
+    const coins = activeProduct.allowedListingCoins || [];
+    // If no allowed coins, use the listing coin as default
+    if (coins.length === 0) {
+      const listingCoin = activeProduct.listingCoin || activeProduct.pricePerUnit?.toUpperCase() || "USD";
+      return [listingCoin];
+    }
+    return coins;
+  }, [activeProduct]);
+  
+  // Set default selected coin when product loads
+  useEffect(() => {
+    if (activeProduct && !selectedCoin) {
+      const defaultCoin = activeProduct.listingCoin || activeProduct.pricePerUnit?.toUpperCase() || "USD";
+      // If the listing coin is in allowed coins, use it; otherwise use first allowed coin
+      if (allowedCoins.includes(defaultCoin)) {
+        setSelectedCoin(defaultCoin);
+      } else if (allowedCoins.length > 0) {
+        setSelectedCoin(allowedCoins[0]);
+      }
+    }
+  }, [activeProduct, allowedCoins, selectedCoin]);
+  
+  // Fetch conversion rates when product or selected method changes
+  useEffect(() => {
+    async function fetchRates() {
+      if (!activeProduct || selectedMethod !== "web3") return;
+      
+      const listingCoin = activeProduct.listingCoin || activeProduct.pricePerUnit?.toUpperCase() || "USD";
+      const listingPrice = activeProduct.listingPrice || activeProduct.price;
+      
+      setLoadingRates(true);
+      setRateError(null);
+      
+      try {
+        const { rates, error } = await getAllCoinPrices(listingCoin, listingPrice);
+        if (error) {
+          setRateError(error);
+          toast.error("Failed to fetch conversion rates");
+        } else {
+          setConversionRates(rates);
+        }
+      } catch (err) {
+        setRateError("Failed to fetch rates");
+        console.error("Rate fetch error:", err);
+      } finally {
+        setLoadingRates(false);
+      }
+    }
+    
+    fetchRates();
+  }, [activeProduct, selectedMethod]);
+  
+  // Calculate price for selected coin
+  const calculatedPrice = useMemo(() => {
+    if (!activeProduct || !selectedCoin) return null;
+    
+    const listingCoin = activeProduct.listingCoin || activeProduct.pricePerUnit?.toUpperCase() || "USD";
+    const listingPrice = activeProduct.listingPrice || activeProduct.price;
+    
+    return calculatePriceForCoin({
+      listingCoin,
+      listingPrice,
+      selectedCoin,
+      listingCoinRequests: activeProduct.listingCoinRequests,
+      conversionRates,
+    });
+  }, [activeProduct, selectedCoin, conversionRates]);
 
   if (items.length === 0) {
     return (
@@ -138,19 +294,48 @@ const Checkout = () => {
         return;
       }
 
+      if (!selectedCoin) {
+        toast.error("Please select a payment currency");
+        return;
+      }
+
+      if (!calculatedPrice) {
+        toast.error("Unable to calculate price. Please try again.");
+        return;
+      }
+
+      // Security: Verify the selected coin is in allowed coins
+      if (!allowedCoins.includes(selectedCoin)) {
+        toast.error("Selected currency is not allowed for this asset");
+        return;
+      }
+
       // Get the single cart item (only 1 item allowed in cart)
       const cartItem = items[0];
-      const product = cartItem.product;
+      const product = cartItem.product as Product;
 
-      // Get the assetId from the product (using id as tokenId which maps to assetId on backend)
-      // We need to fetch the assetId from the product details if it's not directly available
-      // For now, we'll use the product.id as tokenId - the backend endpoint actually uses assetId
-      // Note: This might need adjustment based on your product data structure
-      const assetId = (product as unknown as { assetId?: number }).assetId || product.id;
+      // Get the assetId from the product
+      const assetId = product.assetId || product.id;
       
-      // Use the price and coin from the product
-      const primaryAmount = product.price;
-      const primaryCoin = product.pricePerUnit?.toUpperCase() || "USD";
+      // Use the calculated price and selected coin
+      const primaryAmount = calculatedPrice.amount;
+      const primaryCoin = selectedCoin;
+
+      // Security: Validate amount is positive and reasonable
+      if (primaryAmount <= 0) {
+        toast.error("Invalid price calculated. Please refresh and try again.");
+        return;
+      }
+
+      // Log for debugging (remove in production)
+      console.log("Purchase details:", {
+        assetId,
+        primaryAmount,
+        primaryCoin,
+        isCustomPrice: calculatedPrice.isCustomPrice,
+        requiresConversion: calculatedPrice.requiresConversion,
+        walletAddress,
+      });
 
       try {
         const result = await purchase(
@@ -295,31 +480,175 @@ const Checkout = () => {
                   ))}
                 </div>
 
+                {/* Coin Selection (only for Web3 payment) */}
+                {selectedMethod === "web3" && (
+                  <div className="border-t border-border pt-4 mb-4">
+                    {/* Loading product details */}
+                    {loadingProductDetails && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Loading payment options...
+                      </div>
+                    )}
+                    
+                    {!loadingProductDetails && allowedCoins.length > 0 && (
+                      <>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Pay with
+                        </label>
+                    <Select
+                      value={selectedCoin}
+                      onValueChange={setSelectedCoin}
+                      disabled={loadingRates}
+                    >
+                      <SelectTrigger className="w-full bg-background border-border">
+                        <SelectValue placeholder="Select currency">
+                          {selectedCoin && (
+                            <span className="flex items-center gap-2">
+                              <span className="text-gold font-mono">
+                                {COIN_INFO[selectedCoin]?.icon || "◆"}
+                              </span>
+                              <span>{COIN_INFO[selectedCoin]?.name || selectedCoin}</span>
+                              {activeProduct?.listingCoin?.toUpperCase() === selectedCoin && (
+                                <span className="text-xs text-gold ml-1">(Default)</span>
+                              )}
+                            </span>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-border">
+                        {allowedCoins.map((coin) => (
+                          <SelectItem key={coin} value={coin} className="cursor-pointer">
+                            <span className="flex items-center gap-2">
+                              <span className="text-gold font-mono w-6">
+                                {COIN_INFO[coin]?.icon || "◆"}
+                              </span>
+                              <span>{COIN_INFO[coin]?.name || coin}</span>
+                              {activeProduct?.listingCoin?.toUpperCase() === coin && (
+                                <span className="text-xs text-gold ml-1">(Default)</span>
+                              )}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Rate conversion notice */}
+                    {calculatedPrice?.requiresConversion && (
+                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        Rate may vary slightly at confirmation
+                      </p>
+                    )}
+                    
+                    {/* Custom price notice */}
+                    {calculatedPrice?.isCustomPrice && (
+                      <p className="text-xs text-gold mt-2 flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        Special fixed price for {selectedCoin}
+                      </p>
+                    )}
+                    
+                    {/* Loading rates */}
+                    {loadingRates && (
+                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Loading rates...
+                      </p>
+                    )}
+                    
+                    {/* Rate error */}
+                    {rateError && (
+                      <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        {rateError}
+                      </p>
+                    )}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Price Display */}
                 <div className="border-t border-border pt-4 space-y-4 mb-6">
+                  {/* Original listing price */}
+                  {selectedMethod === "web3" && activeProduct && selectedCoin !== (activeProduct.listingCoin || activeProduct.pricePerUnit) && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Listed Price</span>
+                      <span>
+                        {(activeProduct.listingPrice || activeProduct.price).toLocaleString()} {activeProduct.listingCoin || activeProduct.pricePerUnit}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Price in selected coin (Web3) or USD (other methods) */}
                   <div className="flex justify-between">
-                    <span className="text-foreground font-medium">Total</span>
+                    <span className="text-foreground font-medium">
+                      {selectedMethod === "web3" ? "You Pay" : "Total"}
+                    </span>
                     <span className="text-xl font-semibold text-foreground">
-                      ${total.toLocaleString()}
+                      {selectedMethod === "web3" && calculatedPrice ? (
+                        <>
+                          {calculatedPrice.amount.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 6,
+                          })}{" "}
+                          <span className="text-gold">{selectedCoin}</span>
+                        </>
+                      ) : (
+                        `$${total.toLocaleString()}`
+                      )}
                     </span>
                   </div>
+                  
+                  {/* USD equivalent for Web3 */}
+                  {selectedMethod === "web3" && calculatedPrice && selectedCoin !== "USD" && conversionRates["USD"] && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>USD Equivalent</span>
+                      <span>≈ ${total.toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="pt-4 border-t border-border mb-6">
-                  <p className="text-xs text-muted-foreground mb-2">We accept crypto payment in</p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ETH</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">wETH</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">LCX</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDC</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDT</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ADA</span>
+                {/* Accepted coins info (only when Web3 not selected) */}
+                {selectedMethod !== "web3" && (
+                  <div className="pt-4 border-t border-border mb-6">
+                    <p className="text-xs text-muted-foreground mb-2">We accept crypto payment in</p>
+                    <div className="flex flex-wrap gap-2">
+                      {allowedCoins.length > 0 ? (
+                        allowedCoins.slice(0, 6).map(coin => (
+                          <span key={coin} className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">
+                            {coin}
+                          </span>
+                        ))
+                      ) : (
+                        <>
+                          <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ETH</span>
+                          <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">wETH</span>
+                          <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">LCX</span>
+                          <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDC</span>
+                          <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDT</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <Button 
                   className="w-full rounded-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
                   onClick={handleProceed}
-                  disabled={!selectedMethod || purchaseStatus === "preparing" || purchaseStatus === "awaiting_signature" || purchaseStatus === "confirming"}
+                  disabled={
+                    !selectedMethod || 
+                    purchaseStatus === "preparing" || 
+                    purchaseStatus === "awaiting_signature" || 
+                    purchaseStatus === "confirming" ||
+                    (selectedMethod === "web3" && (
+                      !selectedCoin || 
+                      loadingRates || 
+                      loadingProductDetails ||
+                      !!rateError
+                    ))
+                  }
                 >
                   {purchaseStatus === "preparing" && (
                     <>
@@ -339,7 +668,11 @@ const Checkout = () => {
                       Confirming on Blockchain...
                     </>
                   )}
-                  {(purchaseStatus === "idle" || purchaseStatus === "success" || purchaseStatus === "error") && "Complete Order"}
+                  {(purchaseStatus === "idle" || purchaseStatus === "success" || purchaseStatus === "error") && (
+                    selectedMethod === "web3" && calculatedPrice
+                      ? `Pay ${calculatedPrice.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${selectedCoin}`
+                      : "Complete Order"
+                  )}
                 </Button>
 
                 <Link to="/cart" className="block mt-4">

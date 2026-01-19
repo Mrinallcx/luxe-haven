@@ -217,6 +217,83 @@ export async function convertToUsd(fromCoin: string, amount: number): Promise<nu
   return response.data.result.USD;
 }
 
+/**
+ * Calculate the price in a specific coin for purchase
+ * 
+ * Priority order:
+ * 1. Custom price from listingCoinRequests[selectedCoin].listingPrice (if exists)
+ * 2. Direct listingPrice (if selectedCoin === listingCoin)
+ * 3. Automatic conversion using rate API
+ */
+export interface CalculatePriceParams {
+  listingCoin: string;
+  listingPrice: number;
+  selectedCoin: string;
+  listingCoinRequests?: Record<string, { listingPrice: number }>;
+  conversionRates?: Record<string, number>; // rates from getConversionRate API
+}
+
+export function calculatePriceForCoin(params: CalculatePriceParams): {
+  amount: number;
+  isCustomPrice: boolean;
+  requiresConversion: boolean;
+} {
+  const { listingCoin, listingPrice, selectedCoin, listingCoinRequests, conversionRates } = params;
+  
+  // 1. Check for custom price in listingCoinRequests
+  if (listingCoinRequests && listingCoinRequests[selectedCoin]?.listingPrice !== undefined) {
+    return {
+      amount: listingCoinRequests[selectedCoin].listingPrice,
+      isCustomPrice: true,
+      requiresConversion: false,
+    };
+  }
+  
+  // 2. If selected coin is the same as listing coin, use listing price directly
+  if (selectedCoin.toUpperCase() === listingCoin.toUpperCase()) {
+    return {
+      amount: listingPrice,
+      isCustomPrice: false,
+      requiresConversion: false,
+    };
+  }
+  
+  // 3. Convert using rate API
+  // The rate API returns: how much of each coin equals `value` of `fromCoin`
+  // e.g., getConversionRate("USD", 1000) returns { LCX: 20000, ETH: 0.4, ... }
+  if (conversionRates && conversionRates[selectedCoin] !== undefined) {
+    return {
+      amount: conversionRates[selectedCoin],
+      isCustomPrice: false,
+      requiresConversion: true,
+    };
+  }
+  
+  // Fallback: return listing price (should not happen if rates are fetched)
+  return {
+    amount: listingPrice,
+    isCustomPrice: false,
+    requiresConversion: false,
+  };
+}
+
+/**
+ * Get all conversion rates for a listing price
+ * Returns an object with prices in each supported coin
+ */
+export async function getAllCoinPrices(
+  listingCoin: string,
+  listingPrice: number
+): Promise<{ rates: Record<string, number>; error?: string }> {
+  const response = await getConversionRate(listingCoin, listingPrice);
+  
+  if (response.error || !response.data?.result) {
+    return { rates: {}, error: response.error || "Failed to fetch conversion rates" };
+  }
+  
+  return { rates: response.data.result };
+}
+
 // Auth Markets API types (for category/collection pages)
 export interface AuthMarketsPayload {
   page: number;
@@ -296,6 +373,10 @@ export interface MarketDetailsResponse {
       price: number;
       token: string;
     } | null;
+    // Multi-coin purchase fields
+    allowedListingCoins?: string[];
+    listingCoinRequests?: Record<string, { listingPrice: number }>;
+    listingDiscount?: number;
     // Diamond specific fields
     shape?: string;
     cut?: string;
@@ -344,7 +425,17 @@ export function normalizeMarketDetails(details: MarketDetailsResponse["result"])
   saleType: string;
   saleStartAt?: number;
   saleEndAt?: number;
+  isSoldOut: boolean;
+  // Multi-coin purchase fields
+  allowedListingCoins: string[];
+  listingCoinRequests: Record<string, { listingPrice: number }>;
+  listingDiscount: number;
+  listingCoin: string;
+  listingPrice: number;
 } {
+  // Mark as sold out if saleType is NOSALE OR if firstSoldAt is present
+  const isSoldOut = details.saleType === "NOSALE" || !!details.firstSoldAt;
+  
   return {
     id: details.tokenId || details.assetId,
     assetId: details.assetId,
@@ -367,6 +458,13 @@ export function normalizeMarketDetails(details: MarketDetailsResponse["result"])
     saleType: details.saleType,
     saleStartAt: details.saleStartAt,
     saleEndAt: details.saleEndAt,
+    isSoldOut,
+    // Multi-coin purchase fields
+    allowedListingCoins: details.allowedListingCoins || [details.listingCoin || "USD"],
+    listingCoinRequests: details.listingCoinRequests || {},
+    listingDiscount: details.listingDiscount || 0,
+    listingCoin: details.listingCoin || "USD",
+    listingPrice: details.listingPrice || details.price || details.usdPrice,
   };
 }
 
@@ -602,6 +700,250 @@ export async function buyUnmintedFixedPrice(
   payload: BuyUnmintedPayload
 ): Promise<{ data?: BuyUnmintedResponse; error?: string }> {
   return apiRequest<BuyUnmintedResponse>("/tiamond/buy-unminted-fixed-price", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+// ==================== USER DASHBOARD APIs ====================
+
+export interface UserOwnedAsset {
+  _id: string;
+  tokenId: number;
+  assetId: number;
+  name: string;
+  edition: string;
+  mintStatus: string;
+  saleType: string;
+  price: number;
+  usdPrice: number;
+  coin: string;
+  listingPrice?: number;
+  listingCoin?: string;
+  image: string;
+  assetUrl?: string;
+  mediaType: string;
+  chain: string;
+  owner?: string;
+  wishlist?: boolean;
+  carat?: number;
+  clarity?: string;
+  cut?: string;
+  color?: string;
+  goldWeight?: number;
+  goldFineness?: number;
+  silverWeight?: number;
+  silverFineness?: number;
+  platinumWeight?: number;
+  platinumFineness?: number;
+  sapphireWeight?: number;
+  firstSoldAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UserOwnedAssetsResponse {
+  msg: string;
+  result: UserOwnedAsset[];
+}
+
+/**
+ * Fetch user's owned NFTs/assets by wallet address (minted + unminted)
+ * @param address - User's wallet address
+ */
+export async function getUserOwnedAssets(
+  address: string
+): Promise<{ data?: UserOwnedAssetsResponse; error?: string }> {
+  if (!address) {
+    return { error: "Wallet address is required" };
+  }
+  
+  return apiRequest<UserOwnedAssetsResponse>(`/user/users-owned-nft?address=${address}`, {
+    method: "GET",
+  });
+}
+
+/**
+ * Fetch user's active bids by wallet address
+ * @param address - User's wallet address
+ */
+export async function getUserActiveBids(
+  address: string
+): Promise<{ data?: UserOwnedAssetsResponse; error?: string }> {
+  if (!address) {
+    return { error: "Wallet address is required" };
+  }
+  
+  return apiRequest<UserOwnedAssetsResponse>(`/user/users-nft-bid?address=${address}`, {
+    method: "GET",
+  });
+}
+
+// User Orders types
+export interface UserOrderParams {
+  tokenId?: number;
+  assetId?: number;
+  defaultAmount?: number;
+  primaryAmount?: number;
+  primaryCoin?: string;
+  secondaryAmount?: number;
+  secondaryCoin?: string;
+}
+
+export interface UserOrder {
+  _id: string;
+  userId: string;
+  orderType: number; // 1=Fixed Price, 2=Auction, 3=Offer, etc.
+  orderStatus: string;
+  displayStatus: string;
+  orderParams: UserOrderParams;
+  validTime: number;
+  approvedValidity?: number;
+  usdValue?: number;
+  createdAt: string;
+  updatedAt?: string;
+  // Asset info (populated from market)
+  tokenId?: number;
+  assetId?: number;
+  name?: string;
+  image?: string;
+  edition?: string;
+}
+
+export interface UserOrdersResponse {
+  message: string;
+  result: UserOrder[];
+  totalCount: number;
+}
+
+export interface UserOrdersPayload {
+  address: string;
+  orderTypes?: string[]; // ["Listings", "Offers", "Counter offers"]
+  redeemableOnly?: boolean;
+  page?: number;
+}
+
+/**
+ * Fetch user's submitted orders
+ * @param payload - Order query parameters
+ */
+export async function getUserOrders(
+  payload: UserOrdersPayload
+): Promise<{ data?: UserOrdersResponse; error?: string }> {
+  if (!payload.address) {
+    return { error: "Wallet address is required" };
+  }
+  
+  return apiRequest<UserOrdersResponse>("/user/users-orders", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Normalize user owned asset to Product format
+ */
+export function normalizeUserAsset(asset: UserOwnedAsset): NormalizedProduct & {
+  owner?: string;
+  chain: string;
+  mintStatus: string;
+  saleType: string;
+} {
+  return {
+    id: asset.tokenId || asset.assetId,
+    assetId: asset.assetId,
+    _id: asset._id,
+    name: asset.name,
+    price: asset.listingPrice || asset.price || asset.usdPrice,
+    pricePerUnit: asset.listingCoin || asset.coin || "USD",
+    image: asset.image || asset.assetUrl || "",
+    category: editionToCategory(asset.edition || ""),
+    purity: asset.clarity || 
+      (asset.platinumFineness ? `${asset.platinumFineness}` : "") || 
+      (asset.goldFineness ? `${asset.goldFineness}` : "") ||
+      (asset.silverFineness ? `${asset.silverFineness}` : ""),
+    weight: asset.carat ? `${asset.carat} ct` : 
+      (asset.platinumWeight ? `${asset.platinumWeight}g` : "") || 
+      (asset.goldWeight ? `${asset.goldWeight}g` : "") ||
+      (asset.silverWeight ? `${asset.silverWeight}g` : "") ||
+      (asset.sapphireWeight ? `${asset.sapphireWeight} ct` : ""),
+    status: asset.saleType === "AUCTION" ? "auction" : "sale",
+    owner: asset.owner,
+    chain: asset.chain,
+    mintStatus: asset.mintStatus,
+    saleType: asset.saleType,
+  };
+}
+
+// ==================== REFERRAL REWARDS API ====================
+
+export interface ReferralRewards {
+  accruedRewards: Record<string, number>;
+  claimedRewards: Record<string, number>;
+  totalAccruedUsd: number;
+  totalClaimedUsd: number;
+  totalUsersReferred: number;
+}
+
+export interface ReferralRewardsResponse {
+  message: string;
+  result: ReferralRewards;
+}
+
+/**
+ * Fetch user's referral rewards
+ */
+export async function getReferralRewards(): Promise<{ data?: ReferralRewardsResponse; error?: string }> {
+  return apiRequest<ReferralRewardsResponse>("/referral/get-rewards", {
+    method: "GET",
+  });
+}
+
+/**
+ * Calculate TOTO display values from rewards response
+ */
+export function calculateTotoValues(rewards: ReferralRewards | null): {
+  claimed: number;
+  claimable: number;
+  total: number;
+} {
+  if (!rewards) {
+    return { claimed: 0, claimable: 0, total: 0 };
+  }
+  
+  const claimed = rewards.claimedRewards?.TOTO || 0;
+  const accrued = rewards.accruedRewards?.TOTO || 0;
+  const claimable = Math.max(0, accrued - claimed);
+  
+  return {
+    claimed,
+    claimable,
+    total: accrued,
+  };
+}
+
+// Claim rewards types
+export interface ClaimRewardsPayload {
+  claimCoin: string;
+  walletAddress: string;
+}
+
+export interface ClaimRewardsResponse {
+  txData: {
+    from: string;
+    to: string;
+    data: string;
+  };
+  validity: number;
+}
+
+/**
+ * Claim referral rewards
+ */
+export async function claimReferralRewards(
+  payload: ClaimRewardsPayload
+): Promise<{ data?: ClaimRewardsResponse; error?: string }> {
+  return apiRequest<ClaimRewardsResponse>("/referral/claim-rewards", {
     method: "POST",
     body: JSON.stringify(payload),
   });

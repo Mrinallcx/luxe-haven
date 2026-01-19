@@ -29,6 +29,7 @@ const Category = () => {
   const [bidModalProduct, setBidModalProduct] = useState<CategoryProduct | null>(null);
   const [products, setProducts] = useState<CategoryProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSaleType, setActiveSaleType] = useState<SaleTypeToggleType>("FIXEDPRICE");
@@ -126,15 +127,11 @@ const Category = () => {
       }
 
       if (response.data?.result && response.data.result.length > 0) {
-        // Filter out already sold items (those with firstSoldAt) for FIXEDPRICE/AUCTION views
-        const filteredResults = activeSaleType === "FIXEDPRICE" || activeSaleType === "AUCTION"
-          ? response.data.result.filter((p: ApiTrendingProduct) => !p.firstSoldAt)
-          : response.data.result;
-
-        const apiProducts = filteredResults.map((p: ApiTrendingProduct) => {
+        // Don't filter out sold items - just mark them as sold
+        const apiProducts = response.data.result.map((p: ApiTrendingProduct) => {
           const normalized = normalizeProduct(p);
-          // Mark as sold out if saleType is NOSALE
-          const isSoldOut = p.saleType === "NOSALE";
+          // Mark as sold out if saleType is NOSALE OR if firstSoldAt is present
+          const isSoldOut = p.saleType === "NOSALE" || !!p.firstSoldAt;
           return {
             ...normalized,
             id: normalized.id,
@@ -143,20 +140,52 @@ const Category = () => {
           } as CategoryProduct;
         });
         setProducts(apiProducts);
-        setTotalCount(response.data.totalCount || apiProducts.length);
-    } else {
+        
+        // Determine if there's a next page based on whether we got a full page
+        const gotFullPage = apiProducts.length >= ITEMS_PER_PAGE;
+        setHasNextPage(gotFullPage);
+        
+        // Set a reasonable total count for display purposes
+        if (gotFullPage) {
+          // We have more pages - set total based on current position
+          setTotalCount((currentPage + 1) * ITEMS_PER_PAGE);
+        } else {
+          // This is the last page
+          const exactTotal = (currentPage - 1) * ITEMS_PER_PAGE + apiProducts.length;
+          setTotalCount(exactTotal);
+        }
+      } else {
+        // Empty results
+        if (currentPage > 1) {
+          // We're past the last page - this shouldn't happen with the new design
+          // but just in case, go back one page
+          setCurrentPage(currentPage - 1);
+          return;
+        }
         setProducts([]);
         setTotalCount(0);
+        setHasNextPage(false);
       }
     };
 
     fetchProducts();
   }, [categoryName, currentPage, debouncedFilters, activeSaleType]);
 
-  // Scroll to top when category changes
+  // Reset to page 1 and scroll to top when category changes
   useEffect(() => {
+    setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [categoryName]);
+
+  // Reset to page 1 when sale type changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeSaleType]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedFilters]);
 
   // Fetch conversion rates for Diamonds collection
   useEffect(() => {
@@ -436,7 +465,11 @@ const Category = () => {
                     <Pagination 
                       currentPage={currentPage}
                       totalPages={totalPages}
-                      onPageChange={setCurrentPage}
+                      hasNextPage={hasNextPage}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                     />
                   </>
                 )}

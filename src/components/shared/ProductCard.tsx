@@ -52,6 +52,17 @@ const ProductCard = ({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Prevent adding sold items to cart
+    if (product.isSoldOut) {
+      toast({
+        title: "Item not available",
+        description: "This asset has already been sold.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (product.status === "auction") {
       setIsBidModalOpen(true);
       return;

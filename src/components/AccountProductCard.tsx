@@ -97,20 +97,21 @@ const AccountProductCard = ({
               {variant === "bid" && (
                 <Button
                   size="sm"
-                  className="rounded-full bg-gold/10 text-gold border border-gold hover:bg-gold hover:text-charcoal"
+                  className="rounded-full bg-muted text-muted-foreground cursor-not-allowed"
+                  disabled
                 >
                   <Gavel className="w-4 h-4 mr-1" />
-                  Update Bid
+                  View Bid
                 </Button>
               )}
-              {variant === "owned" && onListForSale && (
+              {variant === "owned" && (
                 <Button
                   size="sm"
-                  className="rounded-full bg-gold text-charcoal hover:bg-gold/90"
-                  onClick={(e) => { e.preventDefault(); onListForSale(); }}
+                  className="rounded-full bg-muted text-muted-foreground cursor-not-allowed"
+                  disabled
                 >
                   <Tag className="w-4 h-4 mr-1" />
-                  List for Sale
+                  Coming Soon
                 </Button>
               )}
               {variant === "wishlist" && (
@@ -155,13 +156,13 @@ const AccountProductCard = ({
           
           
             <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {variant === "owned" && onListForSale ? (
+              {variant === "owned" ? (
                 <Button
-                  onClick={(e) => { e.preventDefault(); onListForSale(); }}
-                  className="w-full bg-gold hover:bg-gold/90 text-charcoal rounded-lg gap-2 text-sm"
+                  disabled
+                  className="w-full bg-muted text-muted-foreground rounded-lg gap-2 text-sm cursor-not-allowed"
                 >
                   <Tag className="w-4 h-4" />
-                  List for Sale
+                  Coming Soon
                 </Button>
               ) : variant === "wishlist" ? (
                 <Button

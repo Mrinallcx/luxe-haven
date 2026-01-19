@@ -65,6 +65,17 @@ const ProductCard = ({ product, index }: { product: ProductType & { isSoldOut?: 
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Prevent adding sold items to cart
+    if (product.isSoldOut) {
+      toast({
+        title: "Item not available",
+        description: "This asset has already been sold.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (product.status === "auction") {
       setIsBidModalOpen(true);
       return;
@@ -313,11 +324,6 @@ const FeaturedProducts = ({
         // Map API response to local product format
         let resultProducts = response.data.result;
         
-        // Filter out already sold items (those with firstSoldAt) unless we're showing sold items fallback
-        if (!showingSoldItems) {
-          resultProducts = resultProducts.filter((p: { firstSoldAt?: string }) => !p.firstSoldAt);
-        }
-        
         // Shuffle products if needed (for New Arrivals section to show different items)
         if (shuffleProducts && resultProducts.length > 4) {
           // Use a simple shuffle algorithm
@@ -326,10 +332,12 @@ const FeaturedProducts = ({
         
         const apiProducts = resultProducts.slice(0, 4).map((p) => {
           const normalized = normalizeProduct(p);
+          // Mark as sold if it's from fallback OR if the individual item has firstSoldAt
+          const isSold = showingSoldItems || !!p.firstSoldAt || p.saleType === "NOSALE";
           return {
             ...normalized,
             image: normalized.image || getCategoryImage(normalized.category),
-            isSoldOut: showingSoldItems,
+            isSoldOut: isSold,
           };
         });
         setProducts(apiProducts);

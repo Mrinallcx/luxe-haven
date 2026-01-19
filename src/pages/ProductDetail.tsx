@@ -269,9 +269,16 @@ const ProductDetail = () => {
                       });
                     }
                   }}
-                  className="flex items-center gap-1 text-muted-foreground hover:text-gold transition-colors"
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                    isInWishlist(product.id) 
+                      ? "bg-gold/10 border-gold text-gold" 
+                      : "border-border text-muted-foreground hover:border-gold hover:text-gold"
+                  }`}
                 >
-                  <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-gold text-gold" : ""}`} />
+                  <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-gold" : ""}`} />
+                  <span className="text-xs font-medium">
+                    {isInWishlist(product.id) ? "Saved" : "Save"}
+                  </span>
                 </button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -322,12 +329,12 @@ const ProductDetail = () => {
             {/* Price Box */}
             <div className="bg-muted/20 border border-border rounded-lg p-6 mb-6">
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-2">
-                {product.saleType === "NOSALE" ? "Last Sale Price" : "Our Price"}
+                {(product.saleType === "NOSALE" || product.isSoldOut) ? "Last Sale Price" : "Our Price"}
               </p>
               <p className="text-3xl font-semibold text-foreground mb-4">
                 ${product.price.toLocaleString()}
               </p>
-              {product.saleType === "NOSALE" ? (
+              {(product.saleType === "NOSALE" || product.isSoldOut) ? (
                 <Button 
                   disabled
                   className="w-full rounded-lg bg-charcoal/80 text-cream font-medium py-6 text-base gap-2 cursor-not-allowed"
@@ -360,34 +367,34 @@ const ProductDetail = () => {
                   CART FULL
                 </Button>
               ) : (
-                <Button 
-                  onClick={() => {
-                    if (product.status === "auction") {
-                      setIsBidModalOpen(true);
-                      return;
-                    }
+              <Button 
+                onClick={() => {
+                  if (product.status === "auction") {
+                    setIsBidModalOpen(true);
+                    return;
+                  }
                     const success = addToCart(product);
                     if (success) {
-                      toast({
-                        title: "Added to cart",
-                        description: `${product.name} has been added to your cart.`,
-                      });
+                  toast({
+                    title: "Added to cart",
+                    description: `${product.name} has been added to your cart.`,
+                  });
                     }
-                  }}
-                  className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base gap-2"
-                >
-                  {product.status === "auction" ? (
-                    <>
-                      <Gavel className="w-5 h-5" />
-                      PLACE BID
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-5 h-5" />
-                      ADD TO CART
-                    </>
-                  )}
-                </Button>
+                }}
+                className="w-full rounded-lg bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 text-base gap-2"
+              >
+                {product.status === "auction" ? (
+                  <>
+                    <Gavel className="w-5 h-5" />
+                    PLACE BID
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-5 h-5" />
+                    ADD TO CART
+                  </>
+                )}
+              </Button>
               )}
             </div>
           </motion.div>

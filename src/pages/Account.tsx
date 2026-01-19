@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,13 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Diamond, Gavel, Activity, Users, Heart, Copy, Check, Clock } from "lucide-react";
+import { Gavel, Activity, Users, Heart, Copy, Check, Clock, Loader2, Gem } from "lucide-react";
 import { motion } from "framer-motion";
-import { allProducts, Product } from "@/data/products";
+import { Product } from "@/data/products";
 import { Link } from "react-router-dom";
 import AccountProductCard from "@/components/AccountProductCard";
-import ViewToggle from "@/components/ViewToggle";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useWallet } from "@/contexts/WalletContext";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +18,7 @@ import ListingModal from "@/components/ListingModal";
 import ClaimTotoModal from "@/components/ClaimTotoModal";
 import totoAccountBanner from "@/assets/toto account banner.webp";
 import userAvatar from "@/assets/user avatar.webp";
+import { getUserOwnedAssets, getUserActiveBids, normalizeUserAsset, UserOwnedAsset, getReferralRewards, calculateTotoValues } from "@/lib/market-api";
 
 // Mock user data
 const userData = {
@@ -30,47 +29,15 @@ const userData = {
   banner: totoAccountBanner,
 };
 
-// Mock balance data
-const balanceData = {
-  ownedDiamonds: 12,
-  claimedToto: 2500,
-  claimableToto: 750,
-  totalToto: 3250,
-};
 
-// Mock owned diamonds
-const ownedDiamonds = allProducts.filter(p => p.category === "diamonds").slice(0, 6);
 
-// Mock bids data with product references
-const bidsProducts = allProducts.filter(p => p.category === "diamonds").slice(10, 16);
-const bidsData = bidsProducts.map((product, i) => ({
-  product,
-  bidAmount: product.price - Math.floor(Math.random() * 500),
-  currentBid: product.price,
-  status: i % 2 === 0 ? "Outbid" : "Winning",
-  date: `${12 - i} Dec 2024`,
-}));
-
-// Mock activity data
-const activityData = [
-  { id: 1, action: "Purchased", item: "1.2 Carat Emerald Cut", date: "12 Dec 2024", amount: "$5,200" },
-  { id: 2, action: "Bid Placed", item: "2.0 Carat Princess Cut", date: "11 Dec 2024", amount: "$8,200" },
-  { id: 3, action: "Claimed Toto", item: "Daily Reward", date: "10 Dec 2024", amount: "250 TOTO" },
-  { id: 4, action: "Referred", item: "Jane Smith", date: "09 Dec 2024", amount: "100 TOTO" },
-  { id: 5, action: "Purchased", item: "Gold Bar 100g", date: "08 Dec 2024", amount: "$6,800" },
-];
-
-// Mock referral data
-const referralData = {
-  code: "JOHN2024",
-  totalReferrals: 8,
-  pendingRewards: 200,
-  earnedRewards: 800,
-  referrals: [
-    { id: 1, name: "Jane Smith", date: "09 Dec 2024", status: "Completed", reward: 100 },
-    { id: 2, name: "Mike Johnson", date: "05 Dec 2024", status: "Completed", reward: 100 },
-    { id: 3, name: "Sarah Wilson", date: "01 Dec 2024", status: "Pending", reward: 100 },
-  ],
+// Extended product type for owned assets
+type OwnedAsset = Product & {
+  _id?: string;
+  owner?: string;
+  chain?: string;
+  mintStatus?: string;
+  saleType?: string;
 };
 
 const Account = () => {
@@ -84,6 +51,132 @@ const Account = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
   const [isClaimHovered, setIsClaimHovered] = useState(false);
+  
+  // Owned assets state
+  const [ownedAssets, setOwnedAssets] = useState<OwnedAsset[]>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(false);
+  const [assetsError, setAssetsError] = useState<string | null>(null);
+
+  // Active bids state
+  const [activeBids, setActiveBids] = useState<OwnedAsset[]>([]);
+  const [isLoadingBids, setIsLoadingBids] = useState(false);
+  const [bidsError, setBidsError] = useState<string | null>(null);
+
+  // Referral rewards state
+  const [totoRewards, setTotoRewards] = useState({ claimed: 0, claimable: 0, total: 0 });
+  const [isLoadingRewards, setIsLoadingRewards] = useState(false);
+
+  // Fetch owned assets when wallet address is available
+  useEffect(() => {
+    const fetchOwnedAssets = async () => {
+      if (!walletAddress) {
+        setOwnedAssets([]);
+        return;
+      }
+
+      setIsLoadingAssets(true);
+      setAssetsError(null);
+
+      try {
+        const response = await getUserOwnedAssets(walletAddress);
+        
+        if (response.error) {
+          console.error("Failed to fetch owned assets:", response.error);
+          setAssetsError(response.error);
+          setOwnedAssets([]);
+          return;
+        }
+
+        if (response.data?.result && response.data.result.length > 0) {
+          const normalizedAssets = response.data.result.map((asset: UserOwnedAsset) => {
+            const normalized = normalizeUserAsset(asset);
+            return {
+              ...normalized,
+              id: normalized.id,
+              _id: normalized._id,
+            } as OwnedAsset;
+          });
+          setOwnedAssets(normalizedAssets);
+        } else {
+          setOwnedAssets([]);
+        }
+      } catch (error) {
+        console.error("Error fetching owned assets:", error);
+        setAssetsError("Failed to load owned assets");
+        setOwnedAssets([]);
+      } finally {
+        setIsLoadingAssets(false);
+      }
+    };
+
+    fetchOwnedAssets();
+  }, [walletAddress]);
+
+  // Fetch active bids when wallet address is available
+  useEffect(() => {
+    const fetchActiveBids = async () => {
+      if (!walletAddress) {
+        setActiveBids([]);
+        return;
+      }
+
+      setIsLoadingBids(true);
+      setBidsError(null);
+
+      try {
+        const response = await getUserActiveBids(walletAddress);
+        
+        if (response.error) {
+          console.error("Failed to fetch active bids:", response.error);
+          setBidsError(response.error);
+          setActiveBids([]);
+          return;
+        }
+
+        if (response.data?.result && response.data.result.length > 0) {
+          const normalizedBids = response.data.result.map((asset: UserOwnedAsset) => {
+            const normalized = normalizeUserAsset(asset);
+            return {
+              ...normalized,
+              id: normalized.id,
+              _id: normalized._id,
+            } as OwnedAsset;
+          });
+          setActiveBids(normalizedBids);
+        } else {
+          setActiveBids([]);
+        }
+      } catch (error) {
+        console.error("Error fetching active bids:", error);
+        setBidsError("Failed to load active bids");
+        setActiveBids([]);
+      } finally {
+        setIsLoadingBids(false);
+      }
+    };
+
+    fetchActiveBids();
+  }, [walletAddress]);
+
+  // Fetch referral rewards
+  useEffect(() => {
+    const fetchRewards = async () => {
+      setIsLoadingRewards(true);
+      try {
+        const response = await getReferralRewards();
+        if (response.data?.result) {
+          const totoValues = calculateTotoValues(response.data.result);
+          setTotoRewards(totoValues);
+        }
+      } catch (error) {
+        console.error("Error fetching rewards:", error);
+      } finally {
+        setIsLoadingRewards(false);
+      }
+    };
+
+    fetchRewards();
+  }, []);
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -124,7 +217,7 @@ const Account = () => {
   };
 
   const copyReferralCode = () => {
-    navigator.clipboard.writeText(referralData.code);
+    navigator.clipboard.writeText("REFERRAL_CODE"); // Placeholder - API integration pending
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -239,7 +332,9 @@ const Account = () => {
                 <CardContent className="p-4 space-y-0">
                   <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimed Toto</span>
-                    <span className="text-foreground font-sans font-medium text-sm">{balanceData.claimedToto.toLocaleString()} TOTO</span>
+                    <span className="text-foreground font-sans font-medium text-sm">
+                      {isLoadingRewards ? "..." : `${totoRewards.claimed.toLocaleString()} TOTO`}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Claimable Toto</span>
@@ -250,13 +345,16 @@ const Account = () => {
                       onMouseEnter={() => setIsClaimHovered(true)}
                       onMouseLeave={() => setIsClaimHovered(false)}
                       onClick={() => setClaimModalOpen(true)}
+                      disabled={totoRewards.claimable === 0}
                     >
-                      {isClaimHovered ? "Claim" : `${balanceData.claimableToto.toLocaleString()} TOTO`}
+                      {isClaimHovered && totoRewards.claimable > 0 ? "Claim" : `${totoRewards.claimable.toLocaleString()} TOTO`}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between py-2.5">
                     <span className="text-xs tracking-wider uppercase text-muted-foreground">Total Toto</span>
-                    <span className="text-foreground font-sans font-medium text-sm">{balanceData.totalToto.toLocaleString()} TOTO</span>
+                    <span className="text-foreground font-sans font-medium text-sm">
+                      {isLoadingRewards ? "..." : `${totoRewards.total.toLocaleString()} TOTO`}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -274,8 +372,8 @@ const Account = () => {
                 value="owned"
                 className="rounded-lg data-[state=active]:bg-gold data-[state=active]:text-charcoal data-[state=active]:shadow-md px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap transition-all duration-200 hover:bg-muted/50"
               >
-                <Diamond className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
-                <span className="hidden sm:inline">Owned Diamonds</span>
+                <Gem className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline">Owned Assets</span>
                 <span className="sm:hidden">Owned</span>
               </TabsTrigger>
               <TabsTrigger
@@ -310,76 +408,139 @@ const Account = () => {
             </TabsList>
           </div>
 
-          {/* Owned Diamonds Tab */}
+          {/* Owned Assets Tab */}
           <TabsContent value="owned" className="mt-8">
             <div className="flex items-center justify-between mb-6">
-              <p className="text-muted-foreground text-sm">{ownedDiamonds.length} items</p>
+              <p className="text-muted-foreground text-sm">
+                {isLoadingAssets ? "Loading..." : `${ownedAssets.length} items`}
+              </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {ownedDiamonds.map((product, index) => (
-                <AccountProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  viewMode="grid"
-                  variant="owned"
-                  onListForSale={() => handleListForSale(product)}
-                />
-              ))}
-            </div>
+            
+            {/* Loading State */}
+            {isLoadingAssets && (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-gold" />
+              </div>
+            )}
+            
+            {/* Error State */}
+            {!isLoadingAssets && assetsError && (
+              <div className="text-center py-16">
+                <Gem className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">Unable to load assets</p>
+                <p className="text-muted-foreground text-sm">{assetsError}</p>
+              </div>
+            )}
+            
+            {/* No Wallet Connected */}
+            {!isLoadingAssets && !assetsError && !walletAddress && (
+              <div className="text-center py-16">
+                <Gem className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">Connect your wallet</p>
+                <p className="text-muted-foreground text-sm mb-6">Connect your wallet to view your owned assets.</p>
+              </div>
+            )}
+            
+            {/* Empty State */}
+            {!isLoadingAssets && !assetsError && walletAddress && ownedAssets.length === 0 && (
+              <div className="text-center py-16">
+                <Gem className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">No assets found</p>
+                <p className="text-muted-foreground text-sm mb-6">You don't own any assets yet. Start exploring!</p>
+                <Link to="/">
+                  <Button className="rounded-full bg-gold hover:bg-gold/90 text-charcoal">
+                    Browse Products
+                  </Button>
+                </Link>
+              </div>
+            )}
+            
+            {/* Assets Grid */}
+            {!isLoadingAssets && !assetsError && ownedAssets.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {ownedAssets.map((product, index) => (
+                  <AccountProductCard
+                    key={product.id || product._id}
+                    product={product}
+                    index={index}
+                    viewMode="grid"
+                    variant="owned"
+                    onListForSale={() => handleListForSale(product)}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Your Bids Tab */}
           <TabsContent value="bids" className="mt-8">
             <div className="flex items-center justify-between mb-6">
-              <p className="text-muted-foreground text-sm">{bidsData.length} active bids</p>
+              <p className="text-muted-foreground text-sm">
+                {isLoadingBids ? "Loading..." : `${activeBids.length} active bids`}
+              </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {bidsData.map((bid, index) => (
-                <AccountProductCard
-                  key={bid.product.id}
-                  product={bid.product}
-                  index={index}
-                  viewMode="grid"
-                  variant="bid"
-                  bidData={{
-                    bidAmount: bid.bidAmount,
-                    currentBid: bid.currentBid,
-                    status: bid.status,
-                    date: bid.date,
-                  }}
-                />
-              ))}
-            </div>
+            
+            {/* Loading State */}
+            {isLoadingBids && (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-gold" />
+              </div>
+            )}
+            
+            {/* Error State */}
+            {!isLoadingBids && bidsError && (
+              <div className="text-center py-16">
+                <Gavel className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">Unable to load bids</p>
+                <p className="text-muted-foreground text-sm">{bidsError}</p>
+              </div>
+            )}
+            
+            {/* No Wallet Connected */}
+            {!isLoadingBids && !bidsError && !walletAddress && (
+              <div className="text-center py-16">
+                <Gavel className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">Connect your wallet</p>
+                <p className="text-muted-foreground text-sm">Connect your wallet to view your active bids.</p>
+              </div>
+            )}
+            
+            {/* Empty State */}
+            {!isLoadingBids && !bidsError && walletAddress && activeBids.length === 0 && (
+              <div className="text-center py-16">
+                <Gavel className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg mb-2">No active bids</p>
+                <p className="text-muted-foreground text-sm mb-6">You don't have any active bids on auctions.</p>
+                <Link to="/category/diamonds">
+                  <Button className="rounded-full bg-gold hover:bg-gold/90 text-charcoal">
+                    Browse Auctions
+                  </Button>
+                </Link>
+              </div>
+            )}
+            
+            {/* Bids Grid */}
+            {!isLoadingBids && !bidsError && activeBids.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {activeBids.map((product, index) => (
+                  <AccountProductCard
+                    key={product.id || product._id}
+                    product={product}
+                    index={index}
+                    viewMode="grid"
+                    variant="bid"
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Activity Tab */}
           <TabsContent value="activity" className="mt-8">
-            <div className="bg-muted/20 border border-border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground font-medium">Action</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Item</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Amount</TableHead>
-                    <TableHead className="text-muted-foreground font-medium">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {activityData.map((activity) => (
-                    <TableRow key={activity.id} className="border-border">
-                      <TableCell>
-                        <span className="px-2 py-1 bg-gold/10 text-gold text-xs rounded-full">
-                          {activity.action}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-foreground">{activity.item}</TableCell>
-                      <TableCell className="text-foreground font-medium">{activity.amount}</TableCell>
-                      <TableCell className="text-muted-foreground">{activity.date}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="text-center py-16">
+              <Activity className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground text-lg mb-2">Coming Soon</p>
+              <p className="text-muted-foreground text-sm">Your transaction history will be available soon.</p>
             </div>
           </TabsContent>
 
@@ -440,11 +601,11 @@ const Account = () => {
       <ClaimTotoModal
         open={claimModalOpen}
         onOpenChange={setClaimModalOpen}
-        claimableAmount={balanceData.claimableToto}
+        claimableAmount={totoRewards.claimable}
         onClaimComplete={() => {
           toast({
             title: "Rewards claimed",
-            description: `${balanceData.claimableToto.toLocaleString()} TOTO has been credited to your wallet.`,
+            description: `${totoRewards.claimable.toLocaleString()} TOTO has been credited to your wallet.`,
           });
         }}
       />
