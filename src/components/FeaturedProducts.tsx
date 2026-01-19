@@ -392,35 +392,6 @@ const FeaturedProducts = ({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Status Filter Dropdown - conditionally shown, positioned on the right */}
-          {showStatusFilter && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="rounded-full border-border gap-2 text-sm"
-                disabled={isLoading}
-              >
-                {statusFilters.find(f => f.value === activeStatus)?.label}
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-background border-border z-50">
-              {statusFilters.map((filter) => (
-                <DropdownMenuItem 
-                  key={filter.value}
-                  onClick={() => setActiveStatus(filter.value)}
-                  className={`flex items-center gap-2 cursor-pointer ${
-                    activeStatus === filter.value ? "bg-gold/10 text-gold" : ""
-                  }`}
-                >
-                  {filter.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          )}
         </motion.div>
 
         {/* Loading State */}
