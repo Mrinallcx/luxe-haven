@@ -163,7 +163,6 @@ const Cart = () => {
                     <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">LCX</span>
                     <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDC</span>
                     <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">USDT</span>
-                    <span className="text-xs px-2 py-1 bg-muted/50 rounded text-foreground">ADA</span>
                   </div>
                 </div>
 

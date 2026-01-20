@@ -22,7 +22,7 @@ interface ListingModalProps {
 
 type Step = "form" | "processing" | "waiting" | "success";
 
-const TOKENS = ["LCX", "USDT", "USDC", "wETH", "ADA"];
+const TOKENS = ["LCX", "USDT", "USDC", "wETH"];
 const DURATIONS = [
   { value: "1", label: "1 Day" },
   { value: "7", label: "7 Days" },

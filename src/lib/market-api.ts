@@ -1,4 +1,4 @@
-import { apiRequest, API_BASE_URL } from "./api";
+import { apiRequest, apiRequestPublic, API_BASE_URL } from "./api";
 
 // Search marketplace types
 export interface SearchEdition {
@@ -946,5 +946,28 @@ export async function claimReferralRewards(
   return apiRequest<ClaimRewardsResponse>("/referral/claim-rewards", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+// ==================== COMMODITY PRICES API ====================
+
+export interface CommodityPricesResponse {
+  success: boolean;
+  base: string;
+  timestamp: number;
+  rates: {
+    XAU: number; // Gold price per troy ounce
+    XAG: number; // Silver price per troy ounce
+    XPT: number; // Platinum price per troy ounce
+  };
+}
+
+/**
+ * Get live commodity prices (Gold, Silver, Platinum)
+ * Prices are updated every 8 hours on the backend
+ */
+export async function getCommodityPrices(): Promise<{ data?: CommodityPricesResponse; error?: string }> {
+  return apiRequestPublic<CommodityPricesResponse>("/commodities/livePrices", {
+    method: "GET",
   });
 }

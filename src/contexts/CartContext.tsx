@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Product } from "@/data/products";
 import { toast } from "sonner";
+
+const CART_STORAGE_KEY = "luxe-haven-cart";
 
 export interface CartItem {
   product: Product;
@@ -21,8 +23,39 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Load cart from localStorage
+const loadCartFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Validate the structure
+      if (Array.isArray(parsed) && parsed.every(item => item.product && typeof item.quantity === 'number')) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error("Error loading cart from storage:", error);
+  }
+  return [];
+};
+
+// Save cart to localStorage
+const saveCartToStorage = (items: CartItem[]) => {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error("Error saving cart to storage:", error);
+  }
+};
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => loadCartFromStorage());
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    saveCartToStorage(items);
+  }, [items]);
 
   // Check if product is already in cart
   const isInCart = (productId: number): boolean => {

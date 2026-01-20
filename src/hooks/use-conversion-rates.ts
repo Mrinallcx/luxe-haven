@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getConversionRate } from "@/lib/market-api";
 
-const SUPPORTED_COINS = ["LCX", "USDT", "USDC", "WETH", "ADA"];
+const SUPPORTED_COINS = ["LCX", "USDT", "USDC", "WETH"];
 
 interface UseConversionRatesOptions {
   enabled?: boolean;

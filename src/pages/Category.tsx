@@ -154,7 +154,7 @@ const Category = () => {
           const exactTotal = (currentPage - 1) * ITEMS_PER_PAGE + apiProducts.length;
           setTotalCount(exactTotal);
         }
-      } else {
+    } else {
         // Empty results
         if (currentPage > 1) {
           // We're past the last page - this shouldn't happen with the new design
@@ -191,7 +191,7 @@ const Category = () => {
   useEffect(() => {
     const fetchRates = async () => {
       if (categoryName?.toLowerCase() === "diamonds") {
-        const coins = ["LCX", "USDT", "USDC", "WETH", "ADA"];
+        const coins = ["LCX", "USDT", "USDC", "WETH"];
         const rates: Record<string, number> = {};
         
         for (const coin of coins) {

@@ -85,7 +85,7 @@ const COIN_INFO: Record<string, { name: string; icon: string }> = {
   LCX: { name: "LCX Token", icon: "◊" },
   WETH: { name: "Wrapped ETH", icon: "Ξ" },
   ETH: { name: "Ethereum", icon: "Ξ" },
-  ADA: { name: "Cardano (ADA)", icon: "₳" },
+  // ADA removed - not supported currently
   TIA: { name: "TIA Token", icon: "◆" },
   TOTO: { name: "TOTO Token", icon: "●" },
   PAXG: { name: "PAX Gold", icon: "Au" },
@@ -158,14 +158,25 @@ const Checkout = () => {
     fetchProductDetails();
   }, [cartProduct, selectedMethod]);
   
+  // Coins that are not supported on frontend (Cardano not supported currently)
+  const UNSUPPORTED_COINS = ["ADA"];
+  
   // Get allowed coins from product (fallback to listing coin)
   const allowedCoins = useMemo(() => {
     if (!activeProduct) return [];
-    const coins = activeProduct.allowedListingCoins || [];
+    let coins = activeProduct.allowedListingCoins || [];
+    
+    // Filter out unsupported coins
+    coins = coins.filter(coin => !UNSUPPORTED_COINS.includes(coin.toUpperCase()));
+    
     // If no allowed coins, use the listing coin as default
     if (coins.length === 0) {
       const listingCoin = activeProduct.listingCoin || activeProduct.pricePerUnit?.toUpperCase() || "USD";
-      return [listingCoin];
+      // Only return if not in unsupported list
+      if (!UNSUPPORTED_COINS.includes(listingCoin.toUpperCase())) {
+        return [listingCoin];
+      }
+      return [];
     }
     return coins;
   }, [activeProduct]);
@@ -640,6 +651,9 @@ const Checkout = () => {
                   disabled={
                     !selectedMethod || 
                     purchaseStatus === "preparing" || 
+                    purchaseStatus === "checking_allowance" ||
+                    purchaseStatus === "awaiting_approval" ||
+                    purchaseStatus === "confirming_approval" ||
                     purchaseStatus === "awaiting_signature" || 
                     purchaseStatus === "confirming" ||
                     (selectedMethod === "web3" && (
@@ -656,10 +670,28 @@ const Checkout = () => {
                       Preparing Transaction...
                     </>
                   )}
+                  {purchaseStatus === "checking_allowance" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Checking Token Allowance...
+                    </>
+                  )}
+                  {purchaseStatus === "awaiting_approval" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Approve {selectedCoin} in Wallet...
+                    </>
+                  )}
+                  {purchaseStatus === "confirming_approval" && (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Confirming Approval...
+                    </>
+                  )}
                   {purchaseStatus === "awaiting_signature" && (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Confirm in Wallet...
+                      Confirm Purchase in Wallet...
                     </>
                   )}
                   {purchaseStatus === "confirming" && (

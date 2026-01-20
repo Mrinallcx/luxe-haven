@@ -73,3 +73,56 @@ export async function apiRequest<T>(
   }
 }
 
+/**
+ * API request without authentication (for public endpoints)
+ */
+export async function apiRequestPublic<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  const url = `${API_BASE_URL}${endpoint}`;
+
+  const defaultHeaders: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    });
+
+    const contentType = response.headers.get("content-type");
+    let data;
+    
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      return {
+        error: "Something went wrong. Please try again.",
+        status: response.status,
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        error: data.message || "Something went wrong",
+        status: response.status,
+      };
+    }
+
+    return {
+      data,
+      status: response.status,
+    };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Network error",
+      status: 0,
+    };
+  }
+}
+
