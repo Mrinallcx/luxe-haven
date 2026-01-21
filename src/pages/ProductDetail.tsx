@@ -15,7 +15,7 @@ import ProductName from "@/components/ProductName";
 import { getMarketDetails, normalizeMarketDetails, getProductActivity, ActivityItem, getTiamondDetails, TiamondDetails } from "@/lib/market-api";
 import { ProductTabs, TransactionHistory, RelatedProducts } from "@/components/product";
 import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl } from "@/utils/product-helpers";
-import { PageSEO } from "@/components/shared/SEO";
+import SEO from "@/components/shared/SEO";
 
 // Extended product type that supports both static and API products
 type ExtendedProduct = Product & { 
@@ -180,24 +180,33 @@ const ProductDetail = () => {
   const categoryLabel = product.category.charAt(0).toUpperCase() + product.category.slice(1);
   const categoryInfo = getCategoryInfoBox(product.category);
 
+  // Helper function to convert relative image URLs to absolute URLs for OG tags
+  const getAbsoluteImageUrl = (imageUrl: string): string => {
+    if (!imageUrl) return "";
+    // If already absolute URL, return as is
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+    // Convert relative URL to absolute
+    const origin = window.location.origin;
+    return imageUrl.startsWith("/") ? `${origin}${imageUrl}` : `${origin}/${imageUrl}`;
+  };
+
   // Generate product description for SEO
-  const productDescription = product 
-    ? `${product.name} - Premium ${categoryLabel} available at Toto Finance. ${product.purity} purity, ${product.weight} weight. Price: $${product.price.toLocaleString()}. Certified quality with authenticity guarantee.`
-    : "";
+  const productDescription = `${product.name} - Premium ${categoryLabel} available at Toto Finance. ${product.purity} purity, ${product.weight} weight. Price: $${product.price.toLocaleString()}. Certified quality with authenticity guarantee.`;
+
+  // Get absolute image URL for OG tags
+  const ogImageUrl = getAbsoluteImageUrl(product.image);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* SEO Meta Tags - Render immediately when product is available */}
-      {product && (
-        <PageSEO.Product
-          name={product.name}
-          price={product.price}
-          category={categoryLabel}
-          image={product.image}
-          description={productDescription}
-        />
-      )}
-      
+      <SEO
+        title={product.name}
+        description={productDescription}
+        image={ogImageUrl}
+        url={currentUrl}
+        type="product"
+      />
       <Header />
       
       <main className="container mx-auto px-4 lg:px-8 pt-32 pb-8">

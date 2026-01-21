@@ -31,53 +31,6 @@ const SEO = ({
     // Update document title
     document.title = fullTitle;
 
-    // Convert relative image URL to absolute URL for OG tags
-    const getAbsoluteImageUrl = (imageUrl: string | undefined): string | undefined => {
-      if (!imageUrl) return undefined;
-      
-      // If already absolute (http/https) or data URL, return as is
-      if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
-        return imageUrl;
-      }
-      
-      // Handle Vite-processed image imports (they might be paths like /src/assets/... or /assets/...)
-      // Vite processes imports and they become paths starting with /
-      const baseUrl = window.location.origin;
-      
-      // If it starts with /, use it directly
-      if (imageUrl.startsWith("/")) {
-        return `${baseUrl}${imageUrl}`;
-      }
-      
-      // Otherwise, add leading slash
-      return `${baseUrl}/${imageUrl}`;
-    };
-
-    // Get absolute URL for current page if not provided
-    const getAbsoluteUrl = (): string => {
-      if (url) {
-        if (url.startsWith("http://") || url.startsWith("https://")) {
-          return url;
-        }
-        return `${window.location.origin}${url.startsWith("/") ? url : `/${url}`}`;
-      }
-      return window.location.href;
-    };
-
-    const absoluteImageUrl = getAbsoluteImageUrl(image);
-    const absolutePageUrl = getAbsoluteUrl();
-
-    // Debug logging (remove in production if needed)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('SEO Meta Tags:', {
-        title: fullTitle,
-        description,
-        image: absoluteImageUrl,
-        url: absolutePageUrl,
-        type
-      });
-    }
-
     // Update or create meta tags
     const updateMetaTag = (name: string, content: string, property = false) => {
       const attr = property ? "property" : "name";
@@ -99,18 +52,14 @@ const SEO = ({
     updateMetaTag("og:title", fullTitle, true);
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:type", type, true);
-    updateMetaTag("og:url", absolutePageUrl, true);
-    if (absoluteImageUrl) {
-      updateMetaTag("og:image", absoluteImageUrl, true);
-      updateMetaTag("og:image:width", "1200", true);
-      updateMetaTag("og:image:height", "630", true);
-    }
+    if (url) updateMetaTag("og:url", url, true);
+    if (image) updateMetaTag("og:image", image, true);
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", fullTitle);
     updateMetaTag("twitter:description", description);
-    if (absoluteImageUrl) updateMetaTag("twitter:image", absoluteImageUrl);
+    if (image) updateMetaTag("twitter:image", image);
 
     // Cleanup: restore default title when component unmounts
     return () => {
@@ -140,26 +89,12 @@ export const PageSEO = {
     />
   ),
   
-  Product: ({ 
-    name, 
-    price, 
-    category, 
-    image, 
-    description 
-  }: { 
-    name: string; 
-    price: number; 
-    category: string;
-    image?: string;
-    description?: string;
-  }) => (
+  Product: ({ name, price, category }: { name: string; price: number; category: string }) => (
     <SEO 
       title={name}
-      description={description || `${name} - Premium ${category} available at Toto Finance. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
+      description={`${name} - Premium ${category} available at Toto Finance. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
       keywords={`${name}, ${category}, luxury gems, precious metals, tokenized assets`}
       type="product"
-      image={image}
-      url={typeof window !== "undefined" ? window.location.href : undefined}
     />
   ),
   

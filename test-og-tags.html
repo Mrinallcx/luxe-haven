@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test OG Tags</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .meta-tag {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #4CAF50;
+            font-family: monospace;
+        }
+        .meta-tag.empty {
+            border-left-color: #f44336;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Open Graph Tags Tester</h1>
+        <p>This tool helps you verify that OG tags are being set correctly on your product pages.</p>
+        
+        <button onclick="checkOGTags()">Check Current Page OG Tags</button>
+        <button onclick="checkAllMetaTags()">Show All Meta Tags</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function checkOGTags() {
+            const ogTags = {
+                'og:title': document.querySelector('meta[property="og:title"]')?.content || 'NOT FOUND',
+                'og:description': document.querySelector('meta[property="og:description"]')?.content || 'NOT FOUND',
+                'og:image': document.querySelector('meta[property="og:image"]')?.content || 'NOT FOUND',
+                'og:url': document.querySelector('meta[property="og:url"]')?.content || 'NOT FOUND',
+                'og:type': document.querySelector('meta[property="og:type"]')?.content || 'NOT FOUND',
+            };
+
+            const twitterTags = {
+                'twitter:card': document.querySelector('meta[name="twitter:card"]')?.content || 'NOT FOUND',
+                'twitter:title': document.querySelector('meta[name="twitter:title"]')?.content || 'NOT FOUND',
+                'twitter:description': document.querySelector('meta[name="twitter:description"]')?.content || 'NOT FOUND',
+                'twitter:image': document.querySelector('meta[name="twitter:image"]')?.content || 'NOT FOUND',
+            };
+
+            let html = '<div class="result"><h2>Open Graph Tags:</h2>';
+            
+            for (const [key, value] of Object.entries(ogTags)) {
+                const isEmpty = value === 'NOT FOUND';
+                html += `<div class="meta-tag ${isEmpty ? 'empty' : ''}">
+                    <strong>${key}:</strong> ${isEmpty ? '<span style="color: red;">NOT FOUND</span>' : value}
+                </div>`;
+            }
+
+            html += '<h2 style="margin-top: 20px;">Twitter Card Tags:</h2>';
+            for (const [key, value] of Object.entries(twitterTags)) {
+                const isEmpty = value === 'NOT FOUND';
+                html += `<div class="meta-tag ${isEmpty ? 'empty' : ''}">
+                    <strong>${key}:</strong> ${isEmpty ? '<span style="color: red;">NOT FOUND</span>' : value}
+                </div>`;
+            }
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function checkAllMetaTags() {
+            const allMetaTags = document.querySelectorAll('meta');
+            let html = '<div class="result"><h2>All Meta Tags:</h2>';
+            
+            allMetaTags.forEach(tag => {
+                const property = tag.getAttribute('property');
+                const name = tag.getAttribute('name');
+                const content = tag.getAttribute('content');
+                const identifier = property || name || 'unknown';
+                
+                html += `<div class="meta-tag">
+                    <strong>${identifier}:</strong> ${content || 'No content'}
+                </div>`;
+            });
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
+        }
+
+        // Auto-check on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkOGTags, 1000); // Wait 1 second for React to render
+        });
+    </script>
+</body>
+</html>
