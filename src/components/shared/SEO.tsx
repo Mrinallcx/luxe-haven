@@ -34,15 +34,23 @@ const SEO = ({
     // Convert relative image URL to absolute URL for OG tags
     const getAbsoluteImageUrl = (imageUrl: string | undefined): string | undefined => {
       if (!imageUrl) return undefined;
+      
       // If already absolute (http/https) or data URL, return as is
       if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
         return imageUrl;
       }
-      // Convert relative URL to absolute
+      
+      // Handle Vite-processed image imports (they might be paths like /src/assets/... or /assets/...)
+      // Vite processes imports and they become paths starting with /
       const baseUrl = window.location.origin;
-      // Ensure URL starts with / for proper absolute path
-      const cleanUrl = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
-      return `${baseUrl}${cleanUrl}`;
+      
+      // If it starts with /, use it directly
+      if (imageUrl.startsWith("/")) {
+        return `${baseUrl}${imageUrl}`;
+      }
+      
+      // Otherwise, add leading slash
+      return `${baseUrl}/${imageUrl}`;
     };
 
     // Get absolute URL for current page if not provided
@@ -58,6 +66,17 @@ const SEO = ({
 
     const absoluteImageUrl = getAbsoluteImageUrl(image);
     const absolutePageUrl = getAbsoluteUrl();
+
+    // Debug logging (remove in production if needed)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('SEO Meta Tags:', {
+        title: fullTitle,
+        description,
+        image: absoluteImageUrl,
+        url: absolutePageUrl,
+        type
+      });
+    }
 
     // Update or create meta tags
     const updateMetaTag = (name: string, content: string, property = false) => {

@@ -187,7 +187,7 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* SEO Meta Tags */}
+      {/* SEO Meta Tags - Render immediately when product is available */}
       {product && (
         <PageSEO.Product
           name={product.name}
