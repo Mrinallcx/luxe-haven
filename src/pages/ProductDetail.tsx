@@ -14,7 +14,7 @@ import PlaceBidModal from "@/components/PlaceBidModal";
 import ProductName from "@/components/ProductName";
 import { getMarketDetails, normalizeMarketDetails, getProductActivity, ActivityItem, getTiamondDetails, TiamondDetails } from "@/lib/market-api";
 import { ProductTabs, TransactionHistory, RelatedProducts } from "@/components/product";
-import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl } from "@/utils/product-helpers";
+import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl, normalizeImageUrl } from "@/utils/product-helpers";
 import SEO from "@/components/shared/SEO";
 
 // Extended product type that supports both static and API products
@@ -180,78 +180,32 @@ const ProductDetail = () => {
   const categoryLabel = product.category.charAt(0).toUpperCase() + product.category.slice(1);
   const categoryInfo = getCategoryInfoBox(product.category);
 
-  // Helper function to convert relative image URLs to absolute URLs for OG tags
-  const getAbsoluteImageUrl = (imageUrl: string): string => {
-    if (!imageUrl) return "";
-    
-    // If already absolute URL, return as is
-    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-      return imageUrl;
-    }
-    
-    // Handle data URLs (base64 images) - not ideal for OG tags but handle gracefully
-    if (imageUrl.startsWith("data:")) {
-      console.warn("Product image is a data URL, which may not work well for OG tags:", imageUrl.substring(0, 50));
-      return imageUrl;
-    }
-    
-    // Convert relative URL to absolute
-    const origin = window.location.origin;
-    
-    // Handle Vite-processed imports
-    // Vite processes imports and they typically become paths starting with /
-    // Examples: "/src/assets/image.webp" or "/assets/image-abc123.webp"
-    if (imageUrl.startsWith("/")) {
-      // Remove /src prefix if present (Vite might add this in dev)
-      const cleanPath = imageUrl.replace(/^\/src/, "");
-      return `${origin}${cleanPath}`;
-    }
-    
-    // Handle paths without leading slash
-    return `${origin}/${imageUrl}`;
-  };
-
   // Generate product description for SEO
   const productDescription = `${product.name} - Premium ${categoryLabel} available at Toto Finance. ${product.purity} purity, ${product.weight} weight. Price: $${product.price.toLocaleString()}. Certified quality with authenticity guarantee.`;
 
-  // Get absolute image URL for OG tags
-  const ogImageUrl = getAbsoluteImageUrl(product.image);
+  // Get normalized image URL for OG tags (handles S3 URLs with URL-encoded characters like + and %23)
+  const ogImageUrl = normalizeImageUrl(product.image);
   
-  // Debug: Log the image URL and verify it's accessible
-  useEffect(() => {
-    if (product && ogImageUrl) {
-      console.log("=== OG Tags Debug Info ===");
-      console.log("Product Name:", product.name);
-      console.log("Original Product Image:", product.image);
-      console.log("OG Image URL:", ogImageUrl);
-      console.log("Current URL:", currentUrl);
+  // Debug: Log OG tags in development and verify image URL
+  if (process.env.NODE_ENV === "development") {
+    if (ogImageUrl) {
+      console.log("📸 OG Tags for product:", {
+        title: product.name,
+        description: productDescription.substring(0, 100) + "...",
+        image: ogImageUrl,
+        url: currentUrl,
+      });
       
-      // Verify the image is accessible
-      if (ogImageUrl && !ogImageUrl.startsWith("data:")) {
-        const img = new Image();
-        img.onload = () => {
-          console.log("✅ OG Image is accessible and loaded successfully");
-          console.log("Image dimensions:", img.width, "x", img.height);
-        };
-        img.onerror = () => {
-          console.error("❌ OG Image failed to load:", ogImageUrl);
-          console.error("This image URL may not be accessible to social media crawlers");
-        };
-        img.src = ogImageUrl;
+      // Verify the image URL format
+      if (!ogImageUrl.startsWith("http")) {
+        console.warn("⚠️ OG Image URL is not absolute:", ogImageUrl);
+      } else {
+        console.log("✅ OG Image URL is absolute and should work for social sharing");
       }
-      
-      // Log the actual meta tags
-      setTimeout(() => {
-        const ogImage = document.querySelector('meta[property="og:image"]');
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        const ogDesc = document.querySelector('meta[property="og:description"]');
-        console.log("Actual OG Tags in DOM:");
-        console.log("og:image:", ogImage?.getAttribute("content"));
-        console.log("og:title:", ogTitle?.getAttribute("content"));
-        console.log("og:description:", ogDesc?.getAttribute("content"));
-      }, 100);
+    } else {
+      console.warn("⚠️ No OG Image URL available for product:", product.name);
     }
-  }, [product, ogImageUrl, currentUrl]);
+  }
 
   return (
     <div className="min-h-screen bg-background">

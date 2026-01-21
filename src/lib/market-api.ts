@@ -1,4 +1,5 @@
 import { apiRequest, apiRequestPublic, API_BASE_URL } from "./api";
+import { normalizeImageUrl } from "@/utils/product-helpers";
 
 // Search marketplace types
 export interface SearchEdition {
@@ -155,7 +156,7 @@ export function normalizeProduct(apiProduct: ApiTrendingProduct): NormalizedProd
     name: apiProduct.name,
     price: apiProduct.listingPrice || apiProduct.price || apiProduct.usdPrice,
     pricePerUnit: apiProduct.listingCoin || apiProduct.coin || "USD",
-    image: apiProduct.image || apiProduct.assetUrl,
+    image: normalizeImageUrl(apiProduct.image || apiProduct.assetUrl),
     category: editionToCategory(apiProduct.edition),
     purity: apiProduct.clarity || "",
     weight: apiProduct.carat ? `${apiProduct.carat} ct` : "",
@@ -443,7 +444,7 @@ export function normalizeMarketDetails(details: MarketDetailsResponse["result"])
     name: details.name,
     price: details.listingPrice || details.price || details.usdPrice,
     pricePerUnit: details.listingCoin || details.coin || "USD",
-    image: details.image || details.assetUrl,
+    image: normalizeImageUrl(details.image || details.assetUrl),
     category: editionToCategory(details.edition || ""),
     purity: details.clarity || (details.platinumFineness ? `${details.platinumFineness}` : "") || (details.goldFineness ? `${details.goldFineness}` : ""),
     weight: details.carat ? `${details.carat} ct` : (details.platinumWeight ? `${details.platinumWeight}g` : "") || (details.goldWeight ? `${details.goldWeight}g` : ""),
@@ -856,7 +857,7 @@ export function normalizeUserAsset(asset: UserOwnedAsset): NormalizedProduct & {
     name: asset.name,
     price: asset.listingPrice || asset.price || asset.usdPrice,
     pricePerUnit: asset.listingCoin || asset.coin || "USD",
-    image: asset.image || asset.assetUrl || "",
+    image: normalizeImageUrl(asset.image || asset.assetUrl || ""),
     category: editionToCategory(asset.edition || ""),
     purity: asset.clarity || 
       (asset.platinumFineness ? `${asset.platinumFineness}` : "") || 

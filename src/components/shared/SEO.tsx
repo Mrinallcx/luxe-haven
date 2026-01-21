@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { normalizeImageUrl } from "@/utils/product-helpers";
 
 interface SEOProps {
   title?: string;
@@ -28,11 +29,13 @@ const SEO = ({
   const fullTitle = title ? `${title} | Toto Finance` : DEFAULT_TITLE;
 
   useEffect(() => {
-    // Update document title
+    // Update document title immediately
     document.title = fullTitle;
 
-    // Update or create meta tags
+    // Update or create meta tags - ensure they're set synchronously
     const updateMetaTag = (name: string, content: string, property = false) => {
+      if (!content) return; // Skip empty content
+      
       const attr = property ? "property" : "name";
       let meta = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement;
       
@@ -41,7 +44,11 @@ const SEO = ({
         meta.setAttribute(attr, name);
         document.head.appendChild(meta);
       }
-      meta.content = content;
+      
+      // Only update if content has changed to avoid unnecessary DOM updates
+      if (meta.content !== content) {
+        meta.content = content;
+      }
     };
 
     // Standard meta tags
@@ -53,20 +60,45 @@ const SEO = ({
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:type", type, true);
     if (url) updateMetaTag("og:url", url, true);
-    if (image) {
-      updateMetaTag("og:image", image, true);
-      // Add recommended OG image properties for better compatibility
-      updateMetaTag("og:image:secure_url", image, true);
-      updateMetaTag("og:image:type", "image/jpeg", true);
-      // Note: width and height would require image dimensions, which we don't have
-      // Social platforms will fetch and determine these automatically
+    
+    // Enhanced OG image tags for better social media support
+    if (image && image.trim()) {
+      // Normalize image URL (handles S3 URLs with URL-encoded characters like + and %23)
+      let imageUrl = normalizeImageUrl(image);
+      
+      // Remove any trailing slashes or whitespace
+      imageUrl = imageUrl.replace(/\/+$/, "").trim();
+      
+      // Set all OG image tags
+      updateMetaTag("og:image", imageUrl, true);
+      updateMetaTag("og:image:secure_url", imageUrl.replace("http://", "https://"), true); // Force HTTPS for secure_url
+      updateMetaTag("og:image:type", "image/jpeg", true); // Default, can be improved with actual image type detection
+      updateMetaTag("og:image:width", "1200", true); // Recommended minimum width
+      updateMetaTag("og:image:height", "630", true); // Recommended aspect ratio
+      updateMetaTag("og:image:alt", title || fullTitle, true); // Accessibility
+      
+      // Debug logging
+      if (process.env.NODE_ENV === "development") {
+        console.log("✅ OG Image URL set:", imageUrl);
+        console.log("✅ Verify in <head>: document.querySelector('meta[property=\"og:image\"]')?.content");
+      }
+    } else {
+      // Remove OG image tags if no image provided (to avoid showing default image)
+      const ogImageTags = document.querySelectorAll('meta[property^="og:image"]');
+      ogImageTags.forEach(tag => tag.remove());
     }
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", fullTitle);
     updateMetaTag("twitter:description", description);
-    if (image) updateMetaTag("twitter:image", image);
+    if (image && image.trim()) {
+      // Normalize image URL (handles S3 URLs with URL-encoded characters like + and %23)
+      let imageUrl = normalizeImageUrl(image);
+      imageUrl = imageUrl.replace(/\/+$/, "").trim();
+      updateMetaTag("twitter:image", imageUrl);
+      updateMetaTag("twitter:image:alt", title || fullTitle);
+    }
 
     // Cleanup: restore default title when component unmounts
     return () => {

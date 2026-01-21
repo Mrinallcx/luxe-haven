@@ -106,3 +106,31 @@ export const getInitialOffers = () => [
 
 export type OfferType = ReturnType<typeof getInitialOffers>[0];
 
+/**
+ * Normalize image URL for consistent handling
+ * Handles S3 URLs with URL-encoded characters (e.g., + for spaces, %23 for #)
+ * Ensures URLs are properly formatted for use in img tags and OG meta tags
+ */
+export const normalizeImageUrl = (imageUrl: string | undefined | null): string => {
+  if (!imageUrl) {
+    return "";
+  }
+
+  // Trim whitespace
+  let url = imageUrl.trim();
+
+  // If already an absolute URL (http/https), return as-is
+  // S3 URLs with URL-encoded characters should work as-is
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+
+  // Convert relative URLs to absolute
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  if (url.startsWith("/")) {
+    return `${origin}${url}`;
+  }
+
+  return `${origin}/${url}`;
+};
+
