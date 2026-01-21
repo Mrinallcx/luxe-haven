@@ -31,6 +31,34 @@ const SEO = ({
     // Update document title
     document.title = fullTitle;
 
+    // Convert relative image URL to absolute URL for OG tags
+    const getAbsoluteImageUrl = (imageUrl: string | undefined): string | undefined => {
+      if (!imageUrl) return undefined;
+      // If already absolute (http/https) or data URL, return as is
+      if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
+        return imageUrl;
+      }
+      // Convert relative URL to absolute
+      const baseUrl = window.location.origin;
+      // Ensure URL starts with / for proper absolute path
+      const cleanUrl = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
+      return `${baseUrl}${cleanUrl}`;
+    };
+
+    // Get absolute URL for current page if not provided
+    const getAbsoluteUrl = (): string => {
+      if (url) {
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+          return url;
+        }
+        return `${window.location.origin}${url.startsWith("/") ? url : `/${url}`}`;
+      }
+      return window.location.href;
+    };
+
+    const absoluteImageUrl = getAbsoluteImageUrl(image);
+    const absolutePageUrl = getAbsoluteUrl();
+
     // Update or create meta tags
     const updateMetaTag = (name: string, content: string, property = false) => {
       const attr = property ? "property" : "name";
@@ -52,14 +80,18 @@ const SEO = ({
     updateMetaTag("og:title", fullTitle, true);
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:type", type, true);
-    if (url) updateMetaTag("og:url", url, true);
-    if (image) updateMetaTag("og:image", image, true);
+    updateMetaTag("og:url", absolutePageUrl, true);
+    if (absoluteImageUrl) {
+      updateMetaTag("og:image", absoluteImageUrl, true);
+      updateMetaTag("og:image:width", "1200", true);
+      updateMetaTag("og:image:height", "630", true);
+    }
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", fullTitle);
     updateMetaTag("twitter:description", description);
-    if (image) updateMetaTag("twitter:image", image);
+    if (absoluteImageUrl) updateMetaTag("twitter:image", absoluteImageUrl);
 
     // Cleanup: restore default title when component unmounts
     return () => {
@@ -89,12 +121,26 @@ export const PageSEO = {
     />
   ),
   
-  Product: ({ name, price, category }: { name: string; price: number; category: string }) => (
+  Product: ({ 
+    name, 
+    price, 
+    category, 
+    image, 
+    description 
+  }: { 
+    name: string; 
+    price: number; 
+    category: string;
+    image?: string;
+    description?: string;
+  }) => (
     <SEO 
       title={name}
-      description={`${name} - Premium ${category} available at Toto Finance. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
+      description={description || `${name} - Premium ${category} available at Toto Finance. Price: $${price.toLocaleString()}. Certified quality with authenticity guarantee.`}
       keywords={`${name}, ${category}, luxury gems, precious metals, tokenized assets`}
       type="product"
+      image={image}
+      url={typeof window !== "undefined" ? window.location.href : undefined}
     />
   ),
   

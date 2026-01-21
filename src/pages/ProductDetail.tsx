@@ -15,6 +15,7 @@ import ProductName from "@/components/ProductName";
 import { getMarketDetails, normalizeMarketDetails, getProductActivity, ActivityItem, getTiamondDetails, TiamondDetails } from "@/lib/market-api";
 import { ProductTabs, TransactionHistory, RelatedProducts } from "@/components/product";
 import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl } from "@/utils/product-helpers";
+import { PageSEO } from "@/components/shared/SEO";
 
 // Extended product type that supports both static and API products
 type ExtendedProduct = Product & { 
@@ -179,8 +180,24 @@ const ProductDetail = () => {
   const categoryLabel = product.category.charAt(0).toUpperCase() + product.category.slice(1);
   const categoryInfo = getCategoryInfoBox(product.category);
 
+  // Generate product description for SEO
+  const productDescription = product 
+    ? `${product.name} - Premium ${categoryLabel} available at Toto Finance. ${product.purity} purity, ${product.weight} weight. Price: $${product.price.toLocaleString()}. Certified quality with authenticity guarantee.`
+    : "";
+
   return (
     <div className="min-h-screen bg-background">
+      {/* SEO Meta Tags */}
+      {product && (
+        <PageSEO.Product
+          name={product.name}
+          price={product.price}
+          category={categoryLabel}
+          image={product.image}
+          description={productDescription}
+        />
+      )}
+      
       <Header />
       
       <main className="container mx-auto px-4 lg:px-8 pt-32 pb-8">
