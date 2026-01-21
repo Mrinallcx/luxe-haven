@@ -15,7 +15,20 @@ interface SEOProps {
 const DEFAULT_TITLE = "Toto Finance | Building the Future of Global Trade";
 const DEFAULT_DESCRIPTION = "Toto Finance is an asset-backed tokenization platform that provides digital infrastructure for tokenized commodities, enabling instant settlement and compliant global trade across metals, energy, and real-world assets.";
 const DEFAULT_KEYWORDS = "diamonds, gold, silver, platinum, sapphire, precious metals, gems, luxury, investment, jewelry, tokenization, asset-backed tokens, commodities";
-const BASE_URL = "https://totofinance.com";
+// Get base URL dynamically - works for both staging and production
+// Uses current window origin when available, falls back to production URL
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    // In browser: automatically use current origin (staging or production)
+    return window.location.origin;
+  }
+  // Server-side or build time: use environment variable or default to production
+  return import.meta.env.VITE_BASE_URL || "https://app.totofinance.co";
+};
+
+// BASE_URL will be calculated at runtime using current window origin
+// This ensures it works for both staging (app-staging.totofinance.co) and production (app.totofinance.co)
+const BASE_URL = getBaseUrl();
 
 /**
  * SEO component for managing page meta tags
@@ -33,8 +46,10 @@ const SEO = ({
   structuredData,
 }: SEOProps) => {
   const fullTitle = title ? `${title} | Toto Finance` : DEFAULT_TITLE;
-  const canonicalUrl = canonical || url || (typeof window !== "undefined" ? window.location.href : BASE_URL);
-  const ogImage = image || `${BASE_URL}/og-image.webp`;
+  // Use current origin dynamically (works for staging and production)
+  const currentBaseUrl = typeof window !== "undefined" ? window.location.origin : BASE_URL;
+  const canonicalUrl = canonical || url || (typeof window !== "undefined" ? window.location.href : currentBaseUrl);
+  const ogImage = image || `${currentBaseUrl}/og-image.webp`;
 
   useEffect(() => {
     // Update document title
@@ -131,7 +146,8 @@ export const PageSEO = {
   ),
   
   Category: ({ name, url }: { name: string; url?: string }) => {
-    const categoryUrl = url || `${BASE_URL}/category/${name.toLowerCase()}`;
+    const currentBaseUrl = typeof window !== "undefined" ? window.location.origin : BASE_URL;
+    const categoryUrl = url || `${currentBaseUrl}/category/${name.toLowerCase()}`;
     
     // Breadcrumb structured data
     const breadcrumbStructuredData = {
@@ -142,7 +158,7 @@ export const PageSEO = {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": BASE_URL
+          "item": currentBaseUrl
         },
         {
           "@type": "ListItem",
@@ -166,9 +182,10 @@ export const PageSEO = {
   },
   
   Product: ({ name, price, category, image, url, productId, categoryUrl }: { name: string; price: number; category: string; image?: string; url?: string; productId?: string | number; categoryUrl?: string }) => {
-    const productUrl = url || (productId ? `${BASE_URL}/product/${productId}` : undefined);
-    const productImage = image || `${BASE_URL}/og-image.webp`;
-    const categoryLink = categoryUrl || `${BASE_URL}/category/${category.toLowerCase()}`;
+    const currentBaseUrl = typeof window !== "undefined" ? window.location.origin : BASE_URL;
+    const productUrl = url || (productId ? `${currentBaseUrl}/product/${productId}` : undefined);
+    const productImage = image || `${currentBaseUrl}/og-image.webp`;
+    const categoryLink = categoryUrl || `${currentBaseUrl}/category/${category.toLowerCase()}`;
     
     // Combined Product and Breadcrumb structured data
     const structuredData = {
@@ -203,7 +220,7 @@ export const PageSEO = {
               "@type": "ListItem",
               "position": 1,
               "name": "Home",
-              "item": BASE_URL
+              "item": currentBaseUrl
             },
             {
               "@type": "ListItem",
@@ -236,24 +253,30 @@ export const PageSEO = {
     );
   },
   
-  Account: () => (
-    <SEO 
-      title="My Account"
-      description="Manage your Toto Finance account, view orders, and track your tokenized assets portfolio."
-      url={`${BASE_URL}/account`}
-      canonical={`${BASE_URL}/account`}
-      noindex={true}
-    />
-  ),
+  Account: () => {
+    const currentBaseUrl = typeof window !== "undefined" ? window.location.origin : BASE_URL;
+    return (
+      <SEO 
+        title="My Account"
+        description="Manage your Toto Finance account, view orders, and track your tokenized assets portfolio."
+        url={`${currentBaseUrl}/account`}
+        canonical={`${currentBaseUrl}/account`}
+        noindex={true}
+      />
+    );
+  },
   
-  Cart: () => (
-    <SEO 
-      title="Shopping Cart"
-      description="Review your selected items and proceed to checkout at Toto Finance."
-      url={`${BASE_URL}/cart`}
-      canonical={`${BASE_URL}/cart`}
-      noindex={true}
-    />
-  ),
+  Cart: () => {
+    const currentBaseUrl = typeof window !== "undefined" ? window.location.origin : BASE_URL;
+    return (
+      <SEO 
+        title="Shopping Cart"
+        description="Review your selected items and proceed to checkout at Toto Finance."
+        url={`${currentBaseUrl}/cart`}
+        canonical={`${currentBaseUrl}/cart`}
+        noindex={true}
+      />
+    );
+  },
 };
 

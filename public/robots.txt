@@ -14,4 +14,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://totofinance.com/sitemap.xml
+Sitemap: https://app.totofinance.co/sitemap.xml
