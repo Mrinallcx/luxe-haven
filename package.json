@@ -8,7 +8,9 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.mjs",
+    "serve": "npm run build && node server.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -66,7 +68,8 @@
     "vaul": "^0.9.9",
     "viem": "^2.44.4",
     "wagmi": "^2.19.5",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
