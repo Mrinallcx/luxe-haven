@@ -971,3 +971,30 @@ export async function getCommodityPrices(): Promise<{ data?: CommodityPricesResp
     method: "GET",
   });
 }
+
+// ==================== NEWSLETTER API ====================
+
+export interface NewsletterSignupPayload {
+  emailId: string;
+  campaign?: string;
+}
+
+export interface NewsletterSignupResponse {
+  message: string;
+  success?: boolean;
+}
+
+/**
+ * Subscribe to newsletter
+ */
+export async function newsletterSignup(
+  payload: NewsletterSignupPayload
+): Promise<{ data?: NewsletterSignupResponse; error?: string }> {
+  return apiRequestPublic<NewsletterSignupResponse>("/newsletter/signup", {
+    method: "POST",
+    body: JSON.stringify({
+      emailId: payload.emailId,
+      campaign: payload.campaign || "",
+    }),
+  });
+}

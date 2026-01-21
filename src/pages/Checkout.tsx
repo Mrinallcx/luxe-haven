@@ -65,7 +65,7 @@ const paymentMethods = [
     id: "card" as const,
     name: "Credit / Debit Card",
     icon: CreditCard,
-    comingSoon: false,
+    comingSoon: true,
     description: "Pay with Visa, Mastercard, or Amex"
   },
   {
@@ -96,7 +96,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, clearCart } = useCart();
   const { isConnected, walletAddress } = useWallet();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("web3");
   const [showWalletModal, setShowWalletModal] = useState(false);
   const { purchase, status: purchaseStatus } = usePurchase();
   

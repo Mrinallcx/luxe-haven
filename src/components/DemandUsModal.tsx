@@ -410,8 +410,8 @@ const DemandUsModal = ({ open, onOpenChange }: DemandUsModalProps) => {
                                 {alreadyInCart && (
                                   <span className="absolute top-2 right-2 px-2 py-0.5 text-[10px] font-medium rounded-full bg-green-500 text-white opacity-100">
                                     In Cart
-                                  </span>
-                                )}
+                            </span>
+                          )}
                         </div>
                             </Link>
                         <div className="p-2">

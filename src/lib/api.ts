@@ -1,6 +1,28 @@
 // API Configuration - uses environment variable with fallback
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:3000/v1";
 
+// Store API URL with token to detect environment changes
+const TOKEN_API_URL_KEY = "authTokenApiUrl";
+
+/**
+ * Clear auth tokens if API URL has changed (switching environments)
+ */
+const checkAndClearTokensIfNeeded = () => {
+  const storedApiUrl = localStorage.getItem(TOKEN_API_URL_KEY);
+  if (storedApiUrl && storedApiUrl !== API_BASE_URL) {
+    // API URL changed, clear old tokens
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.setItem(TOKEN_API_URL_KEY, API_BASE_URL);
+  } else if (!storedApiUrl) {
+    // First time, store current API URL
+    localStorage.setItem(TOKEN_API_URL_KEY, API_BASE_URL);
+  }
+};
+
+// Check on module load
+checkAndClearTokensIfNeeded();
+
 interface ApiResponse<T> {
   data?: T;
   error?: string;
@@ -48,6 +70,14 @@ export async function apiRequest<T>(
     }
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - token is invalid, clear it
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        // Optionally trigger sign out in auth context
+        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      }
+      
       return {
         error: data.message || (response.status === 400 ? "Please enter a valid email" : "Something went wrong"),
         status: response.status,

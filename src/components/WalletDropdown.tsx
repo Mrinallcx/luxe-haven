@@ -1,5 +1,4 @@
-import { useBalance } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { useBalance, useChainId } from "wagmi";
 import { Wallet, LogOut, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +8,9 @@ import {
 } from "@/components/ui/popover";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
+import { APP_ENV, REQUIRED_CHAIN_ID, REQUIRED_CHAIN_NAME } from "@/lib/wagmi-config";
+import { SEPOLIA_CONTRACTS, MAINNET_CONTRACTS } from "@/lib/contracts";
+import { getEtherscanUrl } from "@/utils/product-helpers";
 
 // Token icons
 import metamaskIcon from "@/assets/wallet-icons/metamask.svg";
@@ -19,35 +21,46 @@ interface WalletDropdownProps {
   className?: string;
 }
 
-// Token contract addresses on mainnet
-const TOKENS = {
-  LCX: "0x037A54AaB062628C9Bbae1FDB1583c195585fe41" as `0x${string}`,
-  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as `0x${string}`,
+// Get token addresses based on environment
+const getTokenAddresses = () => {
+  if (APP_ENV === 'prod') {
+    return {
+      LCX: MAINNET_CONTRACTS.LCX_TOKEN as `0x${string}`,
+      WETH: MAINNET_CONTRACTS.WETH as `0x${string}`,
+    };
+  }
+  return {
+    LCX: SEPOLIA_CONTRACTS.LCX_TOKEN as `0x${string}`,
+    WETH: SEPOLIA_CONTRACTS.WETH as `0x${string}`,
+  };
 };
 
 const WalletDropdown = ({ className }: WalletDropdownProps) => {
   const { isConnected, walletAddress, walletName, disconnect } = useWallet();
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const chainId = useChainId();
+  
+  const TOKENS = getTokenAddresses();
 
-  // Fetch ETH balance
+  // Fetch ETH balance for current network
   const { data: ethBalance } = useBalance({
     address: walletAddress as `0x${string}`,
-    chainId: mainnet.id,
+    chainId: REQUIRED_CHAIN_ID,
   });
 
-  // Fetch LCX balance
+  // Fetch LCX balance for current network
   const { data: lcxBalance } = useBalance({
     address: walletAddress as `0x${string}`,
     token: TOKENS.LCX,
-    chainId: mainnet.id,
+    chainId: REQUIRED_CHAIN_ID,
   });
 
-  // Fetch WETH balance
+  // Fetch WETH balance for current network
   const { data: wethBalance } = useBalance({
     address: walletAddress as `0x${string}`,
     token: TOKENS.WETH,
-    chainId: mainnet.id,
+    chainId: REQUIRED_CHAIN_ID,
   });
 
   const formatAddress = (address: string) => {
@@ -63,16 +76,20 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
   };
 
   const getWalletIcon = () => {
-    switch (walletName) {
-      case "METAMASK":
-        return metamaskIcon;
-      case "WALLETCONNECT":
-        return walletconnectIcon;
-      case "COINBASE":
-        return coinbaseIcon;
-      default:
-        return metamaskIcon;
+    const name = (walletName || "").toUpperCase();
+    
+    if (name.includes("METAMASK")) {
+      return metamaskIcon;
     }
+    if (name.includes("COINBASE")) {
+      return coinbaseIcon;
+    }
+    if (name.includes("WALLETCONNECT")) {
+      return walletconnectIcon;
+    }
+    
+    // Default fallback
+    return metamaskIcon;
   };
 
   const copyAddress = async () => {
@@ -84,7 +101,7 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
   };
 
   const openEtherscan = () => {
-    const etherscanUrl = import.meta.env.VITE_ETHERSCAN_URL || "https://etherscan.io";
+    const etherscanUrl = getEtherscanUrl();
     window.open(`${etherscanUrl}/address/${walletAddress}`, "_blank");
   };
 
@@ -97,6 +114,9 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
     return null;
   }
 
+  // Check if connected to wrong network
+  const isWrongNetwork = chainId !== REQUIRED_CHAIN_ID;
+
   // Calculate USD values (placeholder - would need price feed)
   const ethUsdPrice = 0; // Would come from a price API
   const lcxUsdPrice = 0;
@@ -105,6 +125,9 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
   const ethUsdValue = ethBalance ? parseFloat(ethBalance.formatted) * ethUsdPrice : 0;
   const lcxUsdValue = lcxBalance ? parseFloat(lcxBalance.formatted) * lcxUsdPrice : 0;
   const wethUsdValue = wethBalance ? parseFloat(wethBalance.formatted) * wethUsdPrice : 0;
+
+  // Network badge text
+  const networkBadge = APP_ENV === 'prod' ? 'Mainnet' : 'Sepolia';
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -163,6 +186,15 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
           </div>
         </div>
 
+        {/* Wrong Network Warning */}
+        {isWrongNetwork && (
+          <div className="p-3 bg-amber-500/10 border-b border-amber-500/20">
+            <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
+              Please switch to {REQUIRED_CHAIN_NAME} to see balances
+            </p>
+          </div>
+        )}
+
         {/* LCX Balance - Highlighted */}
         <div className="p-4 bg-gold/5 border-b border-border">
           <div className="flex items-center gap-3">
@@ -198,7 +230,7 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-foreground">ETH</p>
                   <span className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
-                    Mainnet
+                    {networkBadge}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -221,7 +253,7 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-foreground">WETH</p>
                   <span className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
-                    Mainnet
+                    {networkBadge}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -255,4 +287,3 @@ const WalletDropdown = ({ className }: WalletDropdownProps) => {
 };
 
 export default WalletDropdown;
-

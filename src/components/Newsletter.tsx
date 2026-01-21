@@ -2,19 +2,50 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { newsletterSignup } from "@/lib/market-api";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      toast({
-        title: "Welcome to Toto Finance",
-        description: "Thank you for subscribing to our newsletter.",
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await newsletterSignup({
+        emailId: email,
+        campaign: "",
       });
-      setEmail("");
+
+      if (response.error) {
+        toast.error(response.error || "Failed to subscribe. Please try again.");
+      } else if (response.data) {
+        toast.success("Successfully subscribed to our newsletter!");
+        setEmail("");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Newsletter signup error:", error);
+      toast.error("Failed to subscribe. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,9 +77,23 @@ const Newsletter = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="bg-transparent border-cream/30 text-cream placeholder:text-cream/50 focus:border-gold rounded-none h-12"
               required
+              disabled={isLoading}
             />
-            <Button type="submit" variant="premium-gold" size="lg" className="shrink-0">
-              Subscribe
+            <Button 
+              type="submit" 
+              variant="premium-gold" 
+              size="lg" 
+              className="shrink-0"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Subscribing...
+                </>
+              ) : (
+                "Subscribe"
+              )}
             </Button>
           </form>
 

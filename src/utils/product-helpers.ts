@@ -1,5 +1,26 @@
-// Etherscan URL from environment
-export const ETHERSCAN_URL = import.meta.env.VITE_ETHERSCAN_URL || "https://sepolia.etherscan.io/";
+import { APP_ENV } from "@/lib/wagmi-config";
+
+/**
+ * Get Etherscan URL based on environment
+ * Uses VITE_ETHERSCAN_URL if explicitly set, otherwise uses APP_ENV to determine:
+ * - prod → https://etherscan.io (Mainnet)
+ * - dev → https://sepolia.etherscan.io (Sepolia)
+ */
+export const getEtherscanUrl = (): string => {
+  // If VITE_ETHERSCAN_URL is explicitly set, use it (allows override)
+  const envUrl = import.meta.env.VITE_ETHERSCAN_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl.trim();
+  }
+  
+  // Otherwise, use APP_ENV to determine the correct URL
+  return APP_ENV === 'prod' 
+    ? "https://etherscan.io" 
+    : "https://sepolia.etherscan.io";
+};
+
+// Export for backward compatibility
+export const ETHERSCAN_URL = getEtherscanUrl();
 
 /**
  * Truncate wallet addresses for display
@@ -24,16 +45,18 @@ export const formatTxDate = (timestamp: number) => {
  * Get Etherscan transaction URL
  */
 export const getEtherscanTxUrl = (hash: string) => {
-  const baseUrl = ETHERSCAN_URL.endsWith('/') ? ETHERSCAN_URL : `${ETHERSCAN_URL}/`;
-  return `${baseUrl}tx/${hash}`;
+  const baseUrl = getEtherscanUrl();
+  const cleanUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  return `${cleanUrl}/tx/${hash}`;
 };
 
 /**
  * Get Etherscan address URL
  */
 export const getEtherscanAddressUrl = (address: string) => {
-  const baseUrl = ETHERSCAN_URL.endsWith('/') ? ETHERSCAN_URL : `${ETHERSCAN_URL}/`;
-  return `${baseUrl}address/${address}`;
+  const baseUrl = getEtherscanUrl();
+  const cleanUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  return `${cleanUrl}/address/${address}`;
 };
 
 /**

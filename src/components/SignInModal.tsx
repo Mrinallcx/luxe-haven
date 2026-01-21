@@ -177,6 +177,8 @@ const SignInModal = ({ open, onOpenChange, onSignIn, stayOnPage = true, redirect
       // Store token if returned
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
+        // Store API URL with token to detect environment changes
+        localStorage.setItem("authTokenApiUrl", import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:3000/v1");
       }
 
       // Get user data from response (including blockchainId)
