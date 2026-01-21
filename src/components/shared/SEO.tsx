@@ -53,7 +53,14 @@ const SEO = ({
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:type", type, true);
     if (url) updateMetaTag("og:url", url, true);
-    if (image) updateMetaTag("og:image", image, true);
+    if (image) {
+      updateMetaTag("og:image", image, true);
+      // Add recommended OG image properties for better compatibility
+      updateMetaTag("og:image:secure_url", image, true);
+      updateMetaTag("og:image:type", "image/jpeg", true);
+      // Note: width and height would require image dimensions, which we don't have
+      // Social platforms will fetch and determine these automatically
+    }
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");

@@ -183,13 +183,32 @@ const ProductDetail = () => {
   // Helper function to convert relative image URLs to absolute URLs for OG tags
   const getAbsoluteImageUrl = (imageUrl: string): string => {
     if (!imageUrl) return "";
+    
     // If already absolute URL, return as is
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
       return imageUrl;
     }
+    
+    // Handle data URLs (base64 images) - not ideal for OG tags but handle gracefully
+    if (imageUrl.startsWith("data:")) {
+      console.warn("Product image is a data URL, which may not work well for OG tags:", imageUrl.substring(0, 50));
+      return imageUrl;
+    }
+    
     // Convert relative URL to absolute
     const origin = window.location.origin;
-    return imageUrl.startsWith("/") ? `${origin}${imageUrl}` : `${origin}/${imageUrl}`;
+    
+    // Handle Vite-processed imports
+    // Vite processes imports and they typically become paths starting with /
+    // Examples: "/src/assets/image.webp" or "/assets/image-abc123.webp"
+    if (imageUrl.startsWith("/")) {
+      // Remove /src prefix if present (Vite might add this in dev)
+      const cleanPath = imageUrl.replace(/^\/src/, "");
+      return `${origin}${cleanPath}`;
+    }
+    
+    // Handle paths without leading slash
+    return `${origin}/${imageUrl}`;
   };
 
   // Generate product description for SEO
@@ -197,6 +216,42 @@ const ProductDetail = () => {
 
   // Get absolute image URL for OG tags
   const ogImageUrl = getAbsoluteImageUrl(product.image);
+  
+  // Debug: Log the image URL and verify it's accessible
+  useEffect(() => {
+    if (product && ogImageUrl) {
+      console.log("=== OG Tags Debug Info ===");
+      console.log("Product Name:", product.name);
+      console.log("Original Product Image:", product.image);
+      console.log("OG Image URL:", ogImageUrl);
+      console.log("Current URL:", currentUrl);
+      
+      // Verify the image is accessible
+      if (ogImageUrl && !ogImageUrl.startsWith("data:")) {
+        const img = new Image();
+        img.onload = () => {
+          console.log("✅ OG Image is accessible and loaded successfully");
+          console.log("Image dimensions:", img.width, "x", img.height);
+        };
+        img.onerror = () => {
+          console.error("❌ OG Image failed to load:", ogImageUrl);
+          console.error("This image URL may not be accessible to social media crawlers");
+        };
+        img.src = ogImageUrl;
+      }
+      
+      // Log the actual meta tags
+      setTimeout(() => {
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        console.log("Actual OG Tags in DOM:");
+        console.log("og:image:", ogImage?.getAttribute("content"));
+        console.log("og:title:", ogTitle?.getAttribute("content"));
+        console.log("og:description:", ogDesc?.getAttribute("content"));
+      }, 100);
+    }
+  }, [product, ogImageUrl, currentUrl]);
 
   return (
     <div className="min-h-screen bg-background">
