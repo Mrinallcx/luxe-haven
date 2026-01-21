@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const slides = [
     description: "Toto Finance is an asset-backed tokenization platform that provides digital infrastructure for tokenized commodities, enabling instant settlement and compliant global trade across metals, energy, and real-world assets.",
     primaryCta: "Explore Assets",
     secondaryCta: "Learn More",
+    link: "/category/gold",
   },
   {
     id: 2,
@@ -26,6 +28,7 @@ const slides = [
     description: "Invest in digital silver with real-time pricing and secure transactions. Experience the elegance of precious metals.",
     primaryCta: "Start Investing",
     secondaryCta: "Learn More",
+    link: "/category/silver",
   },
   {
     id: 3,
@@ -35,6 +38,7 @@ const slides = [
     description: "Explore our latest collection of handcrafted platinum jewelry and precious metal investments.",
     primaryCta: "View Collection",
     secondaryCta: "Discover",
+    link: "/category/platinum",
   },
   {
     id: 4,
@@ -44,11 +48,13 @@ const slides = [
     description: "Discover the eternal beauty of diamonds. Each stone is certified, tokenized, and secured in our vaults for your peace of mind.",
     primaryCta: "Explore Diamonds",
     secondaryCta: "Learn More",
+    link: "/category/diamonds",
   },
 ];
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -131,7 +137,11 @@ const Hero = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-wrap gap-4"
               >
-                <Button variant="premium-light" size="xl">
+                <Button 
+                  variant="premium-light" 
+                  size="xl"
+                  onClick={() => navigate(slide.link)}
+                >
                   {slide.primaryCta}
                 </Button>
               </motion.div>
