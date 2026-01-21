@@ -253,7 +253,7 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageSEO.Category name={categoryTitle} />
+      <PageSEO.Category name={categoryTitle} url={categoryName ? `${window.location.origin}/category/${categoryName}` : undefined} />
       <Header />
       <main className="pt-16 lg:pt-20">
         {/* Hero Banner */}

@@ -19,6 +19,7 @@ import ClaimTotoModal from "@/components/ClaimTotoModal";
 import totoAccountBanner from "@/assets/toto account banner.webp";
 import userAvatar from "@/assets/user avatar.webp";
 import { getUserOwnedAssets, getUserActiveBids, normalizeUserAsset, UserOwnedAsset, getReferralRewards, calculateTotoValues } from "@/lib/market-api";
+import { PageSEO } from "@/components/shared/SEO";
 
 // Mock user data
 const userData = {
@@ -224,6 +225,7 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageSEO.Account />
       <Header />
 
       {/* Banner & Profile Section */}

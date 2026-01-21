@@ -10,6 +10,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductName from "@/components/ProductName";
 import SignInModal from "@/components/SignInModal";
+import { PageSEO } from "@/components/shared/SEO";
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
@@ -19,6 +20,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background">
+        <PageSEO.Cart />
         <Header />
         <main className="container mx-auto px-4 lg:px-8 pt-32 pb-20 max-w-[1400px]">
           <div className="text-center py-20">
@@ -45,6 +47,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageSEO.Cart />
       <Header />
       
       <main className="container mx-auto px-4 lg:px-8 pt-32 pb-20 max-w-[1400px]">

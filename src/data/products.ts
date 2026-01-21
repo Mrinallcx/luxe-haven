@@ -1,7 +1,3 @@
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
 import diamondProduct from "@/assets/diamond-product.webp";
 import goldProduct from "@/assets/gold-product.webp";
 import silverProduct from "@/assets/silver-product.webp";
@@ -27,8 +23,6 @@ export interface Product {
   listingPrice?: number;
   isSoldOut?: boolean;
 }
-
-const images = [product1, product2, product3, product4];
 
 // Generate 30 products per category
 const generateProducts = (): Product[] => {

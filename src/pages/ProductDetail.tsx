@@ -14,8 +14,8 @@ import PlaceBidModal from "@/components/PlaceBidModal";
 import ProductName from "@/components/ProductName";
 import { getMarketDetails, normalizeMarketDetails, getProductActivity, ActivityItem, getTiamondDetails, TiamondDetails } from "@/lib/market-api";
 import { ProductTabs, TransactionHistory, RelatedProducts } from "@/components/product";
-import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl, normalizeImageUrl } from "@/utils/product-helpers";
-import SEO from "@/components/shared/SEO";
+import { getCategoryInfoBox, getInitialOffers, truncateAddress, getEtherscanAddressUrl } from "@/utils/product-helpers";
+import { PageSEO } from "@/components/shared/SEO";
 
 // Extended product type that supports both static and API products
 type ExtendedProduct = Product & { 
@@ -180,41 +180,16 @@ const ProductDetail = () => {
   const categoryLabel = product.category.charAt(0).toUpperCase() + product.category.slice(1);
   const categoryInfo = getCategoryInfoBox(product.category);
 
-  // Generate product description for SEO
-  const productDescription = `${product.name} - Premium ${categoryLabel} available at Toto Finance. ${product.purity} purity, ${product.weight} weight. Price: $${product.price.toLocaleString()}. Certified quality with authenticity guarantee.`;
-
-  // Get normalized image URL for OG tags (handles S3 URLs with URL-encoded characters like + and %23)
-  const ogImageUrl = normalizeImageUrl(product.image);
-  
-  // Debug: Log OG tags in development and verify image URL
-  if (process.env.NODE_ENV === "development") {
-    if (ogImageUrl) {
-      console.log("📸 OG Tags for product:", {
-        title: product.name,
-        description: productDescription.substring(0, 100) + "...",
-        image: ogImageUrl,
-        url: currentUrl,
-      });
-      
-      // Verify the image URL format
-      if (!ogImageUrl.startsWith("http")) {
-        console.warn("⚠️ OG Image URL is not absolute:", ogImageUrl);
-      } else {
-        console.log("✅ OG Image URL is absolute and should work for social sharing");
-      }
-    } else {
-      console.warn("⚠️ No OG Image URL available for product:", product.name);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <SEO
-        title={product.name}
-        description={productDescription}
-        image={ogImageUrl}
-        url={currentUrl}
-        type="product"
+      <PageSEO.Product 
+        name={product.name}
+        price={product.price}
+        category={categoryLabel}
+        image={product.image}
+        url={window.location.href}
+        productId={productId}
+        categoryUrl={`${window.location.origin}/category/${product.category}`}
       />
       <Header />
       
